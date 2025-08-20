@@ -1,0 +1,6 @@
+C:\Users\ayhan\source\repos\Erkurt\ErkurtHolding.IMES.Romania.OperatorPanel\ErkurtHolding.IMES.Romania.Business\bin\Debug\ErkurtHolding.IMES.Romania.Business.dll
+C:\Users\ayhan\source\repos\Erkurt\ErkurtHolding.IMES.Romania.OperatorPanel\ErkurtHolding.IMES.Romania.Business\bin\Debug\ErkurtHolding.IMES.Romania.Business.pdb
+C:\Users\ayhan\source\repos\Erkurt\ErkurtHolding.IMES.Romania.OperatorPanel\ErkurtHolding.IMES.Romania.Business\obj\Debug\ErkurtHolding.IMES.Romania.Business.csproj.AssemblyReference.cache
+C:\Users\ayhan\source\repos\Erkurt\ErkurtHolding.IMES.Romania.OperatorPanel\ErkurtHolding.IMES.Romania.Business\obj\Debug\ErkurtHolding.IMES.Romania.Business.csproj.CoreCompileInputs.cache
+C:\Users\ayhan\source\repos\Erkurt\ErkurtHolding.IMES.Romania.OperatorPanel\ErkurtHolding.IMES.Romania.Business\obj\Debug\ErkurtHolding.IMES.Romania.Business.dll
+C:\Users\ayhan\source\repos\Erkurt\ErkurtHolding.IMES.Romania.OperatorPanel\ErkurtHolding.IMES.Romania.Business\obj\Debug\ErkurtHolding.IMES.Romania.Business.pdb

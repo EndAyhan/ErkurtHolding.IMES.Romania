@@ -1,0 +1,212 @@
+{
+  "error": {
+    "invalid_input": "Invalid input.",
+    "not_found": "Item not found: {id}",
+    "unhandled": "Unexpected error."
+  },
+  "info": {
+    "saved": "Saved successfully."
+  },
+  "label": {
+    "total_count": "{count} item(s)"
+  },
+  "order": {
+    "status": {
+      "pending": "Pending",
+      "approved": "Approved",
+      "rejected": "Rejected"
+    }
+  },
+  "enums": {
+    "call_state": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low",
+      "unknown": "Unknown"
+    },
+    "call_status": {
+      "waiting": "Waiting",
+      "inprogress": "In progress",
+      "delivered": "Delivered",
+      "completed": "Completed",
+      "unknown": "Unknown"
+    },
+    "container_control": {
+      "machine_down": "Machine Down",
+      "machine_down_duration": "Machine Down Duration",
+      "machine_down_stop": "Machine Down Stop",
+      "machine_down_maintenance_start": "Machine Down Maintenance Start",
+      "pr_maintenance": "Preventive Maintenance",
+      "pr_maintenance_duration": "Preventive Maintenance Duration",
+      "pr_maintenance_start": "Preventive Maintenance Start",
+      "pr_maintenance_finish": "Preventive Maintenance Finish",
+      "interruption_cause": "Interruption Cause",
+      "interruption_cause_duration": "Interruption Cause Duration",
+      "setup_checklist": "Setup Checklist",
+      "user_login": "User Login",
+      "user_logout": "User Logout",
+      "box_barcode": "Box Barcode",
+      "questionable_product": "Questionable Product",
+      "process_box_barcode": "Process Box Barcode",
+      "general_read_result": "General Read Result",
+      "shift_book": "Shift Book",
+      "machine_auto_maintenance_checklist": "Machine Auto Maintenance Checklist",
+      "yellow_card": "Yellow Card",
+      "unknown": "Unknown Control"
+    },
+    "counter_read": {
+      "plc": "PLC",
+      "barcode_plc": "Barcode First, Then PLC Counter",
+      "manual": "Manual Quantity Entry",
+      "button_and_barcode": "Button and Barcode Read",
+      "plc_barcode": "PLC Counter First, Then Barcode",
+      "supplier_park": "Supplier Park",
+      "unknown": "Unknown Counter Read Type"
+    },
+    "interruption_cause_options": {
+      "start": "Start Interruption",
+      "end": "End Interruption",
+      "default": "Default",
+      "waiting": "Waiting",
+      "auto_maintenance": "Autonomous Maintenance",
+      "unknown": "Unknown Option"
+    },
+    "machine_down_time_button_status": {
+      "start": "Start Fault",
+      "intervention_start": "Start Intervention",
+      "waiting": "Waiting",
+      "intervention_stop": "Stop Intervention",
+      "quality_approved": "Quality Approval",
+      "end": "End Fault",
+      "cancel": "Cancel",
+      "unknown": "Unknown Status"
+    },
+    "machine_opc_data_type": {
+      "square_meters_counter": "Square Meters Counter",
+      "handshake": "Handshake",
+      "plc_run_mode_parameter": "PLC Run Mode Parameter",
+      "poka_yoke": "Poka-Yoke",
+      "machine_program_node_id": "Recipe Number",
+      "unknown": "Unknown OPC Data Type"
+    },
+    "machine_state_color": {
+      "run": "Running",
+      "machine_down": "Machine Down",
+      "fault": "Fault",
+      "setup": "Setup",
+      "shop_order_waiting": "Shop Order Waiting",
+      "unknown": "Unknown Machine State"
+    },
+    "person_login_type": {
+      "shop_order_supervisor_login": "Shop Order Supervisor Login",
+      "shop_order_personel_login": "Shop Order Personnel Login",
+      "shop_order_personel_logout": "Shop Order Personnel Logout",
+      "unknown": "Unknown Login Type"
+    },
+    "print_log_type": {
+      "handling_unit": "Handling Unit",
+      "production_detail": "Production Detail",
+      "scrap": "Scrap",
+      "process_handling_unit": "Process Handling Unit",
+      "unknown": "Unknown Print Log Type"
+    },
+    "pr_maintenance_button_status": {
+      "start": "Start PM",
+      "intervention_start": "Start Intervention",
+      "intervention_stop": "Stop Intervention",
+      "end": "End PM",
+      "finish_maintenance": "Finish Maintenance",
+      "unknown": "Unknown Status"
+    },
+    "production_label_type": {
+      "product": "Product Label",
+      "process": "Process Label",
+      "box": "Box Label",
+      "inkjet_process": "Inkjet Process",
+      "unknown": "Unknown Label Type"
+    },
+    "production_state": {
+      "ok": "OK",
+      "not_ok": "Not OK",
+      "questionable": "Questionable",
+      "unknown": "Unknown State"
+    },
+    "production_state_id": {
+      "ok": "OK",
+      "suspect": "Suspect",
+      "scrap": "Scrap",
+      "quality_ok": "Quality OK",
+      "unknown": "Unknown State"
+    },
+    "report_print_type": {
+      "view": "View",
+      "designer": "Designer",
+      "print": "Print",
+      "unknown": "Unknown Mode"
+    },
+    "shop_order_status": {
+      "start": "Start Shop Order",
+      "end": "End Shop Order",
+      "start_production": "Start Production",
+      "unknown": "Unknown Status"
+    },
+    "special_code_counter_unit": {
+      "square_meter": "Square Meter",
+      "unknown": "Unknown Unit"
+    },
+    "special_code_type": {
+      "machine_type": "Machine Type",
+      "category": "Category",
+      "brand": "Brand",
+      "model": "Model",
+      "type": "Type",
+      "group_code": "Group Code",
+      "unit": "Unit",
+      "state": "State",
+      "file_type": "File Type",
+      "counter_unit": "Counter Unit",
+      "counter_type": "Counter Type",
+      "action": "Action",
+      "machine_category": "Machine Category",
+      "operator_type": "Operator Type",
+      "machine_state": "Machine State",
+      "data_type": "Data Type",
+      "opc_data_read_type": "OPC Data Read Type",
+      "machine_opc_data_type": "Machine OPC Data Type",
+      "production_state_type": "Production State Type",
+      "label_type": "Label Type",
+      "printer": "Printer",
+      "call_type": "Call Type",
+      "data_read_parameter": "Production Data Read Parameter",
+      "automatic_label_type": "Automatic Label Type",
+      "autonomous_maintenance": "Autonomous Maintenance",
+      "language": "Language",
+      "unknown": "Unknown Special Code Type"
+    },
+    "units": {
+      "ad": "pcs",
+      "m2": "m²",
+      "kg": "kg",
+      "unknown": "Unknown Unit"
+    },
+    "user_login_authorization": {
+      "no_authorization": "No authorization check",
+      "personnel_level": "Personnel level > 2",
+      "start_work_order": "Start Work Order",
+      "maintenance_user": "Maintenance User",
+      "quality_user": "Quality User",
+      "manual_label": "Manual Label User",
+      "inventory_transfer_user": "Inventory Transfer User",
+      "unknown": "Unknown Authorization"
+    },
+    "resource_working_status": {
+      "working": "Working",
+      "waiting": "Waiting",
+      "setup": "Setup",
+      "interruption": "Interruption",
+      "fault": "Fault",
+      "maintenance": "Maintenance",
+      "unknown": "Unknown Status"
+    }
+  }
+}
