@@ -16,8 +16,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
         {
             InitializeComponent();
 
-            var t = new JsonText();
-            FormLocalizer.Localize(this, t);
+            FormLocalizer.Localize(this);
 
             var prm = _partHandlingUnits[0].PartNo.CreateParameters("@PartNo");
             this.Text = ToolsMessageBox.ReplaceParameters("@PartNo İÇİN TAŞIMA KASASI SEÇİM EKRANI", prm);

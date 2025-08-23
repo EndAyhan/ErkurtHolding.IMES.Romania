@@ -27,10 +27,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
 
     public static class ProductionStateTextExtensions
     {
-        public static string ToText(this ProductionState s, IText t)
+        public static string ToText(this ProductionState s)
         {
-            if (t == null) throw new ArgumentNullException(nameof(t));
-            return t[ProductionStateTextKey.Key(s)];
+            return StaticValues.T[ProductionStateTextKey.Key(s)];
         }
     }
 }

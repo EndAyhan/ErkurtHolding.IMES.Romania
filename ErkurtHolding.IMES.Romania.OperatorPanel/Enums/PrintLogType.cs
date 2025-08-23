@@ -29,10 +29,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
 
     public static class PrintLogTypeTextExtensions
     {
-        public static string ToText(this PrintLogType type, IText t)
+        public static string ToText(this PrintLogType type)
         {
-            if (t == null) throw new ArgumentNullException(nameof(t));
-            return t[PrintLogTypeTextKey.Key(type)];
+            return StaticValues.T[PrintLogTypeTextKey.Key(type)];
         }
     }
 }

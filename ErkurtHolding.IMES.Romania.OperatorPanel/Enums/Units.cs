@@ -27,10 +27,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
 
     public static class UnitsTextExtensions
     {
-        public static string ToText(this Units u, IText t)
+        public static string ToText(this Units u)
         {
-            if (t == null) throw new ArgumentNullException(nameof(t));
-            return t[UnitsTextKey.Key(u)];
+            return StaticValues.T[UnitsTextKey.Key(u)];
         }
     }
 }

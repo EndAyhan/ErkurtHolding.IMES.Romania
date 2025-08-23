@@ -12,8 +12,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms.Helpers
         {
             InitializeComponent();
 
-            var t = new JsonText();
-            FormLocalizer.Localize(this, t);
+            FormLocalizer.Localize(this);
 
             txtRessource.Text = ressource;
             txtOrder.Text = order;

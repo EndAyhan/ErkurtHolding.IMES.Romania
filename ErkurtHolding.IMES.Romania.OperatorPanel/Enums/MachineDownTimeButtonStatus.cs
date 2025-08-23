@@ -43,10 +43,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
     /// </summary>
     public static class MachineDownTimeButtonStatusTextExtensions
     {
-        public static string ToText(this MachineDownTimeButtonStatus status, IText t)
+        public static string ToText(this MachineDownTimeButtonStatus status)
         {
-            if (t == null) throw new ArgumentNullException(nameof(t));
-            return t[MachineDownTimeButtonStatusTextKey.Key(status)];
+            return StaticValues.T[MachineDownTimeButtonStatusTextKey.Key(status)];
         }
     }
 }

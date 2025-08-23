@@ -42,10 +42,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
     /// </summary>
     public static class CounterReadTypeTextExtensions
     {
-        public static string ToText(this CounterReadType type, IText t)
+        public static string ToText(this CounterReadType type)
         {
-            if (t == null) throw new ArgumentNullException("t");
-            return t[CounterReadTypeTextKey.Key(type)];
+            return StaticValues.T[CounterReadTypeTextKey.Key(type)];
         }
     }
 }

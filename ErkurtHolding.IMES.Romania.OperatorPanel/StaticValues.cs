@@ -26,6 +26,11 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
         public static string SubcontractorWorkcenterId { get => ConfigurationManager.AppSettings["subcontractor_workcenter_id"]; }
         public static string SubcontractorResourceId { get => ConfigurationManager.AppSettings["subcontractor_resource_id"]; }
 
+        private static readonly JsonText _t = new JsonText();
+        /// <summary>
+        /// Global access to the localization dictionary.
+        /// </summary>
+        public static JsonText T => _t;
 
         public static bool Restart { get; set; } = true;
 
@@ -60,8 +65,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
             {
                 if (_specialCodePrintLogTypeScrap == null)
                 {
-                    var t = new JsonText();
-                    _specialCodePrintLogTypeScrap = SpecialCodeManager.Current.GetSpecialCodeByName(PrintLogType.Scrap.ToText(t), (int)SpecialCodeType.Type);
+                    _specialCodePrintLogTypeScrap = SpecialCodeManager.Current.GetSpecialCodeByName(PrintLogType.Scrap.ToText(), (int)SpecialCodeType.Type);
                 }
                 return _specialCodePrintLogTypeScrap;
             }
@@ -74,8 +78,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
             {
                 if (_specialCodePrintLogTypeProductiongDetail == null)
                 {
-                    var t = new JsonText();
-                    _specialCodePrintLogTypeProductiongDetail = SpecialCodeManager.Current.GetSpecialCodeByName(PrintLogType.ProductiongDetail.ToText(t), (int)SpecialCodeType.Type);
+                    _specialCodePrintLogTypeProductiongDetail = SpecialCodeManager.Current.GetSpecialCodeByName(PrintLogType.ProductiongDetail.ToText(), (int)SpecialCodeType.Type);
                 }
                 return _specialCodePrintLogTypeProductiongDetail;
             }
@@ -88,8 +91,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
             {
                 if (_specialCodePrintLogTypeHandlingUnit == null)
                 {
-                    var t = new JsonText();
-                    _specialCodePrintLogTypeHandlingUnit = SpecialCodeManager.Current.GetSpecialCodeByName(PrintLogType.HandlingUnit.ToText(t), (int)SpecialCodeType.Type);
+                    _specialCodePrintLogTypeHandlingUnit = SpecialCodeManager.Current.GetSpecialCodeByName(PrintLogType.HandlingUnit.ToText(), (int)SpecialCodeType.Type);
                 }
                 return _specialCodePrintLogTypeHandlingUnit;
             }
@@ -102,8 +104,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
             {
                 if (_specialCodePrintLogTypeProsesHandlingUnit == null)
                 {
-                    var t = new JsonText();
-                    _specialCodePrintLogTypeProsesHandlingUnit = SpecialCodeManager.Current.GetSpecialCodeByName(PrintLogType.ProsesHandlingUnit.ToText(t), (int)SpecialCodeType.Type);
+                    _specialCodePrintLogTypeProsesHandlingUnit = SpecialCodeManager.Current.GetSpecialCodeByName(PrintLogType.ProsesHandlingUnit.ToText(), (int)SpecialCodeType.Type);
                 }
                 return _specialCodePrintLogTypeProsesHandlingUnit;
             }
@@ -116,8 +117,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
             {
                 if (_specialCodeCounterReadTypeButtonAndReadBarcode == null)
                 {
-                    var t = new JsonText();
-                    _specialCodeCounterReadTypeButtonAndReadBarcode = SpecialCodeManager.Current.GetSpecialCodeByName(CounterReadType.BUTTONANDREADBARCODE.ToText(t), 23);
+                    _specialCodeCounterReadTypeButtonAndReadBarcode = SpecialCodeManager.Current.GetSpecialCodeByName(CounterReadType.BUTTONANDREADBARCODE.ToText(), 23);
                 }
                 return _specialCodeCounterReadTypeButtonAndReadBarcode;
             }
@@ -130,8 +130,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
             {
                 if (_specialCodeCounterReadTypeSupplierPark == null)
                 {
-                    var t = new JsonText();
-                    _specialCodeCounterReadTypeSupplierPark = SpecialCodeManager.Current.GetSpecialCodeByName(CounterReadType.SUPPLIERPARK.ToText(t), 23);
+                    _specialCodeCounterReadTypeSupplierPark = SpecialCodeManager.Current.GetSpecialCodeByName(CounterReadType.SUPPLIERPARK.ToText(), 23);
                 }
                 return _specialCodeCounterReadTypeSupplierPark;
             }
@@ -144,8 +143,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
             {
                 if (_specialCodeCounterReadTypePlcBarcode == null)
                 {
-                    var t = new JsonText();
-                    _specialCodeCounterReadTypePlcBarcode = SpecialCodeManager.Current.GetSpecialCodeByName(CounterReadType.PLCBARCODE.ToText(t), 23);
+                    _specialCodeCounterReadTypePlcBarcode = SpecialCodeManager.Current.GetSpecialCodeByName(CounterReadType.PLCBARCODE.ToText(), 23);
                 }
                 return _specialCodeCounterReadTypePlcBarcode;
             }
@@ -158,8 +156,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
             {
                 if (_specialCodeProductTypeProcess == null)
                 {
-                    var t = new JsonText();
-                    _specialCodeProductTypeProcess = SpecialCodeManager.Current.GetSpecialCodeByName(ProductionLabelType.Process.ToText(t), (int)SpecialCodeType.LabelType);
+                    _specialCodeProductTypeProcess = SpecialCodeManager.Current.GetSpecialCodeByName(ProductionLabelType.Process.ToText(), (int)SpecialCodeType.LabelType);
                 }
                 return _specialCodeProductTypeProcess;
             }
@@ -173,8 +170,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
             {
                 if (_specialCodeProductTypeProduct == null)
                 {
-                    var t = new JsonText();
-                    _specialCodeProductTypeProduct = SpecialCodeManager.Current.GetSpecialCodeByName(ProductionLabelType.Product.ToText(t), (int)SpecialCodeType.LabelType);
+                    _specialCodeProductTypeProduct = SpecialCodeManager.Current.GetSpecialCodeByName(ProductionLabelType.Product.ToText(), (int)SpecialCodeType.LabelType);
                 }
                 return _specialCodeProductTypeProduct;
             }
@@ -188,8 +184,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
             {
                 if (_specialCodeProductTypeBox == null)
                 {
-                    var t = new JsonText();
-                    _specialCodeProductTypeBox = SpecialCodeManager.Current.GetSpecialCodeByName(ProductionLabelType.Box.ToText(t), (int)SpecialCodeType.LabelType);
+                    _specialCodeProductTypeBox = SpecialCodeManager.Current.GetSpecialCodeByName(ProductionLabelType.Box.ToText(), (int)SpecialCodeType.LabelType);
                 }
                 return _specialCodeProductTypeBox;
             }
@@ -202,8 +197,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
             {
                 if (_specialCodeProductTypeInkjetProcess == null)
                 {
-                    var t = new JsonText();
-                    _specialCodeProductTypeInkjetProcess = SpecialCodeManager.Current.GetSpecialCodeByName(ProductionLabelType.InkjetProcess.ToText(t), (int)SpecialCodeType.LabelType);
+                    _specialCodeProductTypeInkjetProcess = SpecialCodeManager.Current.GetSpecialCodeByName(ProductionLabelType.InkjetProcess.ToText(), (int)SpecialCodeType.LabelType);
                 }
                 return _specialCodeProductTypeInkjetProcess;
             }
@@ -217,8 +211,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
             {
                 if (_specialCodeCounterReadTypePLC == null)
                 {
-                    var t = new JsonText();
-                    _specialCodeCounterReadTypePLC = SpecialCodeManager.Current.GetSpecialCodeByName(CounterReadType.PLC.ToText(t), 23);
+                    _specialCodeCounterReadTypePLC = SpecialCodeManager.Current.GetSpecialCodeByName(CounterReadType.PLC.ToText(), 23);
                 }
                 return _specialCodeCounterReadTypePLC;
             }
@@ -231,8 +224,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
             {
                 if (_specialCodeCounterReadTypeBarocodePlc == null)
                 {
-                    var t = new JsonText();
-                    _specialCodeCounterReadTypeBarocodePlc = SpecialCodeManager.Current.GetSpecialCodeByName(CounterReadType.BARCODEPLC.ToText(t), 23);
+                    _specialCodeCounterReadTypeBarocodePlc = SpecialCodeManager.Current.GetSpecialCodeByName(CounterReadType.BARCODEPLC.ToText(), 23);
                 }
                 return _specialCodeCounterReadTypeBarocodePlc;
             }
@@ -246,8 +238,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
             {
                 if (_specialCodeMachineOPCDataTypePlcRunModeParameter == null)
                 {
-                    var t = new JsonText();
-                    _specialCodeMachineOPCDataTypePlcRunModeParameter = SpecialCodeManager.Current.GetSpecialCodeByName(MachineOPCDataType.PlcRunModeParameter.ToText(t), (byte)SpecialCodeType.MachineOPCDataType);
+                    _specialCodeMachineOPCDataTypePlcRunModeParameter = SpecialCodeManager.Current.GetSpecialCodeByName(MachineOPCDataType.PlcRunModeParameter.ToText(), (byte)SpecialCodeType.MachineOPCDataType);
                 }
                 return _specialCodeMachineOPCDataTypePlcRunModeParameter;
             }
@@ -260,8 +251,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
             {
                 if (_specialCodeMachineOPCDataTypePokaYoke == null)
                 {
-                    var t = new JsonText();
-                    _specialCodeMachineOPCDataTypePokaYoke = SpecialCodeManager.Current.GetSpecialCodeByName(MachineOPCDataType.PokaYoke.ToText(t), (byte)SpecialCodeType.MachineOPCDataType);
+                    _specialCodeMachineOPCDataTypePokaYoke = SpecialCodeManager.Current.GetSpecialCodeByName(MachineOPCDataType.PokaYoke.ToText(), (byte)SpecialCodeType.MachineOPCDataType);
                 }
                 return _specialCodeMachineOPCDataTypePokaYoke;
             }
@@ -274,8 +264,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
             {
                 if (_specialCodeMachineOPCDataTypeProgramNodeId == null)
                 {
-                    var t = new JsonText();
-                    _specialCodeMachineOPCDataTypeProgramNodeId = SpecialCodeManager.Current.GetSpecialCodeByName(MachineOPCDataType.MachineProgramNodeId.ToText(t), (byte)SpecialCodeType.MachineOPCDataType);
+                    _specialCodeMachineOPCDataTypeProgramNodeId = SpecialCodeManager.Current.GetSpecialCodeByName(MachineOPCDataType.MachineProgramNodeId.ToText(), (byte)SpecialCodeType.MachineOPCDataType);
                 }
                 return _specialCodeMachineOPCDataTypeProgramNodeId;
             }
@@ -333,8 +322,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
             {
                 if (SpecialCodeScrap == null)
                 {
-                    var t = new JsonText();
-                    SpecialCodeScrap = SpecialCodeManager.Current.GetSpecialCodeByName(ProductionStateId.Scrap.ToText(t), 19);
+                    SpecialCodeScrap = SpecialCodeManager.Current.GetSpecialCodeByName(ProductionStateId.Scrap.ToText(), 19);
                 }
                 return SpecialCodeScrap;
             }
@@ -349,8 +337,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
             {
                 if (SpecialCodeOk == null)
                 {
-                    var t = new JsonText();
-                    SpecialCodeOk = SpecialCodeManager.Current.GetSpecialCodeByName(ProductionStateId.OK.ToText(t), 19);
+                    SpecialCodeOk = SpecialCodeManager.Current.GetSpecialCodeByName(ProductionStateId.OK.ToText(), 19);
                 }
                 return SpecialCodeOk;
             }
@@ -365,8 +352,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
             {
                 if (SpecialCodeNotOk == null)
                 {
-                    var t = new JsonText();
-                    SpecialCodeNotOk = SpecialCodeManager.Current.GetSpecialCodeByName(ProductionStateId.NotOk.ToText(t), 19);
+                    SpecialCodeNotOk = SpecialCodeManager.Current.GetSpecialCodeByName(ProductionStateId.NotOk.ToText(), 19);
                 }
                 return SpecialCodeNotOk;
             }
@@ -381,8 +367,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
             {
                 if (SpecialCodeQualityOk == null)
                 {
-                    var t = new JsonText();
-                    SpecialCodeQualityOk = SpecialCodeManager.Current.GetSpecialCodeByName(ProductionStateId.QUALITYOK.ToText(t), 19);
+                    SpecialCodeQualityOk = SpecialCodeManager.Current.GetSpecialCodeByName(ProductionStateId.QUALITYOK.ToText(), 19);
                 }
                 return SpecialCodeQualityOk;
             }
@@ -429,8 +414,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
             {
                 if (SpecialCodeUnitSquareMeter == null)
                 {
-                    var t = new JsonText();
-                    SpecialCodeUnitSquareMeter = SpecialCodeManager.Current.GetSpecialCodeByName(SpecialCodeCounterUnit.squareMeter.ToText(t), 10);
+                    SpecialCodeUnitSquareMeter = SpecialCodeManager.Current.GetSpecialCodeByName(SpecialCodeCounterUnit.squareMeter.ToText(), 10);
                 }
                 return SpecialCodeUnitSquareMeter;
             }

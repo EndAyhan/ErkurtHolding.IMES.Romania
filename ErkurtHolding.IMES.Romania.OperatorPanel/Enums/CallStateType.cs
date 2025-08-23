@@ -39,17 +39,16 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
     }
 
     /// <summary>
-    /// Convenience helpers to render <see cref="CallStateType"/> with an <see cref="IText"/> provider.
+    /// Convenience helpers to render <see cref="CallStateType"/>.
     /// </summary>
     public static class CallStateTypeTextExtensions
     {
         /// <summary>
         /// Gets the localized text for the given <see cref="CallStateType"/>.
         /// </summary>
-        public static string ToText(this CallStateType state, IText t)
+        public static string ToText(this CallStateType state)
         {
-            if (t == null) throw new ArgumentNullException("t");
-            return t[CallStateTypeTextKey.Key(state)];
+            return StaticValues.T[CallStateTypeTextKey.Key(state)];
         }
     }
 }

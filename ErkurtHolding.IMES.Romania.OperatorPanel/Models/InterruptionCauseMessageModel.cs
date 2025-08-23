@@ -2,6 +2,10 @@
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.Models
 {
+    /// <summary>
+    /// Message payload for interruption / downtime notifications (Kafka, email, push).
+    /// </summary>
+    [Serializable]
     public class InterruptionCauseMessageModel
     {
         public DateTime CreatedAt { get; set; }
@@ -14,15 +18,20 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Models
         public string BranchName { get; set; }
         public string ProductionDepartmentName { get; set; }
         public string GroupName { get; set; }
+
         public Guid CauseID { get; set; }
         public Guid BranchID { get; set; }
         public Guid GroupID { get; set; }
         public Guid InterruptionCauseID { get; set; }
+
+        /// <summary>Kafka topic name (sanitized).</summary>
         public string TopicName { get; set; }
+
         public Guid UserId { get; set; }
         public bool SmsSend { get; set; }
         public bool MailSend { get; set; }
         public bool MobileSend { get; set; }
+
         public string Email { get; set; }
         public string FcmToken { get; set; }
     }

@@ -10,20 +10,36 @@ using ErkurtHolding.IMES.Romania.OperatorPanel.Forms.Main;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
 {
+    /// <summary>
+    /// Central MDI utilities:
+    /// - Tracks open operator forms and the active one
+    /// - Wires DevExpress <see cref="XtraTabbedMdiManager"/> events
+    /// - Exposes helpers to open/activate forms and toggle tab images (interruption icon)
+    /// </summary>
     public static class ToolsMdiManager
     {
-        // --- State ---
+        // ---------------- State ----------------
+
+        /// <summary>All open operator forms (PANEL work centers).</summary>
         public static List<FrmOperator> frmOperators { get; set; } = new List<FrmOperator>();
+
+        /// <summary>The currently active operator form (when WorkCenterType == PANEL).</summary>
         public static FrmOperator frmOperatorActive { get; set; }
+
+        /// <summary>The currently active "Fill Box" form (when WorkCenterType == FILLBOX).</summary>
         public static FrmFillHandlingUnit frmFillBoxActive { get; set; }
 
         private static XtraTabbedMdiManager _mdiManager;
+
+        /// <summary>
+        /// The shared DevExpress MDI manager. When set, event handlers are (re)attached safely.
+        /// </summary>
         public static XtraTabbedMdiManager mdiManager
         {
-            get => _mdiManager;
+            get { return _mdiManager; }
             set
             {
-                // detach old handlers to avoid double-subscribe
+                // Detach old handlers (avoid double subscription)
                 if (_mdiManager != null)
                 {
                     _mdiManager.PageAdded -= _mdiManager_PageAdded;
@@ -34,6 +50,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
 
                 _mdiManager = value;
 
+                // Attach new handlers
                 if (_mdiManager != null)
                 {
                     _mdiManager.PageAdded += _mdiManager_PageAdded;
@@ -45,108 +62,145 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
         }
 
         private static RibbonControl _ribbonControl;
+
+        /// <summary>The shared ribbon control used to show/hide groups/items per active form state.</summary>
         public static RibbonControl ribbonControl
         {
-            get => _ribbonControl;
-            set => _ribbonControl = value;
+            get { return _ribbonControl; }
+            set { _ribbonControl = value; }
         }
 
-        // --- Constants (avoid magic strings) ---
+        // ---------------- Constants ----------------
+
         private const string WorkCenter_Panel = "PANEL";
         private const string WorkCenter_FillBox = "FILLBOX";
 
-        // --- Event handlers ---
+        // ---------------- Event handlers ----------------
+
+        /// <summary>
+        /// Optional DevExpress hook to control next/previous tab navigation. Not implemented by default.
+        /// Throwing is intentional to discover accidental wiring in production; replace with logic as needed.
+        /// </summary>
         private static void _mdiManager_SetNextMdiChild(object sender, SetNextMdiChildEventArgs e)
         {
-            // Implement custom navigation if needed.
-            throw new NotImplementedException();
+            throw new NotImplementedException("Implement custom next/previous child navigation if needed.");
         }
 
+        /// <summary>
+        /// Tracks active page changes and updates:
+        /// - Active operator/fillbox reference
+        /// - Ribbon button visibility (via <see cref="ToolsRibbonManager"/>)
+        /// - Brings forward related form when working on the same machine (not in Start state)
+        /// </summary>
         private static void _mdiManager_SelectedPageChanged(object sender, EventArgs e)
         {
             var mgr = _mdiManager;
             if (mgr == null || mgr.MdiParent == null) return;
 
-            var active = mgr.MdiParent.ActiveMdiChild;
+            var activeChild = mgr.MdiParent.ActiveMdiChild;
             var workCenter = StaticValues.WorkCenterType ?? string.Empty;
 
             switch (workCenter)
             {
                 default:
                 case WorkCenter_Panel:
-                    if (!(active is FrmOperator op)) { frmOperatorActive = null; return; }
-
-                    var previousActive = frmOperatorActive;
-                    frmOperatorActive = op;
-
-                    // robust TRUE check (case-insensitive)
-                    var qrEnabled = string.Equals(StaticValues.QrCodeGenerator, "TRUE", StringComparison.OrdinalIgnoreCase);
-                    ToolsRibbonManager.RibbonButtonQrCode(qrEnabled);
-
-                    ToolsRibbonManager.RibbonButtonStatus(op.shopOrderStatus, op.interruptionCauseOptions, op.machineDownTimeButtonStatus, op.prMaintenanceButtonStatus);
-
-                    // ensure same machine, different panel, and not in "Start"
-                    foreach (var item in frmOperators)
                     {
-                        if (item == null || item.machine == null || op.machine == null || item.panelDetail == null || op.panelDetail == null)
-                            continue;
+                        var op = activeChild as FrmOperator;
+                        if (op == null) { frmOperatorActive = null; return; }
 
-                        if (op.panelDetail.Id != item.panelDetail.Id &&
-                            op.machine.Id == item.machine.Id &&
-                            item.machineDownTimeButtonStatus != MachineDownTimeButtonStatus.Start)
+                        var previous = frmOperatorActive;
+                        frmOperatorActive = op;
+
+                        // Toggle QR section on ribbon (TRUE check, case-insensitive)
+                        var qrEnabled = string.Equals(StaticValues.QrCodeGenerator, "TRUE", StringComparison.OrdinalIgnoreCase);
+                        ToolsRibbonManager.RibbonButtonQrCode(qrEnabled);
+
+                        // Update ribbon buttons for the active operator form
+                        ToolsRibbonManager.RibbonButtonStatus(
+                            op.shopOrderStatus,
+                            op.interruptionCauseOptions,
+                            op.machineDownTimeButtonStatus,
+                            op.prMaintenanceButtonStatus);
+
+                        // If another form for the same machine is open and not in Start, bring it forward
+                        foreach (var item in frmOperators)
                         {
-                            ActivatedForm(item);
-                            break;
+                            if (item == null || item.machine == null || op.machine == null || item.panelDetail == null || op.panelDetail == null)
+                                continue;
+
+                            if (op.panelDetail.Id != item.panelDetail.Id &&
+                                op.machine.Id == item.machine.Id &&
+                                item.machineDownTimeButtonStatus != MachineDownTimeButtonStatus.Start)
+                            {
+                                ActivatedForm(item);
+                                break;
+                            }
                         }
+
+                        break;
                     }
-                    break;
 
                 case WorkCenter_FillBox:
-                    if (active is FrmFillHandlingUnit fb)
-                        frmFillBoxActive = fb;
-                    break;
+                    {
+                        var fb = activeChild as FrmFillHandlingUnit;
+                        if (fb != null) frmFillBoxActive = fb;
+                        break;
+                    }
             }
         }
 
+        /// <summary>
+        /// Keeps <see cref="frmOperators"/> in sync when MDI pages are closed.
+        /// </summary>
         private static void _mdiManager_PageRemoved(object sender, MdiTabPageEventArgs e)
         {
             if (e == null || e.Page == null) return;
 
             var workCenter = StaticValues.WorkCenterType ?? string.Empty;
+
             switch (workCenter)
             {
                 default:
                 case WorkCenter_Panel:
-                    if (e.Page.MdiChild is FrmOperator op)
-                        frmOperators.Remove(op);
+                    var op = e.Page.MdiChild as FrmOperator;
+                    if (op != null) frmOperators.Remove(op);
                     break;
 
                 case WorkCenter_FillBox:
-                    // No-op currently
+                    // No-op for now
                     break;
             }
         }
 
+        /// <summary>
+        /// Keeps <see cref="frmOperators"/> in sync when new MDI pages are opened.
+        /// </summary>
         private static void _mdiManager_PageAdded(object sender, MdiTabPageEventArgs e)
         {
             if (e == null || e.Page == null) return;
 
             var workCenter = StaticValues.WorkCenterType ?? string.Empty;
+
             switch (workCenter)
             {
                 default:
                 case WorkCenter_Panel:
-                    if (e.Page.MdiChild is FrmOperator op)
-                        frmOperators.Add(op);
+                    var op = e.Page.MdiChild as FrmOperator;
+                    if (op != null) frmOperators.Add(op);
                     break;
 
                 case WorkCenter_FillBox:
-                    // No-op currently
+                    // No-op for now
                     break;
             }
         }
 
-        // --- Form helpers ---
+        // ---------------- Form helpers ----------------
+
+        /// <summary>
+        /// Opens a form inside the current MDI parent, maximized, without control box.
+        /// Safe no-op if MDI context is not ready.
+        /// </summary>
         public static void FormOpen(Form frm)
         {
             var mgr = _mdiManager;
@@ -158,6 +212,10 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
             frm.Show();
         }
 
+        /// <summary>
+        /// Activates the tab that has the same <see cref="Form.Tag"/> as <paramref name="frm"/>.
+        /// Useful when multiple panels for the same machine exist and you want to focus the peer tab.
+        /// </summary>
         public static void ActivatedForm(Form frm)
         {
             var mgr = _mdiManager;
@@ -171,15 +229,22 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
 
             foreach (var child in children)
             {
-                if (child?.Tag != null && Equals(targetTag.ToString(), child.Tag.ToString()))
+                if (child == null || child.Tag == null) continue;
+
+                if (Equals(targetTag.ToString(), child.Tag.ToString()))
                 {
                     var page = mgr.Pages[child];
-                    if (page?.MdiChild != null)
+                    if (page != null && page.MdiChild != null)
                         page.MdiChild.Activate();
                 }
             }
         }
 
+        /// <summary>
+        /// Sets/clears the "interruption" image on the tab that matches <paramref name="frm"/>'s tag.
+        /// </summary>
+        /// <param name="frm">Reference form whose <see cref="Form.Tag"/> is used to find the tab.</param>
+        /// <param name="visibility">If <c>true</c> shows the stop icon; otherwise clears it.</param>
         public static void InterrutionImage(Form frm, bool visibility)
         {
             var mgr = _mdiManager;
@@ -193,7 +258,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
 
             foreach (var child in children)
             {
-                if (child?.Tag != null && Equals(targetTag.ToString(), child.Tag.ToString()))
+                if (child == null || child.Tag == null) continue;
+
+                if (Equals(targetTag.ToString(), child.Tag.ToString()))
                 {
                     var page = mgr.Pages[child];
                     if (page != null)

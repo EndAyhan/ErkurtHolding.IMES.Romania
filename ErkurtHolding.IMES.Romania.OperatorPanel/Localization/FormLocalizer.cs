@@ -11,16 +11,24 @@ using System.Windows.Forms;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.Localization
 {
+    /// <summary>
+    /// Recursively localizes WinForms/DevExpress UI components by looking up keys in StaticValues.T.
+    /// Conventional keys are based on scope + control names; explicit keys can be supplied via the control's Tag (string).
+    /// </summary>
     public static class FormLocalizer
     {
         /// <summary>
-        /// Localizes a control tree (Form, XtraUserControl, etc.). 
+        /// Localizes a control tree (Form, XtraUserControl, etc.).
         /// Scope examples: "forms.frmoperator", "views.uc_dashboard".
-        /// If scope is null, uses the root control name (e.g., "forms.{name}").
+        /// If scope is null, the default is "forms.{rootname}" for Forms and "views.{rootname}" for others.
         /// </summary>
-        public static void Localize(Control root, IText t, string scope = null)
+        /// <param name="root">Root control (Form or XtraUserControl).</param>
+        /// <param name="scope">Base scope for localization keys (optional).</param>
+        public static void Localize(Control root, IText t = null, string scope = null)
         {
-            if (root == null || t == null) return;
+            if (t == null)
+                t = StaticValues.T; // Default text provider
+            if (root == null) return;
 
             // default scope: "forms.{rootname}" for Forms, otherwise "views.{rootname}"
             if (string.IsNullOrWhiteSpace(scope))
@@ -237,14 +245,40 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Localization
             ctrl.Text = value;
         }
 
+        /// <summary>
+        /// Attempts to set tooltip text for a control using common DevExpress/WinForms patterns.
+        /// If the control doesn't expose a tooltip property, this is a no-op.
+        /// </summary>
         private static void SetControlToolTip(Control ctrl, string value)
         {
             if (ctrl == null || string.IsNullOrEmpty(value)) return;
 
+            // Try common properties via reflection; ignore if not present
             var type = ctrl.GetType();
-            var prop = type.GetProperty("ToolTip");
-            if (prop != null && prop.CanWrite)
-                prop.SetValue(ctrl, value, null);
+
+            // DevExpress: "Hint"
+            var hintProp = type.GetProperty("Hint");
+            if (hintProp != null && hintProp.CanWrite)
+            {
+                hintProp.SetValue(ctrl, value, null);
+                return;
+            }
+
+            // WinForms: some custom controls expose "ToolTip" string properties
+            var toolTipProp = type.GetProperty("ToolTip");
+            if (toolTipProp != null && toolTipProp.CanWrite)
+            {
+                toolTipProp.SetValue(ctrl, value, null);
+                return;
+            }
+
+            // DevExpress: "SuperTip" (requires a SuperToolTip instance; we skip creating one here to avoid hard deps)
+            var superTipProp = type.GetProperty("SuperTip");
+            if (superTipProp != null && superTipProp.CanWrite)
+            {
+                // If you maintain a shared SuperToolTip factory, you could create one here.
+                // Left intentionally as a no-op to avoid adding dependencies.
+            }
         }
     }
 }

@@ -39,10 +39,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
     /// </summary>
     public static class MachineStateColorTextExtensions
     {
-        public static string ToText(this MachineStateColor state, IText t)
+        public static string ToText(this MachineStateColor state)
         {
-            if (t == null) throw new ArgumentNullException(nameof(t));
-            return t[MachineStateColorTextKey.Key(state)];
+            return StaticValues.T[MachineStateColorTextKey.Key(state)];
         }
     }
 }

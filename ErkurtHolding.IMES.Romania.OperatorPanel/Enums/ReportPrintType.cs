@@ -27,10 +27,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
 
     public static class ReportPrintTypeTextExtensions
     {
-        public static string ToText(this ReportPrintType t, IText text)
+        public static string ToText(this ReportPrintType t)
         {
-            if (text == null) throw new ArgumentNullException(nameof(text));
-            return text[ReportPrintTypeTextKey.Key(t)];
+            return StaticValues.T[ReportPrintTypeTextKey.Key(t)];
         }
     }
 }

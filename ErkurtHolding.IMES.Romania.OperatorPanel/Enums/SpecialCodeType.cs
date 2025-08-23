@@ -73,10 +73,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
 
     public static class SpecialCodeTypeTextExtensions
     {
-        public static string ToText(this SpecialCodeType t, IText text)
+        public static string ToText(this SpecialCodeType t)
         {
-            if (text == null) throw new ArgumentNullException(nameof(text));
-            return text[SpecialCodeTypeTextKey.Key(t)];
+            return StaticValues.T[SpecialCodeTypeTextKey.Key(t)];
         }
     }
 }

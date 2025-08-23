@@ -27,10 +27,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
 
     public static class ShopOrderStatusTextExtensions
     {
-        public static string ToText(this ShopOrderStatus s, IText t)
+        public static string ToText(this ShopOrderStatus s)
         {
-            if (t == null) throw new ArgumentNullException(nameof(t));
-            return t[ShopOrderStatusTextKey.Key(s)];
+            return StaticValues.T[ShopOrderStatusTextKey.Key(s)];
         }
     }
 }

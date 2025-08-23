@@ -46,10 +46,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
     public static class CallStatusTypeTextExtensions
     {
         /// <summary>Gets the localized text for the given <see cref="CallStatusType"/>.</summary>
-        public static string ToText(this CallStatusType status, IText t)
+        public static string ToText(this CallStatusType status)
         {
-            if (t == null) throw new ArgumentNullException("t");
-            return t[CallStatusTypeTextKey.Key(status)];
+            return StaticValues.T[CallStatusTypeTextKey.Key(status)];
         }
     }
 }

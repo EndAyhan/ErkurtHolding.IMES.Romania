@@ -9,8 +9,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
         {
             InitializeComponent();
 
-            var t = new JsonText();
-            FormLocalizer.Localize(this, t);
+            FormLocalizer.Localize(this);
         }
 
         private void txtPassword_KeyDown(object sender, KeyEventArgs e)

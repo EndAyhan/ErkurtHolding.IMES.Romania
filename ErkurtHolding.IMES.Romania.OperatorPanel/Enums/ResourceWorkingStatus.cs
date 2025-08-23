@@ -41,10 +41,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
     /// </summary>
     public static class ResourceWorkingStatusTextExtensions
     {
-        public static string ToText(this ResourceWorkingStatus status, IText t)
+        public static string ToText(this ResourceWorkingStatus status)
         {
-            if (t == null) throw new ArgumentNullException(nameof(t));
-            return t[ResourceWorkingStatusTextKey.Key(status)];
+            return StaticValues.T[ResourceWorkingStatusTextKey.Key(status)];
         }
     }
 }

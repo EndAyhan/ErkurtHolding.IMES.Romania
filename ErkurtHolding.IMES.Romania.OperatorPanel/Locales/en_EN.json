@@ -17,6 +17,67 @@
       "rejected": "Rejected"
     }
   },
+  "emails": {
+    "fault_cause": {
+      "title": "{Type} Notification",
+      "greeting_prefix": "Hello",
+      "details_header": "Details:",
+      "informed": "For your information.",
+      "footer": "This email was generated automatically; please do not reply.",
+      "labels": {
+        "branch": "Branch",
+        "main_cause": "Main Cause",
+        "cause_detail": "Description",
+        "work_center": "Work Center",
+        "resource": "Resource",
+        "start_date": "Start Date",
+        "elapsed_duration": "Total Elapsed Time",
+        "minutes_suffix": "MINUTES"
+      }
+    }
+  },
+  "printlabel": {
+    "error": {
+      "no_printer_for_order": "The work order cannot be started because no configured printer was found.\r\n\r\nReference no: @PartNo\r\nWork center: @MachineCode\r\nResource: @ResourceName\r\nPrinter type: @PrinterType",
+      "no_printer_defined": "No configured printer was found.\r\nPlease contact your system administrator.\r\n\r\nWork center: @MachineCode\r\nResource: @ResourceName",
+      "no_label_design_for_stock": "Stock card information for the work order could not be retrieved.\r\nPlease contact your system administrator. No label design is defined for the stock card.\r\n\r\nReference no: @PartNo\r\nBranch: @BranchName\r\nCustomer Short Code: @CustomerShortCode\r\nPrinter type: @PrinterType"
+    },
+    "value_none": "None"
+  },
+  "qrcode.title": "QR Code - {Machine}",
+  "report": {
+    "file_not_found": "The label file path cannot be accessed.\r\nPlease contact your system administrator.",
+    "admin_wrong_password": "Admin password is incorrect."
+  },
+  "inkjet": {
+    "no_printer_map": "No inkjet printer mapping was found.",
+    "no_specialcode": "SpecialCode for inkjet printer could not be found.",
+    "error_printer_name": "Failed to get MQTT printer name: {Message}",
+    "serialize_failed": "Could not serialize label payload: {Message}",
+    "mqtt_failed": "MQTT publish failed.",
+    "mqtt_exception": "An error occurred during MQTT publish: {Message}"
+  },
+  "ui": {
+    "message": {
+      "info": { "title": "Information" },
+      "warn": { "title": "Warning" },
+      "question": { "title": "Question" },
+
+      "error": {
+        "title": "Error",
+        "unexpected": "An unexpected error occurred",
+        "adminInfoPrefix": "Admin Info"
+      },
+
+      "success": "Operation successful",
+      "insert": { "success": "Record saved successfully" },
+      "delete": { "confirm": "Are you sure you want to delete this record?" },
+      "cancel": { "confirm": "Are you sure you don't want to continue?" }
+    }
+  },
+  "notification": {
+    "notification_suffix": "Notification"
+  },
   "enums": {
     "call_state": {
       "high": "High",

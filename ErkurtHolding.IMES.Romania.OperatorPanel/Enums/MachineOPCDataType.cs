@@ -39,10 +39,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
     /// </summary>
     public static class MachineOPCDataTypeTextExtensions
     {
-        public static string ToText(this MachineOPCDataType type, IText t)
+        public static string ToText(this MachineOPCDataType type)
         {
-            if (t == null) throw new ArgumentNullException(nameof(t));
-            return t[MachineOPCDataTypeTextKey.Key(type)];
+            return StaticValues.T[MachineOPCDataTypeTextKey.Key(type)];
         }
     }
 }

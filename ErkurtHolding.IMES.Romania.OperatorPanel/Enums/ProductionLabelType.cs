@@ -29,10 +29,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
 
     public static class ProductionLabelTypeTextExtensions
     {
-        public static string ToText(this ProductionLabelType type, IText t)
+        public static string ToText(this ProductionLabelType type)
         {
-            if (t == null) throw new ArgumentNullException(nameof(t));
-            return t[ProductionLabelTypeTextKey.Key(type)];
+            return StaticValues.T[ProductionLabelTypeTextKey.Key(type)];
         }
     }
 }

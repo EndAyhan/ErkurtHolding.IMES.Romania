@@ -618,14 +618,13 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                         shopOrderProductionDetailPrescriptionControlCount = null;
                     }
 
-                    var t = new JsonText();
-                    if (products.First().unitMeas == Units.m2.ToText(t) && squareMeterPlcControl)
+                    if (products.First().unitMeas == Units.m2.ToText() && squareMeterPlcControl)
                     {
                         squareMeterPlcControl = false;
                         if (_manualInputBySquareMeters > 0)
                             InsertShopOrderProductionDetailM2(dt);
                     }
-                    else if (products.First().unitMeas == Units.kg.ToText(t))
+                    else if (products.First().unitMeas == Units.kg.ToText())
                     {
                         if (kilogramPlcControl)
                         {
@@ -638,7 +637,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                             InsertShopOrderProductionDetailKilogramPLC(dt);
                         }
                     }
-                    else if (products.First().unitMeas == Units.ad.ToText(t))
+                    else if (products.First().unitMeas == Units.ad.ToText())
                     {
                         for (int i = 1; i <= count; i++)
                         {
@@ -765,8 +764,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
             //Aktif forma user ekleme
             UserLoginHelper.StartShopOrderOperationUserLogin(this.machine, userModel);
 
-            var t = new JsonText();
-            if (products.First().unitMeas == Units.ad.ToText(t))
+            if (products.First().unitMeas == Units.ad.ToText())
                 StaticValues.opcClient.ResetCounter(panelDetail.OPCNodeIdCounterReset);
 
             //Parça Üretim Süresi Gönderme metodu 
@@ -1784,11 +1782,10 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                     }
                     else
                     {
-                        var t = new JsonText();
                         var prn = reportProductHelper.product.PartNo.CreateParameters("@PartNo");
                         prn.Add("@Machine", machine.Code);
                         prn.Add("@Resource", resource.resourceName);
-                        prn.Add("@PrinterType", (labelTypeFound ? labelType.ToText(t) : ""));
+                        prn.Add("@PrinterType", (labelTypeFound ? labelType.ToText() : ""));
                         ToolsMessageBox.Warning(this, ToolsMessageBox.ReplaceParameters("Tanımlı yazıcı bulunamadı.\n\nReferans no: @PartNo\nİş merkezi: @Machine\nKaynak: @Resource\nYazıcı tipi: @PrinterType", prn));
                     }
                 }
@@ -1875,7 +1872,6 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                 HandlingUnitManager.Current.UpdateBoxIfsSend(myhandlingUnit);
                 handlingUnits.Add(reportHandlingUnitHelper.handlingUnit);
 
-                var t = new JsonText();
                 var selectedPrintLabelModel = PrintLabelHelper.GetLabelModel(reportHandlingUnitHelper.product, machine, resource, ProductionLabelType.Box);
                 if (selectedPrintLabelModel != null)
                 {
@@ -1889,7 +1885,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                     var prn = reportHandlingUnitHelper.product.PartNo.CreateParameters("@PartNo");
                     prn.Add("@Machine", machine.Code);
                     prn.Add("@Resource", resource.resourceName);
-                    prn.Add("@PrinterType", ProductionLabelType.Box.ToText(t));
+                    prn.Add("@PrinterType", ProductionLabelType.Box.ToText());
                     ToolsMessageBox.Warning(this, ToolsMessageBox.ReplaceParameters("Tanımlı yazıcı bulunamadı.\n\nReferans no: @PartNo\nİş merkezi: @Machine\nKaynak: @Resource\nYazıcı tipi: @PrinterType", prn));
                 }
 
@@ -1904,7 +1900,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                     var prn = reportHandlingUnitHelper.product.PartNo.CreateParameters("@PartNo");
                     prn.Add("@Machine", machine.Code);
                     prn.Add("@Resource", resource.resourceName);
-                    prn.Add("@PrinterType", ProductionLabelType.Box.ToText(t));
+                    prn.Add("@PrinterType", ProductionLabelType.Box.ToText());
                     ToolsMessageBox.Warning(this, ToolsMessageBox.ReplaceParameters("Tanımlı etiket dizaynı bulunamadı.\n\nReferans no: @PartNo\nİş merkezi: @Machine\nKaynak: @Resource\nYazıcı tipi: @PrinterType", prn));
                 }
             }
@@ -1974,7 +1970,6 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                 HandlingUnitManager.Current.UpdateBoxIfsSend(myhandlingUnit);
                 handlingUnits.Add(reportHandlingUnitHelper.handlingUnit);
 
-                var t = new JsonText();
                 var selectedPrintLabelModel = PrintLabelHelper.GetLabelModel(reportHandlingUnitHelper.product, machine, resource, ProductionLabelType.Box);
                 if (selectedPrintLabelModel != null)
                 {
@@ -1988,7 +1983,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                     var prn = reportHandlingUnitHelper.product.PartNo.CreateParameters("@PartNo");
                     prn.Add("@Machine", machine.Code);
                     prn.Add("@Resource", resource.resourceName);
-                    prn.Add("@PrinterType", ProductionLabelType.Box.ToText(t));
+                    prn.Add("@PrinterType", ProductionLabelType.Box.ToText());
                     ToolsMessageBox.Warning(this, ToolsMessageBox.ReplaceParameters("Tanımlı yazıcı bulunamadı.\n\nReferans no: @PartNo\nİş merkezi: @Machine\nKaynak: @Resource\nYazıcı tipi: @PrinterType", prn));
                 }
 
@@ -2003,7 +1998,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                     var prn = reportHandlingUnitHelper.product.PartNo.CreateParameters("@PartNo");
                     prn.Add("@Machine", machine.Code);
                     prn.Add("@Resource", resource.resourceName);
-                    prn.Add("@PrinterType", ProductionLabelType.Box.ToText(t));
+                    prn.Add("@PrinterType", ProductionLabelType.Box.ToText());
                     ToolsMessageBox.Warning(this, ToolsMessageBox.ReplaceParameters("Tanımlı etiket dizaynı bulunamadı.\n\nReferans no: @PartNo\nİş merkezi: @Machine\nKaynak: @Resource\nYazıcı tipi: @PrinterType", prn));
                 }
             }
@@ -2082,7 +2077,6 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                         ShopOrderProductionDetailManager.Current.UpdateBoxIDAndHandlingUnitQuantity(shopOrderProductionDetail);
                     }
 
-                    var t = new JsonText();
                     if (panelDetail.BoxFillsUp)
                     {
                         reportHandlingUnitHelper.printLabelModel = printLabelModels.First(p => p.ProductId == reportHandlingUnitHelper.product.Id && p.productionLabelType == ProductionLabelType.Box);
@@ -2098,7 +2092,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                             var prn = reportHandlingUnitHelper.product.PartNo.CreateParameters("@PartNo");
                             prn.Add("@Machine", machine.Code);
                             prn.Add("@Resource", resource.resourceName);
-                            prn.Add("@PrinterType", ProductionLabelType.Box.ToText(t));
+                            prn.Add("@PrinterType", ProductionLabelType.Box.ToText());
                             ToolsMessageBox.Warning(this, ToolsMessageBox.ReplaceParameters("Tanımlı yazıcı bulunamadı.\n\nReferans no: @PartNo\nİş merkezi: @Machine\nKaynak: @Resource\nYazıcı tipi: @PrinterType", prn));
                         }
                     }
@@ -3013,8 +3007,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                 PLCCounter = productionDetails.Where(x => x.ShopOrderOperationID == vw_ShopOrderGridModelActive.Id && x.Active == true && x.ShopOrderProductionID == shopOrderProduction.Id).Sum(y => (y.Quantity - y.ManualInput) / carpan);
             }
 
-            var t = new JsonText();
-            if (vw_ShopOrderGridModelActive.unitMeas == Units.ad.ToText(t))
+            if (vw_ShopOrderGridModelActive.unitMeas == Units.ad.ToText())
             {
                 lblTotalProductionCount.Text = vw_ShopOrderGridModelActive.revisedQtyDue.ToString();
                 lblRealizeAmount.Text = Math.Round(realizeAmount, 0).ToString();

@@ -17,6 +17,67 @@
       "rejected": "Reddedildi"
     }
   },
+  "emails": {
+    "fault_cause": {
+      "title": "{Type} Bildirimi",
+      "greeting_prefix": "Merhaba",
+      "details_header": "Detaylar:",
+      "informed": "Bilginize sunarız.",
+      "footer": "Bu e-posta otomatik olarak oluşturulmuştur, lütfen yanıt vermeyiniz.",
+      "labels": {
+        "branch": "Şube",
+        "main_cause": "Ana Sebep",
+        "cause_detail": "Açıklaması",
+        "work_center": "İş Merkezi",
+        "resource": "Kaynak",
+        "start_date": "Başlangıç Tarihi",
+        "elapsed_duration": "Toplam Geçen Süresi",
+        "minutes_suffix": "DAKİKA"
+      }
+    }
+  },
+  "printlabel": {
+    "error": {
+      "no_printer_for_order": "Tanımlanmış yazıcı bulunamadığı için iş emri başlatılamıyor.\r\n\r\nReferans no: @PartNo\r\nİş merkezi: @MachineCode\r\nKaynak: @ResourceName\r\nYazıcı tipi: @PrinterType",
+      "no_printer_defined": "Tanımlanmış yazıcı bulunamadı.\r\nLütfen sistem yöneticinize başvurunuz.\r\n\r\nİş merkezi: @MachineCode\r\nKaynak: @ResourceName",
+      "no_label_design_for_stock": "İş Emrine ait stok kartı bilgisine ulaşılamadı.\r\nLütfen sistem yöneticinize başvurunuz. Stok kartına ait tanımlı etiket dizaynı bulunamadı.\r\n\r\nReferans no: @PartNo\r\nŞube: @BranchName\r\nMüşteri Kısa Kodu: @CustomerShortCode\r\nYazıcı tipi: @PrinterType"
+    },
+    "value_none": "Yok"
+  },
+  "qrcode.title": "QR Kod - {Machine}",
+  "report": {
+    "file_not_found": "Etiket dosya yoluna ulaşılamıyor.\r\nLütfen sistem yöneticinize başvurunuz",
+    "admin_wrong_password": "Admin şifresi yanlış"
+  },
+  "inkjet": {
+    "no_printer_map": "Inkjet printer tanımı bulunamadı.",
+    "no_specialcode": "Inkjet printer için SpecialCode bulunamadı.",
+    "error_printer_name": "MQTT yazıcı ismi alınamadı: {Message}",
+    "serialize_failed": "Etiket verisi serialize edilemedi: {Message}",
+    "mqtt_failed": "MQTT gönderimi başarısız oldu.",
+    "mqtt_exception": "MQTT gönderimi sırasında hata oluştu: {Message}"
+  },
+  "ui": {
+    "message": {
+      "info": { "title": "Bilgilendirme..!" },
+      "warn": { "title": "Dikkat..!" },
+      "question": { "title": "Soru..!" },
+
+      "error": {
+        "title": "Hata..!",
+        "unexpected": "Beklenmedik hata ile karşılaşıldı",
+        "adminInfoPrefix": "Admin Info"
+      },
+
+      "success": "İşlem Başarılı",
+      "insert": { "success": "Kayıt işlemi başarılı" },
+      "delete": { "confirm": "Kaydı silmek istediğinize emin misiniz?" },
+      "cancel": { "confirm": "Devam etmek istemediğinize emin misiniz" }
+    }
+  },
+  "notification": {
+    "notification_suffix": "Bildirimi"
+  },
   "enums": {
     "call_state": {
       "high": "Yüksek",

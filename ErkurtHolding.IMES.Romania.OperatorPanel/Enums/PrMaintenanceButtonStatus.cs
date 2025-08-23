@@ -31,10 +31,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
 
     public static class PrMaintenanceButtonStatusTextExtensions
     {
-        public static string ToText(this PrMaintenanceButtonStatus status, IText t)
+        public static string ToText(this PrMaintenanceButtonStatus status)
         {
-            if (t == null) throw new ArgumentNullException(nameof(t));
-            return t[PrMaintenanceButtonStatusTextKey.Key(status)];
+            return StaticValues.T[PrMaintenanceButtonStatusTextKey.Key(status)];
         }
     }
 }

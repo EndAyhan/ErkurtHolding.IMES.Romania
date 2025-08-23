@@ -22,10 +22,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
 
     public static class SpecialCodeCounterUnitTextExtensions
     {
-        public static string ToText(this SpecialCodeCounterUnit u, IText t)
+        public static string ToText(this SpecialCodeCounterUnit u)
         {
-            if (t == null) throw new ArgumentNullException(nameof(t));
-            return t[SpecialCodeCounterUnitTextKey.Key(u)];
+            return StaticValues.T[SpecialCodeCounterUnitTextKey.Key(u)];
         }
     }
 }

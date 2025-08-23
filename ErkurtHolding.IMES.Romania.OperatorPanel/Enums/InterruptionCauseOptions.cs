@@ -39,10 +39,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
     /// </summary>
     public static class InterruptionCauseOptionsTextExtensions
     {
-        public static string ToText(this InterruptionCauseOptions option, IText t)
+        public static string ToText(this InterruptionCauseOptions option)
         {
-            if (t == null) throw new ArgumentNullException(nameof(t));
-            return t[InterruptionCauseOptionsTextKey.Key(option)];
+            return StaticValues.T[InterruptionCauseOptionsTextKey.Key(option)];
         }
     }
 }

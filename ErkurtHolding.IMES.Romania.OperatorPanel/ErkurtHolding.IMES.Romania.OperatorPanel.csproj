@@ -210,7 +210,6 @@
     <Compile Include="Localization\FormLocalizer.cs" />
     <Compile Include="Localization\IText.cs" />
     <Compile Include="Localization\JsonLocalizationOptions.cs" />
-    <Compile Include="Localization\TextKeys.cs" />
     <Compile Include="Models\EMailModel.cs" />
     <Compile Include="Models\InkJetModel.cs" />
     <Compile Include="Models\InterruptionCauseMessageModel.cs" />

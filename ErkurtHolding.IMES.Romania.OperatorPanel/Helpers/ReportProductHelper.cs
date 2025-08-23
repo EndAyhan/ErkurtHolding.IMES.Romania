@@ -1,117 +1,123 @@
-﻿using DevExpress.XtraReports.UI;
-using ErkurtHolding.IMES.Business.ImesManager;
+﻿using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using DevExpress.XtraReports.UI;
 using ErkurtHolding.IMES.Business;
+using ErkurtHolding.IMES.Business.ImesManager;
+using ErkurtHolding.IMES.Entity;
 using ErkurtHolding.IMES.Entity.ImesDataModel;
 using ErkurtHolding.IMES.Entity.Views;
-using ErkurtHolding.IMES.Entity;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Enums;
+using ErkurtHolding.IMES.Romania.OperatorPanel.Extensions;
+using ErkurtHolding.IMES.Romania.OperatorPanel.Forms;
+using ErkurtHolding.IMES.Romania.OperatorPanel.Localization;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Models;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Tools;
 using Newtonsoft.Json;
-using System.Collections.Generic;
-using System.Data;
-using System.Threading.Tasks;
-using System;
-using ErkurtHolding.IMES.Romania.OperatorPanel.Extensions;
-using ErkurtHolding.IMES.Romania.OperatorPanel.Forms;
-using System.Windows.Forms;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
 {
     public class ReportProductHelper
     {
-        //public static string printerName = "TSC TTP-244CE";
-        ////public static string filePath = @"D:\Erkurt\ErkurttestProductLabel.repx";
-        //public static string filePath = ConfigurationManager.AppSettings["BarcodeFilePath"];
-
         private DataSet _dataSet;
+
         public PrintLabelModel printLabelModel { get; set; }
         public vw_ShopOrderGridModel shopOrderOperation { get; set; }
         public ShopOrderProduction shopOrderProduction { get; set; }
-
         public ShopOrderProductionDetail shopOrderProductionDetail { get; set; }
-
         public Machine machine { get; set; }
-
         public Machine resource { get; set; }
         public Product product { get; set; }
-        public Branch branch
-        {
-            get { return StaticValues.branch; }
-        }
 
         public UserModel userModel { get; set; }
+
         public DataSet dataSet
         {
             get
             {
                 _dataSet = new DataSet();
-
-                _dataSet.Tables.Add(machine.CreateDataTable("WorkCenter"));
-                _dataSet.Tables.Add(shopOrderOperation.CreateDataTable());
-                _dataSet.Tables.Add(shopOrderProduction.CreateDataTable());
-                _dataSet.Tables.Add(shopOrderProductionDetail.CreateDataTable());
-                _dataSet.Tables.Add(resource.CreateDataTable("Resource"));
-                _dataSet.Tables.Add(branch.CreateDataTable("Branch"));
-                _dataSet.Tables.Add(product.CreateDataTable());
-                _dataSet.Tables.Add(userModel.CreateDataTable());
+                try
+                {
+                    _dataSet.Tables.Add(machine.CreateDataTable("WorkCenter"));
+                    _dataSet.Tables.Add(shopOrderOperation.CreateDataTable());
+                    _dataSet.Tables.Add(shopOrderProduction.CreateDataTable());
+                    _dataSet.Tables.Add(shopOrderProductionDetail.CreateDataTable());
+                    _dataSet.Tables.Add(resource.CreateDataTable("Resource"));
+                    _dataSet.Tables.Add(StaticValues.branch.CreateDataTable("Branch"));
+                    _dataSet.Tables.Add(product.CreateDataTable());
+                    if (userModel != null)
+                        _dataSet.Tables.Add(userModel.CreateDataTable());
+                }
+                catch
+                {
+                    // dataset will contain whatever succeeded
+                }
                 return _dataSet;
             }
-
         }
+
         public void PrintBarcodeDesigner()
         {
-            FrmAdminLogin frm = new FrmAdminLogin();
-            if (frm.ShowDialog() != DialogResult.OK)
-                ToolsMessageBox.Information(ToolsMdiManager.frmOperatorActive, "Admin şifresi yanlış");
+            if (!RequireAdmin()) return;
 
             try
             {
-                XtraReport xtraReport = new XtraReport();
-                xtraReport.DataSource = dataSet;
-                xtraReport.LoadLayout(printLabelModel.LabelDesingFilePath);
-                xtraReport.ShowPrintStatusDialog = false;
-                xtraReport.PrintingSystem.StartPrint += PrintingSystem_StartPrint;
-                xtraReport.ShowDesigner();
+                if (!EnsureFileExists(printLabelModel?.LabelDesingFilePath)) return;
+
+                using (var xr = new XtraReport())
+                {
+                    xr.DataSource = dataSet;
+                    xr.LoadLayout(printLabelModel.LabelDesingFilePath);
+                    xr.ShowPrintStatusDialog = false;
+                    xr.PrintingSystem.StartPrint += PrintingSystem_StartPrint;
+                    xr.ShowDesigner();
+                }
             }
             catch (Exception ex)
             {
                 ToolsMessageBox.Error(ToolsMdiManager.frmOperatorActive, ex);
             }
         }
+
         public void PrintBarcodeDesigner(string myfilePath)
         {
             try
             {
-                FrmAdminLogin frm = new FrmAdminLogin();
-                if (frm.ShowDialog() != DialogResult.OK)
-                {
-                    ToolsMessageBox.Information(ToolsMdiManager.frmOperatorActive, "Admin şifresi yanlış");
-                    return;
-                }
+                if (!RequireAdmin()) return;
+                if (!EnsureFileExists(myfilePath)) return;
 
-                XtraReport xtraReport = new XtraReport();
-                xtraReport.DataSource = dataSet;
-                xtraReport.LoadLayout(myfilePath);
-                xtraReport.ShowPrintStatusDialog = false;
-                xtraReport.PrintingSystem.StartPrint += PrintingSystem_StartPrint;
-                xtraReport.ShowDesigner();
+                using (var xr = new XtraReport())
+                {
+                    xr.DataSource = dataSet;
+                    xr.LoadLayout(myfilePath);
+                    xr.ShowPrintStatusDialog = false;
+                    xr.PrintingSystem.StartPrint += PrintingSystem_StartPrint;
+                    xr.ShowDesigner();
+                }
             }
             catch (Exception ex)
             {
                 ToolsMessageBox.Error(ToolsMdiManager.frmOperatorActive, ex);
             }
         }
+
         public void PrintBarcodeView(bool view)
         {
             try
             {
-                XtraReport xtraReport = new XtraReport();
-                xtraReport.DataSource = dataSet;
-                xtraReport.LoadLayout(printLabelModel.LabelDesingFilePath);
-                xtraReport.ShowPrintStatusDialog = false;
-                xtraReport.PrintingSystem.StartPrint += PrintingSystem_StartPrint;
-                xtraReport.ShowPreview();
+                if (!EnsureFileExists(printLabelModel?.LabelDesingFilePath)) return;
+
+                using (var xr = new XtraReport())
+                {
+                    xr.DataSource = dataSet;
+                    xr.LoadLayout(printLabelModel.LabelDesingFilePath);
+                    xr.ShowPrintStatusDialog = false;
+                    xr.PrintingSystem.StartPrint += PrintingSystem_StartPrint;
+                    xr.ShowPreview();
+                }
             }
             catch (Exception ex)
             {
@@ -120,36 +126,42 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
         }
 
         private bool isScrap;
+
         public async void PrintLabel(bool scrap = false)
         {
-            if (StaticValues.inkjetPrintQueue == "TRUE" || StaticValues.inkjetPrintQueue != null)
+            // Inkjet queue (only when explicitly TRUE)
+            if (string.Equals(StaticValues.inkjetPrintQueue, "TRUE", StringComparison.OrdinalIgnoreCase))
             {
                 var inkjetErrors = await PrintInkJetLabel();
                 if (inkjetErrors.Count == 0)
                 {
+                    // printed via MQTT; skip local print
                     return;
                 }
                 foreach (var error in inkjetErrors)
-                {
                     ToolsMessageBox.Error(ToolsMdiManager.frmOperatorActive, error);
-                }
             }
 
             try
             {
-                isScrap = scrap;
-                XtraReport xtraReport = new XtraReport();
-                xtraReport.DataSource = dataSet;
-                xtraReport.LoadLayout(printLabelModel.LabelDesingFilePath);
-                xtraReport.PrinterName = printLabelModel.printerName;
-                xtraReport.ShowPrintStatusDialog = false;
-                xtraReport.PrintingSystem.StartPrint += PrintingSystem_StartPrint;
+                if (!EnsureFileExists(printLabelModel?.LabelDesingFilePath)) return;
 
-                if (
-                    (printLabelModel.productionLabelType == ProductionLabelType.Process && shopOrderOperation.alan7 == "TRUE") ||
-                    (printLabelModel.productionLabelType == ProductionLabelType.Product && shopOrderOperation.alan5 == "TRUE") || scrap
-                    )
-                    xtraReport.Print();
+                isScrap = scrap;
+                using (var xr = new XtraReport())
+                {
+                    xr.DataSource = dataSet;
+                    xr.LoadLayout(printLabelModel.LabelDesingFilePath);
+                    xr.PrinterName = printLabelModel.printerName;
+                    xr.ShowPrintStatusDialog = false;
+                    xr.PrintingSystem.StartPrint += PrintingSystem_StartPrint;
+
+                    if ((printLabelModel.productionLabelType == ProductionLabelType.Process && shopOrderOperation.alan7 == "TRUE") ||
+                        (printLabelModel.productionLabelType == ProductionLabelType.Product && shopOrderOperation.alan5 == "TRUE") ||
+                        scrap)
+                    {
+                        xr.Print();
+                    }
+                }
             }
             catch (Exception ex)
             {
@@ -159,40 +171,48 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
 
         private async Task<List<string>> PrintInkJetLabel()
         {
-            List<string> errors = new List<string>();
+            var errors = new List<string>();
             string inkjetName = string.Empty;
 
             try
             {
-                var inkjetPrinterId = PrinterMachineManager.Current.GetPrinterMachine(resource.Id, StaticValues.specialCodeProductTypeInkjetProcess.Id);
-                if (inkjetPrinterId == null)
-                    errors.Add("Inkjet printer tanımı bulunamadı.");
+                var inkjetPrinter = PrinterMachineManager.Current
+                    .GetPrinterMachine(resource.Id, StaticValues.specialCodeProductTypeInkjetProcess.Id);
+
+                if (inkjetPrinter == null)
+                {
+                    errors.Add(StaticValues.T["inkjet.no_printer_map"] ?? "Inkjet printer tanımı bulunamadı.");
+                }
                 else
                 {
-                    var specialCode = SpecialCodeManager.Current.GetSpecialCodeById(inkjetPrinterId.PrinterID);
+                    var specialCode = SpecialCodeManager.Current.GetSpecialCodeById(inkjetPrinter.PrinterID);
                     if (specialCode == null)
-                        errors.Add("Inkjet printer için SpecialCode bulunamadı.");
+                        errors.Add(StaticValues.T["inkjet.no_specialcode"] ?? "Inkjet printer için SpecialCode bulunamadı.");
                     else
                         inkjetName = specialCode.Name;
                 }
             }
             catch (Exception ex)
             {
-                errors.Add($"MQTT yazıcı ismi alınamadı: {ex.Message}");
+                var msg = (StaticValues.T["inkjet.error_printer_name"] ?? "MQTT yazıcı ismi alınamadı: {Message}")
+                    .Replace("{Message}", ex.Message);
+                errors.Add(msg);
             }
 
             if (string.IsNullOrEmpty(inkjetName))
                 return errors;
 
-            string jsonPayload = string.Empty;
+            string jsonPayload;
             try
             {
-                var denemeModel = InkJetPrintModel();
-                jsonPayload = JsonConvert.SerializeObject(denemeModel);
+                var payloadModel = InkJetPrintModel();
+                jsonPayload = JsonConvert.SerializeObject(payloadModel);
             }
             catch (Exception ex)
             {
-                errors.Add($"Etiket verisi serialize edilemedi: {ex.Message}");
+                var msg = (StaticValues.T["inkjet.serialize_failed"] ?? "Etiket verisi serialize edilemedi: {Message}")
+                    .Replace("{Message}", ex.Message);
+                errors.Add(msg);
                 return errors;
             }
 
@@ -200,18 +220,17 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
             {
                 bool success = await MqttHelper.PublishAsync(inkjetName, jsonPayload);
                 if (!success)
-                {
-                    errors.Add("MQTT gönderimi başarısız oldu.");
-                }
+                    errors.Add(StaticValues.T["inkjet.mqtt_failed"] ?? "MQTT gönderimi başarısız oldu.");
             }
             catch (Exception ex)
             {
-                errors.Add($"MQTT gönderimi sırasında hata oluştu: {ex.Message}");
+                var msg = (StaticValues.T["inkjet.mqtt_exception"] ?? "MQTT gönderimi sırasında hata oluştu: {Message}")
+                    .Replace("{Message}", ex.Message);
+                errors.Add(msg);
             }
 
             return errors;
         }
-
 
         private void PrintingSystem_StartPrint(object sender, DevExpress.XtraPrinting.PrintDocumentEventArgs e)
         {
@@ -221,13 +240,15 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
                     PrintLogManager.Current.AddLog(StaticValues.specialCodePrintLogTypeScrap.Id, shopOrderProductionDetail.Id, machine.Id, resource.Id, printLabelModel.printerName);
                 else
                     PrintLogManager.Current.AddLog(StaticValues.specialCodePrintLogTypeProductiongDetail.Id, shopOrderProductionDetail.Id, machine.Id, resource.Id, printLabelModel.printerName);
+
                 e.PrintDocument.PrinterSettings.Copies = printLabelModel.PrintCopyCount;
-                FrmPrinting frm = new FrmPrinting();
-                frm.ShowDialog();
+
+                using (var frm = new FrmPrinting())
+                    frm.ShowDialog();
             }
             catch
             {
-
+                // ignore logging/printing UI errors
             }
         }
 
@@ -247,7 +268,33 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
             };
         }
 
+        // -------- helpers --------
 
+        private static bool EnsureFileExists(string path)
+        {
+            if (!string.IsNullOrEmpty(path) && File.Exists(path))
+                return true;
+
+            var msg = StaticValues.T["report.file_not_found"];
+            if (string.IsNullOrEmpty(msg))
+                msg = "Etiket dosya yoluna ulaşılamıyor.\r\nLütfen sistem yöneticinize başvurunuz";
+            ToolsMessageBox.Information(ToolsMdiManager.frmOperatorActive, msg);
+            return false;
+        }
+
+        private static bool RequireAdmin()
+        {
+            using (var frm = new FrmAdminLogin())
+            {
+                if (frm.ShowDialog() == DialogResult.OK)
+                    return true;
+
+                var msg = StaticValues.T["report.admin_wrong_password"];
+                if (string.IsNullOrEmpty(msg))
+                    msg = "Admin şifresi yanlış";
+                ToolsMessageBox.Information(ToolsMdiManager.frmOperatorActive, msg);
+                return false;
+            }
+        }
     }
-
 }

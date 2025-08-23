@@ -35,10 +35,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
 
     public static class UserLoginAuthorizationTextExtensions
     {
-        public static string ToText(this UserLoginAuthorization a, IText t)
+        public static string ToText(this UserLoginAuthorization a)
         {
-            if (t == null) throw new ArgumentNullException(nameof(t));
-            return t[UserLoginAuthorizationTextKey.Key(a)];
+            return StaticValues.T[UserLoginAuthorizationTextKey.Key(a)];
         }
     }
 }

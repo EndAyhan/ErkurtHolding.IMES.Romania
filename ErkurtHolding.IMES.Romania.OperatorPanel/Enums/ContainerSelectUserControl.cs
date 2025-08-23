@@ -69,10 +69,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
     /// </summary>
     public static class ContainerSelectUserControlTextExtensions
     {
-        public static string ToText(this ContainerSelectUserControl control, IText t)
+        public static string ToText(this ContainerSelectUserControl control)
         {
-            if (t == null) throw new ArgumentNullException("t");
-            return t[ContainerSelectUserControlTextKey.Key(control)];
+            return StaticValues.T[ContainerSelectUserControlTextKey.Key(control)];
         }
     }
 }

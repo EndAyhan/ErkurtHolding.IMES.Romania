@@ -1,17 +1,24 @@
 ﻿using System;
 using System.Linq;
-using DevExpress.XtraBars.Ribbon;
 using DevExpress.XtraBars;
+using DevExpress.XtraBars.Ribbon;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Enums;
-using ErkurtHolding.IMES.Romania.OperatorPanel.Localization;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
 {
+    /// <summary>
+    /// Centralizes ribbon state/visibility rules for the Operator Panel.
+    /// Uses enum <c>.ToText()</c> (internally localized via <c>StaticValues.T</c>)
+    /// to match <see cref="BarItem.Description"/> of links on the ribbon.
+    /// </summary>
     public static class ToolsRibbonManager
     {
+        /// <summary>
+        /// The shared ribbon control to manipulate.
+        /// </summary>
         public static RibbonControl ribbonControl { get; set; }
 
-        // Page & group names
+        // Page & group names (keep in sync with Designer)
         private const string Page_General = "rbPageGeneral";
         private const string Page_Interruptions = "rbPageInterruptions";
         private const string Group_ShopOrderSettings = "rpgShopOrderSettings";
@@ -22,6 +29,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
         private const string Group_Scale = "rpgScale";
         private const string Group_QrCode = "rpgqrCode";
 
+        /// <summary>
+        /// Shows only the selected page; hides all others.
+        /// </summary>
         public static void RibbonPageStatus(RibbonPage selectedPage)
         {
             if (ribbonControl == null || selectedPage == null) return;
@@ -30,6 +40,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
                 page.Visible = string.Equals(selectedPage.Name, page.Name, StringComparison.Ordinal);
         }
 
+        /// <summary>
+        /// Applies all button visibility rules for the given states.
+        /// </summary>
         public static void RibbonButtonStatus(
             ShopOrderStatus shopOrderStatus,
             InterruptionCauseOptions interruptionCause,
@@ -42,13 +55,15 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
             RibbonButtonStatus(prMaintenanceButtonStatus);
         }
 
+        /// <summary>
+        /// Updates “Shop Order Settings” and “Operator Enter/Exit” groups on the General page.
+        /// </summary>
         public static void RibbonButtonStatus(ShopOrderStatus shopOrderStatus)
         {
             if (ribbonControl == null) return;
-            var t = new JsonText();
 
             var generalPage = ribbonControl.Pages.Cast<RibbonPage>()
-                                .FirstOrDefault(p => p.Name == Page_General);
+                                  .FirstOrDefault(p => p.Name == Page_General);
             if (generalPage == null) return;
 
             bool startVisible = false;
@@ -63,8 +78,8 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
                 SetItemVisible(group, 4, false);
                 SetItemVisible(group, 5, false);
 
-                // Show the one that matches current status text
-                var text = shopOrderStatus.ToText(t);
+                // Show the link that matches current status text
+                var text = shopOrderStatus.ToText(); // internally localized
                 var link = FindByDescription(group, text);
                 if (link != null) link.Visible = true;
 
@@ -74,11 +89,12 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
 
                 // Additional condition for [3]
                 bool visible2 = GetVisible(group, 2);
-                bool allow3 = visible2 && ToolsMdiManager.frmOperatorActive != null
-                                        && !ToolsMdiManager.frmOperatorActive.processNewActive;
+                bool allow3 = visible2
+                              && ToolsMdiManager.frmOperatorActive != null
+                              && !ToolsMdiManager.frmOperatorActive.processNewActive;
                 SetItemVisible(group, 3, allow3);
 
-                // Start group visible if "start" item was not visible
+                // Start/enter-exit visibility coupling
                 startVisible = !GetVisible(group, 0);
             }
 
@@ -87,10 +103,12 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
                 group.Visible = startVisible;
         }
 
+        /// <summary>
+        /// Updates “Machine Down” group on the Interruptions page.
+        /// </summary>
         public static void RibbonButtonStatus(InterruptionCauseOptions interruptionCause)
         {
             if (ribbonControl == null) return;
-            var t = new JsonText();
 
             foreach (var group in ribbonControl.Pages.Cast<RibbonPage>()
                          .Where(p => p.Name == Page_Interruptions)
@@ -99,16 +117,18 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
                 SetItemVisible(group, 0, false);
                 SetItemVisible(group, 1, false);
 
-                var text = interruptionCause.ToText(t);
+                var text = interruptionCause.ToText();
                 var link = FindByDescription(group, text);
                 if (link != null) link.Visible = true;
             }
         }
 
+        /// <summary>
+        /// Updates “Machine Down Time” group on the Interruptions page.
+        /// </summary>
         public static void RibbonButtonStatus(MachineDownTimeButtonStatus machineDownTimeButtonStatus)
         {
             if (ribbonControl == null) return;
-            var t = new JsonText();
 
             foreach (var group in ribbonControl.Pages.Cast<RibbonPage>()
                          .Where(p => p.Name == Page_Interruptions)
@@ -121,7 +141,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
                 SetItemVisible(group, 3, false);
                 SetItemVisible(group, 4, false);
 
-                var text = machineDownTimeButtonStatus.ToText(t);
+                var text = machineDownTimeButtonStatus.ToText();
                 var link = FindByDescription(group, text);
                 if (link != null) link.Visible = true;
 
@@ -131,10 +151,12 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
             }
         }
 
+        /// <summary>
+        /// Updates “PrMaintenance” group on the Interruptions page.
+        /// </summary>
         public static void RibbonButtonStatus(PrMaintenanceButtonStatus prMaintenanceButtonStatus)
         {
             if (ribbonControl == null) return;
-            var t = new JsonText();
 
             foreach (var group in ribbonControl.Pages.Cast<RibbonPage>()
                          .Where(p => p.Name == Page_Interruptions)
@@ -144,15 +166,19 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
                 SetItemVisible(group, 1, false);
                 SetItemVisible(group, 2, false);
 
-                var text = prMaintenanceButtonStatus.ToText(t);
+                var text = prMaintenanceButtonStatus.ToText();
                 var link = FindByDescription(group, text);
                 if (link != null) link.Visible = true;
             }
         }
 
+        /// <summary>
+        /// Shows/hides the “Scale” group on the General page.
+        /// </summary>
         public static void RibbonButtonScale(bool visible)
         {
             if (ribbonControl == null) return;
+
             foreach (var group in ribbonControl.Pages.Cast<RibbonPage>()
                          .Where(p => p.Name == Page_General)
                          .SelectMany(p => p.Groups.Where(g => g.Name == Group_Scale)))
@@ -161,9 +187,13 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
             }
         }
 
+        /// <summary>
+        /// Shows/hides the “QR Code” group on the General page.
+        /// </summary>
         public static void RibbonButtonQrCode(bool visible)
         {
             if (ribbonControl == null) return;
+
             foreach (var group in ribbonControl.Pages.Cast<RibbonPage>()
                          .Where(p => p.Name == Page_General)
                          .SelectMany(p => p.Groups.Where(g => g.Name == Group_QrCode)))
@@ -172,8 +202,11 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
             }
         }
 
-        // ---------- helpers ----------
+        // ---------------- helpers ----------------
 
+        /// <summary>
+        /// Finds a bar link in the group by matching <see cref="BarItem.Description"/> (ordinal).
+        /// </summary>
         private static BarItemLink FindByDescription(RibbonPageGroup group, string description)
         {
             if (group == null || group.ItemLinks == null || string.IsNullOrEmpty(description))
@@ -181,7 +214,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
 
             foreach (BarItemLink link in group.ItemLinks)
             {
-                if (link.Item != null &&
+                if (link?.Item != null &&
                     string.Equals(link.Item.Description, description, StringComparison.Ordinal))
                 {
                     return link;
@@ -190,6 +223,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
             return null;
         }
 
+        /// <summary>
+        /// Safely sets visibility of a link at an index (no-op if out of range).
+        /// </summary>
         private static void SetItemVisible(RibbonPageGroup group, int index, bool visible)
         {
             if (group == null || group.ItemLinks == null) return;
@@ -197,6 +233,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
             group.ItemLinks[index].Visible = visible;
         }
 
+        /// <summary>
+        /// Safely gets visibility of a link at an index; returns <c>false</c> if out of range.
+        /// </summary>
         private static bool GetVisible(RibbonPageGroup group, int index)
         {
             if (group == null || group.ItemLinks == null) return false;
@@ -204,6 +243,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
             return group.ItemLinks[index].Visible;
         }
 
+        /// <summary>
+        /// Mirrors visibility from <paramref name="sourceIndex"/> to <paramref name="targetIndex"/>.
+        /// </summary>
         private static void SetMirror(RibbonPageGroup group, int targetIndex, int sourceIndex)
         {
             if (group == null || group.ItemLinks == null) return;
