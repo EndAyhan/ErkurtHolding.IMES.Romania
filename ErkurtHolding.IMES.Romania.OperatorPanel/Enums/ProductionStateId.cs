@@ -12,26 +12,18 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
         QUALITYOK = 4  // "Parça OK"
     }
 
-    public static class ProductionStateIdTextKey
-    {
-        public static string Key(ProductionStateId s)
-        {
-            switch (s)
-            {
-                case ProductionStateId.OK: return "enums.production_state_id.ok";
-                case ProductionStateId.Scrap: return "enums.production_state_id.suspect";
-                case ProductionStateId.NotOk: return "enums.production_state_id.scrap";
-                case ProductionStateId.QUALITYOK: return "enums.production_state_id.quality_ok";
-                default: return "enums.production_state_id.unknown";
-            }
-        }
-    }
-
     public static class ProductionStateIdTextExtensions
     {
         public static string ToText(this ProductionStateId s)
         {
-            return StaticValues.T[ProductionStateIdTextKey.Key(s)];
+            switch (s)
+            {
+                case ProductionStateId.OK: return MessageTextHelper.GetMessageText("ENUM", "215", "OK", "Enum");
+                case ProductionStateId.Scrap: return MessageTextHelper.GetMessageText("ENUM", "216", "Suspect", "Enum");
+                case ProductionStateId.NotOk: return MessageTextHelper.GetMessageText("ENUM", "217", "Scrap", "Enum");
+                case ProductionStateId.QUALITYOK: return MessageTextHelper.GetMessageText("ENUM", "218", "Quality OK", "Enum");
+                default: return MessageTextHelper.GetMessageText("ENUM", "219", "Unknown State", "Enum");
+            }
         }
     }
 }

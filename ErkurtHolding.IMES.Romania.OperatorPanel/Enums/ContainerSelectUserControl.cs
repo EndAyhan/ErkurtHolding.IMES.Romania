@@ -31,47 +31,36 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
     }
 
     /// <summary>
-    /// Provides stable localization keys for <see cref="ContainerSelectUserControl"/>.
-    /// </summary>
-    public static class ContainerSelectUserControlTextKey
-    {
-        public static string Key(ContainerSelectUserControl control)
-        {
-            switch (control)
-            {
-                case ContainerSelectUserControl.MachineDown: return "enums.container_control.machine_down";
-                case ContainerSelectUserControl.MachineDownDuration: return "enums.container_control.machine_down_duration";
-                case ContainerSelectUserControl.MachineDownStop: return "enums.container_control.machine_down_stop";
-                case ContainerSelectUserControl.MachineDownMaintanenceStart: return "enums.container_control.machine_down_maintenance_start";
-                case ContainerSelectUserControl.PrMaintenance: return "enums.container_control.pr_maintenance";
-                case ContainerSelectUserControl.PrMaintanenceDuration: return "enums.container_control.pr_maintenance_duration";
-                case ContainerSelectUserControl.PrMaintenanceStart: return "enums.container_control.pr_maintenance_start";
-                case ContainerSelectUserControl.PrMaintenanceFinish: return "enums.container_control.pr_maintenance_finish";
-                case ContainerSelectUserControl.InterruptionCause: return "enums.container_control.interruption_cause";
-                case ContainerSelectUserControl.InterruptionCauseDuration: return "enums.container_control.interruption_cause_duration";
-                case ContainerSelectUserControl.SetupCheckList: return "enums.container_control.setup_checklist";
-                case ContainerSelectUserControl.UserLogin: return "enums.container_control.user_login";
-                case ContainerSelectUserControl.UserLogOut: return "enums.container_control.user_logout";
-                case ContainerSelectUserControl.BoxBarcode: return "enums.container_control.box_barcode";
-                case ContainerSelectUserControl.QuestionableProduct: return "enums.container_control.questionable_product";
-                case ContainerSelectUserControl.ProcessBoxBarcode: return "enums.container_control.process_box_barcode";
-                case ContainerSelectUserControl.GeneralReadResult: return "enums.container_control.general_read_result";
-                case ContainerSelectUserControl.ShiftBook: return "enums.container_control.shift_book";
-                case ContainerSelectUserControl.MachineAutoMaintanenceCheckList: return "enums.container_control.machine_auto_maintenance_checklist";
-                case ContainerSelectUserControl.YellowCard: return "enums.container_control.yellow_card";
-                default: return "enums.container_control.unknown";
-            }
-        }
-    }
-
-    /// <summary>
     /// Helpers to render <see cref="ContainerSelectUserControl"/> using an <c>IText</c> provider.
     /// </summary>
     public static class ContainerSelectUserControlTextExtensions
     {
         public static string ToText(this ContainerSelectUserControl control)
         {
-            return StaticValues.T[ContainerSelectUserControlTextKey.Key(control)];
+            switch (control)
+            {
+                case ContainerSelectUserControl.MachineDown: return MessageTextHelper.GetMessageText("ENUM", "115", "Machine Down", "Enum");
+                case ContainerSelectUserControl.MachineDownDuration: return MessageTextHelper.GetMessageText("ENUM", "116", "Machine Down Duration", "Enum");
+                case ContainerSelectUserControl.MachineDownStop: return MessageTextHelper.GetMessageText("ENUM", "117", "Machine Down Stop", "Enum");
+                case ContainerSelectUserControl.MachineDownMaintanenceStart: return MessageTextHelper.GetMessageText("ENUM", "118", "Machine Down Maintenance Start", "Enum");
+                case ContainerSelectUserControl.PrMaintenance: return MessageTextHelper.GetMessageText("ENUM", "119", "Preventive Maintenance", "Enum");
+                case ContainerSelectUserControl.PrMaintanenceDuration: return MessageTextHelper.GetMessageText("ENUM", "120", "Preventive Maintenance Duration", "Enum");
+                case ContainerSelectUserControl.PrMaintenanceStart: return MessageTextHelper.GetMessageText("ENUM", "121", "Preventive Maintenance Start", "Enum");
+                case ContainerSelectUserControl.PrMaintenanceFinish: return MessageTextHelper.GetMessageText("ENUM", "122", "Preventive Maintenance Finish", "Enum");
+                case ContainerSelectUserControl.InterruptionCause: return MessageTextHelper.GetMessageText("ENUM", "123", "Interruption Cause", "Enum");
+                case ContainerSelectUserControl.InterruptionCauseDuration: return MessageTextHelper.GetMessageText("ENUM", "124", "Interruption Cause Duration", "Enum");
+                case ContainerSelectUserControl.SetupCheckList: return MessageTextHelper.GetMessageText("ENUM", "125", "Setup Checklist", "Enum");
+                case ContainerSelectUserControl.UserLogin: return MessageTextHelper.GetMessageText("ENUM", "126", "User Login", "Enum");
+                case ContainerSelectUserControl.UserLogOut: return MessageTextHelper.GetMessageText("ENUM", "127", "User Logout", "Enum");
+                case ContainerSelectUserControl.BoxBarcode: return MessageTextHelper.GetMessageText("ENUM", "128", "Box Barcode", "Enum");
+                case ContainerSelectUserControl.QuestionableProduct: return MessageTextHelper.GetMessageText("ENUM", "129", "Questionable Product", "Enum");
+                case ContainerSelectUserControl.ProcessBoxBarcode: return MessageTextHelper.GetMessageText("ENUM", "130", "Process Box Barcode", "Enum");
+                case ContainerSelectUserControl.GeneralReadResult: return MessageTextHelper.GetMessageText("ENUM", "131", "General Read Result", "Enum");
+                case ContainerSelectUserControl.ShiftBook: return MessageTextHelper.GetMessageText("ENUM", "132", "Shift Book", "Enum");
+                case ContainerSelectUserControl.MachineAutoMaintanenceCheckList: return MessageTextHelper.GetMessageText("ENUM", "133", "Machine Auto Maintenance Checklist", "Enum");
+                case ContainerSelectUserControl.YellowCard: return MessageTextHelper.GetMessageText("ENUM", "134", "Yellow Card", "Enum");
+                default: return MessageTextHelper.GetMessageText("ENUM", "135", "Unknown Control", "Enum");
+            }
         }
     }
 }

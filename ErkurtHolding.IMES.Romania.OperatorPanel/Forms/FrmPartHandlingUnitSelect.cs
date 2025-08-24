@@ -16,7 +16,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
         {
             InitializeComponent();
 
-            FormLocalizer.Localize(this);
+            LanguageHelper.InitializeLanguage(this);
 
             var prm = _partHandlingUnits[0].PartNo.CreateParameters("@PartNo");
             this.Text = ToolsMessageBox.ReplaceParameters("@PartNo İÇİN TAŞIMA KASASI SEÇİM EKRANI", prm);

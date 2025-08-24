@@ -21,7 +21,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
         {
             InitializeComponent();
 
-            FormLocalizer.Localize(this);
+            LanguageHelper.InitializeLanguage(this);
 
             SetLookAndFeel();
         }

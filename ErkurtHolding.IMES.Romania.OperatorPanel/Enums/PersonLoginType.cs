@@ -14,30 +14,19 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
     }
 
     /// <summary>
-    /// Provides stable localization keys for <see cref="PersonLoginType"/>.
-    /// </summary>
-    public static class PersonLoginTypeTextKey
-    {
-        public static string Key(PersonLoginType type)
-        {
-            switch (type)
-            {
-                case PersonLoginType.ShopOrderSuperVisorLogin: return "enums.person_login_type.shop_order_supervisor_login";
-                case PersonLoginType.ShopOrderPersonelLogin: return "enums.person_login_type.shop_order_personel_login";
-                case PersonLoginType.ShopOrderPersonelLogout: return "enums.person_login_type.shop_order_personel_logout";
-                default: return "enums.person_login_type.unknown";
-            }
-        }
-    }
-
-    /// <summary>
     /// Helper to render <see cref="PersonLoginType"/> using an <c>IText</c> provider.
     /// </summary>
     public static class PersonLoginTypeTextExtensions
     {
         public static string ToText(this PersonLoginType type)
         {
-            return StaticValues.T[PersonLoginTypeTextKey.Key(type)];
+            switch (type)
+            {
+                case PersonLoginType.ShopOrderSuperVisorLogin: return MessageTextHelper.GetMessageText("ENUM", "181", "Shop Order Supervisor Login", "Enum");
+                case PersonLoginType.ShopOrderPersonelLogin: return MessageTextHelper.GetMessageText("ENUM", "182", "Shop Order Personnel Login", "Enum");
+                case PersonLoginType.ShopOrderPersonelLogout: return MessageTextHelper.GetMessageText("ENUM", "183", "Shop Order Personnel Logout", "Enum");
+                default: return MessageTextHelper.GetMessageText("ENUM", "184", "Unknown Login Type", "Enum");
+            }
         }
     }
 }

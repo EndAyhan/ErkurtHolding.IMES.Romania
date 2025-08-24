@@ -16,32 +16,21 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
     }
 
     /// <summary>
-    /// Provides stable localization keys for <see cref="MachineOPCDataType"/>.
-    /// </summary>
-    public static class MachineOPCDataTypeTextKey
-    {
-        public static string Key(MachineOPCDataType type)
-        {
-            switch (type)
-            {
-                case MachineOPCDataType.SquareMetersCounter: return "enums.machine_opc_data_type.square_meters_counter";
-                case MachineOPCDataType.Handshake: return "enums.machine_opc_data_type.handshake";
-                case MachineOPCDataType.PlcRunModeParameter: return "enums.machine_opc_data_type.plc_run_mode_parameter";
-                case MachineOPCDataType.PokaYoke: return "enums.machine_opc_data_type.poka_yoke";
-                case MachineOPCDataType.MachineProgramNodeId: return "enums.machine_opc_data_type.machine_program_node_id";
-                default: return "enums.machine_opc_data_type.unknown";
-            }
-        }
-    }
-
-    /// <summary>
     /// Helper to render <see cref="MachineOPCDataType"/> using an <c>IText</c> provider.
     /// </summary>
     public static class MachineOPCDataTypeTextExtensions
     {
         public static string ToText(this MachineOPCDataType type)
         {
-            return StaticValues.T[MachineOPCDataTypeTextKey.Key(type)];
+            switch (type)
+            {
+                case MachineOPCDataType.SquareMetersCounter: return MessageTextHelper.GetMessageText("ENUM", "165", "Square Meters Counter", "Enum");
+                case MachineOPCDataType.Handshake: return MessageTextHelper.GetMessageText("ENUM", "166", "Handshake", "Enum");
+                case MachineOPCDataType.PlcRunModeParameter: return MessageTextHelper.GetMessageText("ENUM", "167", "PLC Run Mode Parameter", "Enum");
+                case MachineOPCDataType.PokaYoke: return MessageTextHelper.GetMessageText("ENUM", "168", "Poka-Yoke", "Enum");
+                case MachineOPCDataType.MachineProgramNodeId: return MessageTextHelper.GetMessageText("ENUM", "169", "Recipe Number", "Enum");
+                default: return MessageTextHelper.GetMessageText("ENUM", "170", "Unknown OPC Data Type", "Enum");
+            }
         }
     }
 }

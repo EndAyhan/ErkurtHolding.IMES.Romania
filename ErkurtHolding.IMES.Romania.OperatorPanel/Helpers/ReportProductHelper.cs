@@ -181,20 +181,20 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
 
                 if (inkjetPrinter == null)
                 {
-                    errors.Add(StaticValues.T["inkjet.no_printer_map"] ?? "Inkjet printer tanımı bulunamadı.");
+                    errors.Add(MessageTextHelper.GetMessageText("RPRT", "107", "No inkjet printer mapping was found.", "Report"));
                 }
                 else
                 {
                     var specialCode = SpecialCodeManager.Current.GetSpecialCodeById(inkjetPrinter.PrinterID);
                     if (specialCode == null)
-                        errors.Add(StaticValues.T["inkjet.no_specialcode"] ?? "Inkjet printer için SpecialCode bulunamadı.");
+                        errors.Add(MessageTextHelper.GetMessageText("RPRT", "108", "SpecialCode for inkjet printer could not be found.", "Report"));
                     else
                         inkjetName = specialCode.Name;
                 }
             }
             catch (Exception ex)
             {
-                var msg = (StaticValues.T["inkjet.error_printer_name"] ?? "MQTT yazıcı ismi alınamadı: {Message}")
+                var msg = (MessageTextHelper.GetMessageText("RPRT", "109", "Failed to get MQTT printer name: {Message}", "Report"))
                     .Replace("{Message}", ex.Message);
                 errors.Add(msg);
             }
@@ -210,7 +210,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
             }
             catch (Exception ex)
             {
-                var msg = (StaticValues.T["inkjet.serialize_failed"] ?? "Etiket verisi serialize edilemedi: {Message}")
+                var msg = (MessageTextHelper.GetMessageText("RPRT", "110", "Could not serialize label payload: {Message}", "Report"))
                     .Replace("{Message}", ex.Message);
                 errors.Add(msg);
                 return errors;
@@ -220,11 +220,11 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
             {
                 bool success = await MqttHelper.PublishAsync(inkjetName, jsonPayload);
                 if (!success)
-                    errors.Add(StaticValues.T["inkjet.mqtt_failed"] ?? "MQTT gönderimi başarısız oldu.");
+                    errors.Add(MessageTextHelper.GetMessageText("RPRT", "111", "MQTT publish failed.", "Report"));
             }
             catch (Exception ex)
             {
-                var msg = (StaticValues.T["inkjet.mqtt_exception"] ?? "MQTT gönderimi sırasında hata oluştu: {Message}")
+                var msg = (MessageTextHelper.GetMessageText("RPRT", "112", "An error occurred during MQTT publish: {Message}", "Report"))
                     .Replace("{Message}", ex.Message);
                 errors.Add(msg);
             }
@@ -275,9 +275,8 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
             if (!string.IsNullOrEmpty(path) && File.Exists(path))
                 return true;
 
-            var msg = StaticValues.T["report.file_not_found"];
-            if (string.IsNullOrEmpty(msg))
-                msg = "Etiket dosya yoluna ulaşılamıyor.\r\nLütfen sistem yöneticinize başvurunuz";
+            var msg = MessageTextHelper.GetMessageText("RPRT", "105", "The label file path cannot be accessed.\r\nPlease contact your system administrator.", "Report");
+
             ToolsMessageBox.Information(ToolsMdiManager.frmOperatorActive, msg);
             return false;
         }
@@ -289,9 +288,8 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
                 if (frm.ShowDialog() == DialogResult.OK)
                     return true;
 
-                var msg = StaticValues.T["report.admin_wrong_password"];
-                if (string.IsNullOrEmpty(msg))
-                    msg = "Admin şifresi yanlış";
+                var msg = MessageTextHelper.GetMessageText("RPRT", "106", "Admin password is incorrect.", "Report");
+
                 ToolsMessageBox.Information(ToolsMdiManager.frmOperatorActive, msg);
                 return false;
             }

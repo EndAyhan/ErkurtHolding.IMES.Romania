@@ -17,33 +17,22 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
     }
 
     /// <summary>
-    /// Provides stable localization keys for <see cref="ResourceWorkingStatus"/>.
-    /// </summary>
-    public static class ResourceWorkingStatusTextKey
-    {
-        public static string Key(ResourceWorkingStatus status)
-        {
-            switch (status)
-            {
-                case ResourceWorkingStatus.Working: return "enums.resource_working_status.working";
-                case ResourceWorkingStatus.Waiting: return "enums.resource_working_status.waiting";
-                case ResourceWorkingStatus.Setup: return "enums.resource_working_status.setup";
-                case ResourceWorkingStatus.Interruption: return "enums.resource_working_status.interruption";
-                case ResourceWorkingStatus.Fault: return "enums.resource_working_status.fault";
-                case ResourceWorkingStatus.Maintenance: return "enums.resource_working_status.maintenance";
-                default: return "enums.resource_working_status.unknown";
-            }
-        }
-    }
-
-    /// <summary>
     /// Helper to render <see cref="ResourceWorkingStatus"/> using an <c>IText</c> provider.
     /// </summary>
     public static class ResourceWorkingStatusTextExtensions
     {
         public static string ToText(this ResourceWorkingStatus status)
         {
-            return StaticValues.T[ResourceWorkingStatusTextKey.Key(status)];
+            switch (status)
+            {
+                case ResourceWorkingStatus.Working: return MessageTextHelper.GetMessageText("ENUM", "283", "Working", "Enum");
+                case ResourceWorkingStatus.Waiting: return MessageTextHelper.GetMessageText("ENUM", "284", "Waiting", "Enum");
+                case ResourceWorkingStatus.Setup: return MessageTextHelper.GetMessageText("ENUM", "285", "Setup", "Enum");
+                case ResourceWorkingStatus.Interruption: return MessageTextHelper.GetMessageText("ENUM", "286", "Interruption", "Enum");
+                case ResourceWorkingStatus.Fault: return MessageTextHelper.GetMessageText("ENUM", "287", "Fault", "Enum");
+                case ResourceWorkingStatus.Maintenance: return MessageTextHelper.GetMessageText("ENUM", "288", "Maintenance", "Enum");
+                default: return MessageTextHelper.GetMessageText("ENUM", "289", "Unknown Status", "Enum");
+            }
         }
     }
 }

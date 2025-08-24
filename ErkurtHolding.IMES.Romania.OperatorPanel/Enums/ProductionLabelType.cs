@@ -12,26 +12,18 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
         InkjetProcess
     }
 
-    public static class ProductionLabelTypeTextKey
-    {
-        public static string Key(ProductionLabelType type)
-        {
-            switch (type)
-            {
-                case ProductionLabelType.Product: return "enums.production_label_type.product";
-                case ProductionLabelType.Process: return "enums.production_label_type.process";
-                case ProductionLabelType.Box: return "enums.production_label_type.box";
-                case ProductionLabelType.InkjetProcess: return "enums.production_label_type.inkjet_process";
-                default: return "enums.production_label_type.unknown";
-            }
-        }
-    }
-
     public static class ProductionLabelTypeTextExtensions
     {
         public static string ToText(this ProductionLabelType type)
         {
-            return StaticValues.T[ProductionLabelTypeTextKey.Key(type)];
+            switch (type)
+            {
+                case ProductionLabelType.Product: return MessageTextHelper.GetMessageText("ENUM", "202", "Product Label", "Enum");
+                case ProductionLabelType.Process: return MessageTextHelper.GetMessageText("ENUM", "203", "Process Label", "Enum");
+                case ProductionLabelType.Box: return MessageTextHelper.GetMessageText("ENUM", "204", "Box Label", "Enum");
+                case ProductionLabelType.InkjetProcess: return MessageTextHelper.GetMessageText("ENUM", "205", "Inkjet Process", "Enum");
+                default: return MessageTextHelper.GetMessageText("ENUM", "206", "Unknown Label Type", "Enum");
+            }
         }
     }
 }

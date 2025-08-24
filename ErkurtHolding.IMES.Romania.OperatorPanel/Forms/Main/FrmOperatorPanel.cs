@@ -1,4 +1,5 @@
 ﻿using DevExpress.XtraBars;
+using ErkurtHolding.IMES.Romania.OperatorPanel.Localization;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -16,6 +17,8 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms.Main
         public FrmOperatorPanel()
         {
             InitializeComponent();
+
+            LanguageHelper.InitializeLanguage(this);
         }
     }
 }

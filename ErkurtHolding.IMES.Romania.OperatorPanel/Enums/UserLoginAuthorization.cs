@@ -15,29 +15,21 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
         inventoryTransferUserAuthorization
     }
 
-    public static class UserLoginAuthorizationTextKey
-    {
-        public static string Key(UserLoginAuthorization a)
-        {
-            switch (a)
-            {
-                case UserLoginAuthorization.noAuthorization: return "enums.user_login_authorization.no_authorization";
-                case UserLoginAuthorization.personelLevelAuthorization: return "enums.user_login_authorization.personnel_level";
-                case UserLoginAuthorization.startWorkOrderAuthorization: return "enums.user_login_authorization.start_work_order";
-                case UserLoginAuthorization.maintenanceUserAuthorization: return "enums.user_login_authorization.maintenance_user";
-                case UserLoginAuthorization.qualityUserAuthorization: return "enums.user_login_authorization.quality_user";
-                case UserLoginAuthorization.manuelLabelAuthorization: return "enums.user_login_authorization.manual_label";
-                case UserLoginAuthorization.inventoryTransferUserAuthorization: return "enums.user_login_authorization.inventory_transfer_user";
-                default: return "enums.user_login_authorization.unknown";
-            }
-        }
-    }
-
     public static class UserLoginAuthorizationTextExtensions
     {
         public static string ToText(this UserLoginAuthorization a)
         {
-            return StaticValues.T[UserLoginAuthorizationTextKey.Key(a)];
+            switch (a)
+            {
+                case UserLoginAuthorization.noAuthorization: return MessageTextHelper.GetMessageText("ENUM", "273", "No authorization check", "Enum");
+                case UserLoginAuthorization.personelLevelAuthorization: return MessageTextHelper.GetMessageText("ENUM", "274", "Personnel level > 2", "Enum");
+                case UserLoginAuthorization.startWorkOrderAuthorization: return MessageTextHelper.GetMessageText("ENUM", "275", "Start Work Order", "Enum");
+                case UserLoginAuthorization.maintenanceUserAuthorization: return MessageTextHelper.GetMessageText("ENUM", "276", "Maintenance User", "Enum");
+                case UserLoginAuthorization.qualityUserAuthorization: return MessageTextHelper.GetMessageText("ENUM", "277", "Quality User", "Enum");
+                case UserLoginAuthorization.manuelLabelAuthorization: return MessageTextHelper.GetMessageText("ENUM", "278", "Manual Label User", "Enum");
+                case UserLoginAuthorization.inventoryTransferUserAuthorization: return MessageTextHelper.GetMessageText("ENUM", "279", "Inventory Transfer User", "Enum");
+                default: return MessageTextHelper.GetMessageText("ENUM", "280", "Unknown Authorization", "Enum");
+            }
         }
     }
 }

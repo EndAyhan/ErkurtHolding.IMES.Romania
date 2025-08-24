@@ -16,32 +16,21 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
     }
 
     /// <summary>
-    /// Provides stable localization keys for <see cref="InterruptionCauseOptions"/>.
-    /// </summary>
-    public static class InterruptionCauseOptionsTextKey
-    {
-        public static string Key(InterruptionCauseOptions option)
-        {
-            switch (option)
-            {
-                case InterruptionCauseOptions.Start: return "enums.interruption_cause_options.start";
-                case InterruptionCauseOptions.End: return "enums.interruption_cause_options.end";
-                case InterruptionCauseOptions.Default: return "enums.interruption_cause_options.default";
-                case InterruptionCauseOptions.Waiting: return "enums.interruption_cause_options.waiting";
-                case InterruptionCauseOptions.AutoMaintenance: return "enums.interruption_cause_options.auto_maintenance";
-                default: return "enums.interruption_cause_options.unknown";
-            }
-        }
-    }
-
-    /// <summary>
     /// Helper to render <see cref="InterruptionCauseOptions"/> using an <c>IText</c> provider.
     /// </summary>
     public static class InterruptionCauseOptionsTextExtensions
     {
         public static string ToText(this InterruptionCauseOptions option)
         {
-            return StaticValues.T[InterruptionCauseOptionsTextKey.Key(option)];
+            switch (option)
+            {
+                case InterruptionCauseOptions.Start: return MessageTextHelper.GetMessageText("ENUM", "147", "Start Interruption", "Enum");
+                case InterruptionCauseOptions.End: return MessageTextHelper.GetMessageText("ENUM", "148", "End Interruption", "Enum");
+                case InterruptionCauseOptions.Default: return MessageTextHelper.GetMessageText("ENUM", "149", "Default", "Enum");
+                case InterruptionCauseOptions.Waiting: return MessageTextHelper.GetMessageText("ENUM", "150", "Waiting", "Enum");
+                case InterruptionCauseOptions.AutoMaintenance: return MessageTextHelper.GetMessageText("ENUM", "151", "Autonomous Maintenance", "Enum");
+                default: return MessageTextHelper.GetMessageText("ENUM", "152", "Unknown Option", "Enum");
+            }
         }
     }
 }

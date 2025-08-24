@@ -89,6 +89,8 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
         public FrmOperator()
         {
             InitializeComponent();
+
+            LanguageHelper.InitializeLanguage(this);
         }
 
 

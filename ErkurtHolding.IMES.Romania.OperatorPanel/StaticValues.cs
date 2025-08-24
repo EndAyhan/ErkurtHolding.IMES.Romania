@@ -14,6 +14,8 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
 {
     public static class StaticValues
     {
+        public static string Language { get => ConfigurationManager.AppSettings["Language"] ?? "en_EN"; }
+
         public static string panelName { get => ConfigurationManager.AppSettings["PanelName"]; }
         public static string HideOEEPanel { get => ConfigurationManager.AppSettings["HideOEEPanel"] ?? "FALSE"; }
         public static string WorkCenterType { get => ConfigurationManager.AppSettings["WorkCenterType"] ?? ""; }
@@ -26,11 +28,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
         public static string SubcontractorWorkcenterId { get => ConfigurationManager.AppSettings["subcontractor_workcenter_id"]; }
         public static string SubcontractorResourceId { get => ConfigurationManager.AppSettings["subcontractor_resource_id"]; }
 
-        private static readonly JsonText _t = new JsonText();
-        /// <summary>
-        /// Global access to the localization dictionary.
-        /// </summary>
-        public static JsonText T => _t;
+        public static SpecialCode LanguageCode { get; } = SpecialCodeManager.Current.GetSpecialCodeByCode(Language, (int)SpecialCodeType.Language);
 
         public static bool Restart { get; set; } = true;
 
@@ -56,6 +54,26 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
                 return _opInterruptionCauseBekleme;
             }
         }
+
+        private static List<MessageText> _messageText;
+        public static List<MessageText> MessageText
+        {
+            get
+            {
+                if (_messageText == null)
+                {
+                    _messageText = MessageTextManager.Current.GetAll();
+                    if (_messageText == null)
+                    {
+                        _messageText = new List<MessageText>();
+                    }
+                    MessageTextHelper.WarmupCache(_messageText);
+                }
+                return _messageText;
+            }
+            set { _messageText = value; }
+        }
+
 
         #region SpecialCodes
         private static SpecialCode _specialCodePrintLogTypeScrap;

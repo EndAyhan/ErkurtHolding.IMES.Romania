@@ -22,25 +22,6 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
     }
 
     /// <summary>
-    /// Provides stable localization keys for <see cref="CallStatusType"/>.
-    /// </summary>
-    public static class CallStatusTypeTextKey
-    {
-        /// <summary>Returns the localization key for the given <see cref="CallStatusType"/>.</summary>
-        public static string Key(CallStatusType status)
-        {
-            switch (status)
-            {
-                case CallStatusType.waiting: return "enums.call_status.waiting";
-                case CallStatusType.inprogress: return "enums.call_status.inprogress";
-                case CallStatusType.delivered: return "enums.call_status.delivered";
-                case CallStatusType.completed: return "enums.call_status.completed";
-                default: return "enums.call_status.unknown";
-            }
-        }
-    }
-
-    /// <summary>
     /// Helpers to render <see cref="CallStatusType"/> using an <c>IText</c> provider.
     /// </summary>
     public static class CallStatusTypeTextExtensions
@@ -48,7 +29,14 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
         /// <summary>Gets the localized text for the given <see cref="CallStatusType"/>.</summary>
         public static string ToText(this CallStatusType status)
         {
-            return StaticValues.T[CallStatusTypeTextKey.Key(status)];
+            switch (status)
+            {
+                case CallStatusType.waiting: return MessageTextHelper.GetMessageText("ENUM", "108", "Waiting", "Enum");
+                case CallStatusType.inprogress: return MessageTextHelper.GetMessageText("ENUM", "109", "In progress", "Enum");
+                case CallStatusType.delivered: return MessageTextHelper.GetMessageText("ENUM", "110", "Delivered", "Enum");
+                case CallStatusType.completed: return MessageTextHelper.GetMessageText("ENUM", "111", "Completed", "Enum");
+                default: return MessageTextHelper.GetMessageText("ENUM", "112", "Unknown", "Enum");
+            }
         }
     }
 }

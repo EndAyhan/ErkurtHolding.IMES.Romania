@@ -17,34 +17,22 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
     }
 
     /// <summary>
-    /// Provides stable localization keys for <see cref="CounterReadType"/>.
-    /// </summary>
-    public static class CounterReadTypeTextKey
-    {
-        /// <summary>Returns the localization key for the given <see cref="CounterReadType"/>.</summary>
-        public static string Key(CounterReadType type)
-        {
-            switch (type)
-            {
-                case CounterReadType.PLC: return "enums.counter_read.plc";
-                case CounterReadType.BARCODEPLC: return "enums.counter_read.barcode_plc";
-                case CounterReadType.MANUEL: return "enums.counter_read.manual";
-                case CounterReadType.BUTTONANDREADBARCODE: return "enums.counter_read.button_and_barcode";
-                case CounterReadType.PLCBARCODE: return "enums.counter_read.plc_barcode";
-                case CounterReadType.SUPPLIERPARK: return "enums.counter_read.supplier_park";
-                default: return "enums.counter_read.unknown";
-            }
-        }
-    }
-
-    /// <summary>
     /// Helper to render <see cref="CounterReadType"/> using an <c>IText</c> provider.
     /// </summary>
     public static class CounterReadTypeTextExtensions
     {
         public static string ToText(this CounterReadType type)
         {
-            return StaticValues.T[CounterReadTypeTextKey.Key(type)];
+            switch (type)
+            {
+                case CounterReadType.PLC: return MessageTextHelper.GetMessageText("ENUM", "138", "PLC", "Enum");
+                case CounterReadType.BARCODEPLC: return MessageTextHelper.GetMessageText("ENUM", "139", "Barcode First, Then PLC Counter", "Enum");
+                case CounterReadType.MANUEL: return MessageTextHelper.GetMessageText("ENUM", "140", "Manual Quantity Entry", "Enum");
+                case CounterReadType.BUTTONANDREADBARCODE: return MessageTextHelper.GetMessageText("ENUM", "141", "Button and Barcode Read", "Enum");
+                case CounterReadType.PLCBARCODE: return MessageTextHelper.GetMessageText("ENUM", "142", "PLC Counter First, Then Barcode", "Enum");
+                case CounterReadType.SUPPLIERPARK: return MessageTextHelper.GetMessageText("ENUM", "143", "Supplier Park", "Enum");
+                default: return MessageTextHelper.GetMessageText("ENUM", "144", "Unknown Counter Read Type", "Enum");
+            }
         }
     }
 }

@@ -11,25 +11,17 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
         StartProduction = 2
     }
 
-    public static class ShopOrderStatusTextKey
-    {
-        public static string Key(ShopOrderStatus s)
-        {
-            switch (s)
-            {
-                case ShopOrderStatus.Start: return "enums.shop_order_status.start";
-                case ShopOrderStatus.End: return "enums.shop_order_status.end";
-                case ShopOrderStatus.StartProduction: return "enums.shop_order_status.start_production";
-                default: return "enums.shop_order_status.unknown";
-            }
-        }
-    }
-
     public static class ShopOrderStatusTextExtensions
     {
         public static string ToText(this ShopOrderStatus s)
         {
-            return StaticValues.T[ShopOrderStatusTextKey.Key(s)];
+            switch (s)
+            {
+                case ShopOrderStatus.Start: return MessageTextHelper.GetMessageText("ENUM", "228", "Start Shop Order", "Enum");
+                case ShopOrderStatus.End: return MessageTextHelper.GetMessageText("ENUM", "229", "End Shop Order", "Enum");
+                case ShopOrderStatus.StartProduction: return MessageTextHelper.GetMessageText("ENUM", "230", "Start Production", "Enum");
+                default: return MessageTextHelper.GetMessageText("ENUM", "231", "Unknown Status", "Enum");
+            }
         }
     }
 }

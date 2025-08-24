@@ -9,7 +9,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
         {
             InitializeComponent();
 
-            FormLocalizer.Localize(this);
+            LanguageHelper.InitializeLanguage(this);
         }
 
         private void txtPassword_KeyDown(object sender, KeyEventArgs e)

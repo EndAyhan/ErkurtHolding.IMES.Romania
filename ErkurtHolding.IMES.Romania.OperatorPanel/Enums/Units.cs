@@ -11,25 +11,17 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
         kg
     }
 
-    public static class UnitsTextKey
-    {
-        public static string Key(Units u)
-        {
-            switch (u)
-            {
-                case Units.ad: return "enums.units.ad";
-                case Units.m2: return "enums.units.m2";
-                case Units.kg: return "enums.units.kg";
-                default: return "enums.units.unknown";
-            }
-        }
-    }
-
     public static class UnitsTextExtensions
     {
         public static string ToText(this Units u)
         {
-            return StaticValues.T[UnitsTextKey.Key(u)];
+            switch (u)
+            {
+                case Units.ad: return MessageTextHelper.GetMessageText("ENUM", "267", "pcs", "Enum");
+                case Units.m2: return MessageTextHelper.GetMessageText("ENUM", "268", "m²", "Enum");
+                case Units.kg: return MessageTextHelper.GetMessageText("ENUM", "269", "kg", "Enum");
+                default: return MessageTextHelper.GetMessageText("ENUM", "270", "Unknown Unit", "Enum");
+            }
         }
     }
 }

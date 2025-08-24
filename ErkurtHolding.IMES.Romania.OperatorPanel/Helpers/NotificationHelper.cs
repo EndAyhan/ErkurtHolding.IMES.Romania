@@ -158,10 +158,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
                             .Replace("{ResourceName}", tokens["ResourceName"])
                             .Replace("{Date}", tokens["Date"]);
 
-                        var localizedNotificationWord = StaticValues.T["notification_suffix"];
-                        // fallback if missing
-                        if (string.IsNullOrWhiteSpace(localizedNotificationWord))
-                            localizedNotificationWord = "Notification";
+                        var localizedNotificationWord = MessageTextHelper.GetMessageText("EMAIL", "114", "Notification", "EMail");
 
                         var mailModel = new EMailModel
                         {

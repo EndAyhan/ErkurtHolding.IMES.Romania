@@ -16,32 +16,21 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
     }
 
     /// <summary>
-    /// Provides stable localization keys for <see cref="MachineStateColor"/>.
-    /// </summary>
-    public static class MachineStateColorTextKey
-    {
-        public static string Key(MachineStateColor state)
-        {
-            switch (state)
-            {
-                case MachineStateColor.Run: return "enums.machine_state_color.run";
-                case MachineStateColor.MachineDown: return "enums.machine_state_color.machine_down";
-                case MachineStateColor.Fault: return "enums.machine_state_color.fault";
-                case MachineStateColor.Setup: return "enums.machine_state_color.setup";
-                case MachineStateColor.ShopOrderWaiting: return "enums.machine_state_color.shop_order_waiting";
-                default: return "enums.machine_state_color.unknown";
-            }
-        }
-    }
-
-    /// <summary>
     /// Helper to render <see cref="MachineStateColor"/> using an <c>IText</c> provider.
     /// </summary>
     public static class MachineStateColorTextExtensions
     {
         public static string ToText(this MachineStateColor state)
         {
-            return StaticValues.T[MachineStateColorTextKey.Key(state)];
+            switch (state)
+            {
+                case MachineStateColor.Run: return MessageTextHelper.GetMessageText("ENUM", "173", "Running", "Enum");
+                case MachineStateColor.MachineDown: return MessageTextHelper.GetMessageText("ENUM", "174", "Machine Down", "Enum");
+                case MachineStateColor.Fault: return MessageTextHelper.GetMessageText("ENUM", "175", "Fault", "Enum");
+                case MachineStateColor.Setup: return MessageTextHelper.GetMessageText("ENUM", "176", "Setup", "Enum");
+                case MachineStateColor.ShopOrderWaiting: return MessageTextHelper.GetMessageText("ENUM", "177", "Shop Order Waiting", "Enum");
+                default: return MessageTextHelper.GetMessageText("ENUM", "178", "Unknown Machine State", "Enum");
+            }
         }
     }
 }

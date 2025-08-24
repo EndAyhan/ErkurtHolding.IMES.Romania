@@ -34,48 +34,40 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
         Language = 26
     }
 
-    public static class SpecialCodeTypeTextKey
-    {
-        public static string Key(SpecialCodeType t)
-        {
-            switch (t)
-            {
-                case SpecialCodeType.MachineType: return "enums.special_code_type.machine_type";
-                case SpecialCodeType.Category: return "enums.special_code_type.category";
-                case SpecialCodeType.Brand: return "enums.special_code_type.brand";
-                case SpecialCodeType.Model: return "enums.special_code_type.model";
-                case SpecialCodeType.Type: return "enums.special_code_type.type";
-                case SpecialCodeType.GroupCode: return "enums.special_code_type.group_code";
-                case SpecialCodeType.Unit: return "enums.special_code_type.unit";
-                case SpecialCodeType.State: return "enums.special_code_type.state";
-                case SpecialCodeType.FileType: return "enums.special_code_type.file_type";
-                case SpecialCodeType.CounterUnit: return "enums.special_code_type.counter_unit";
-                case SpecialCodeType.CounterType: return "enums.special_code_type.counter_type";
-                case SpecialCodeType.Action: return "enums.special_code_type.action";
-                case SpecialCodeType.MachineCategory: return "enums.special_code_type.machine_category";
-                case SpecialCodeType.OperatorType: return "enums.special_code_type.operator_type";
-                case SpecialCodeType.MachineState: return "enums.special_code_type.machine_state";
-                case SpecialCodeType.DataType: return "enums.special_code_type.data_type";
-                case SpecialCodeType.OPCDataReadType: return "enums.special_code_type.opc_data_read_type";
-                case SpecialCodeType.MachineOPCDataType: return "enums.special_code_type.machine_opc_data_type";
-                case SpecialCodeType.ProductionStateType: return "enums.special_code_type.production_state_type";
-                case SpecialCodeType.LabelType: return "enums.special_code_type.label_type";
-                case SpecialCodeType.Printer: return "enums.special_code_type.printer";
-                case SpecialCodeType.CallType: return "enums.special_code_type.call_type";
-                case SpecialCodeType.DataReadParameter: return "enums.special_code_type.data_read_parameter";
-                case SpecialCodeType.Automaticlabeltype: return "enums.special_code_type.automatic_label_type";
-                case SpecialCodeType.AutonomousMaintenance: return "enums.special_code_type.autonomous_maintenance";
-                case SpecialCodeType.Language: return "enums.special_code_type.language";
-                default: return "enums.special_code_type.unknown";
-            }
-        }
-    }
-
     public static class SpecialCodeTypeTextExtensions
     {
         public static string ToText(this SpecialCodeType t)
         {
-            return StaticValues.T[SpecialCodeTypeTextKey.Key(t)];
+            switch (t)
+            {
+                case SpecialCodeType.MachineType: return MessageTextHelper.GetMessageText("ENUM", "238", "Machine Type", "Enum");
+                case SpecialCodeType.Category: return MessageTextHelper.GetMessageText("ENUM", "239", "Category", "Enum");
+                case SpecialCodeType.Brand: return MessageTextHelper.GetMessageText("ENUM", "240", "Brand", "Enum");
+                case SpecialCodeType.Model: return MessageTextHelper.GetMessageText("ENUM", "241", "Model", "Enum");
+                case SpecialCodeType.Type: return MessageTextHelper.GetMessageText("ENUM", "242", "Type", "Enum");
+                case SpecialCodeType.GroupCode: return MessageTextHelper.GetMessageText("ENUM", "243", "Group Code", "Enum");
+                case SpecialCodeType.Unit: return MessageTextHelper.GetMessageText("ENUM", "244", "Unit", "Enum");
+                case SpecialCodeType.State: return MessageTextHelper.GetMessageText("ENUM", "245", "State", "Enum");
+                case SpecialCodeType.FileType: return MessageTextHelper.GetMessageText("ENUM", "246", "File Type", "Enum");
+                case SpecialCodeType.CounterUnit: return MessageTextHelper.GetMessageText("ENUM", "247", "Counter Unit", "Enum");
+                case SpecialCodeType.CounterType: return MessageTextHelper.GetMessageText("ENUM", "248", "Counter Type", "Enum");
+                case SpecialCodeType.Action: return MessageTextHelper.GetMessageText("ENUM", "249", "Action", "Enum");
+                case SpecialCodeType.MachineCategory: return MessageTextHelper.GetMessageText("ENUM", "250", "Machine Category", "Enum");
+                case SpecialCodeType.OperatorType: return MessageTextHelper.GetMessageText("ENUM", "251", "Operator Type", "Enum");
+                case SpecialCodeType.MachineState: return MessageTextHelper.GetMessageText("ENUM", "252", "Machine State", "Enum");
+                case SpecialCodeType.DataType: return MessageTextHelper.GetMessageText("ENUM", "253", "Data Type", "Enum");
+                case SpecialCodeType.OPCDataReadType: return MessageTextHelper.GetMessageText("ENUM", "254", "OPC Data Read Type", "Enum");
+                case SpecialCodeType.MachineOPCDataType: return MessageTextHelper.GetMessageText("ENUM", "255", "Machine OPC Data Type", "Enum");
+                case SpecialCodeType.ProductionStateType: return MessageTextHelper.GetMessageText("ENUM", "256", "Production State Type", "Enum");
+                case SpecialCodeType.LabelType: return MessageTextHelper.GetMessageText("ENUM", "257", "Label Type", "Enum");
+                case SpecialCodeType.Printer: return MessageTextHelper.GetMessageText("ENUM", "258", "Printer", "Enum");
+                case SpecialCodeType.CallType: return MessageTextHelper.GetMessageText("ENUM", "259", "Call Type", "Enum");
+                case SpecialCodeType.DataReadParameter: return MessageTextHelper.GetMessageText("ENUM", "260", "Production Data Read Parameter", "Enum");
+                case SpecialCodeType.Automaticlabeltype: return MessageTextHelper.GetMessageText("ENUM", "261", "Automatic Label Type", "Enum");
+                case SpecialCodeType.AutonomousMaintenance: return MessageTextHelper.GetMessageText("ENUM", "262", "Autonomous Maintenance", "Enum");
+                case SpecialCodeType.Language: return MessageTextHelper.GetMessageText("ENUM", "263", "Language", "Enum");
+                default: return MessageTextHelper.GetMessageText("ENUM", "264", "Unknown Special Code Type", "Enum");
+            }
         }
     }
 }

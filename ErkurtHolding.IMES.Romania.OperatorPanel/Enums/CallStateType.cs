@@ -19,26 +19,6 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
     }
 
     /// <summary>
-    /// Provides stable localization keys for <see cref="CallStateType"/>.
-    /// </summary>
-    public static class CallStateTypeTextKey
-    {
-        /// <summary>
-        /// Returns the localization key for the given <see cref="CallStateType"/>.
-        /// </summary>
-        public static string Key(CallStateType state)
-        {
-            switch (state)
-            {
-                case CallStateType.high: return "enums.call_state.high";
-                case CallStateType.medium: return "enums.call_state.medium";
-                case CallStateType.low: return "enums.call_state.low";
-                default: return "enums.call_state.unknown";
-            }
-        }
-    }
-
-    /// <summary>
     /// Convenience helpers to render <see cref="CallStateType"/>.
     /// </summary>
     public static class CallStateTypeTextExtensions
@@ -48,7 +28,13 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
         /// </summary>
         public static string ToText(this CallStateType state)
         {
-            return StaticValues.T[CallStateTypeTextKey.Key(state)];
+            switch (state)
+            {
+                case CallStateType.high: return MessageTextHelper.GetMessageText("ENUM", "102", "High", "Enum");
+                case CallStateType.medium: return MessageTextHelper.GetMessageText("ENUM", "103", "Medium", "Enum");
+                case CallStateType.low: return MessageTextHelper.GetMessageText("ENUM", "104", "Low", "Enum");
+                default: return MessageTextHelper.GetMessageText("ENUM", "105", "Unknown", "Enum");
+            }
         }
     }
 }

@@ -31,7 +31,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
 
             // Best-effort machine name for title fallback
             var machineName = SafeMachineName();
-            var titleTemplate = StaticValues.T["qrcode.title"]; // e.g. "QR Kod - {Machine}" / "QR Code - {Machine}"
+            var titleTemplate = MessageTextHelper.GetMessageText("QR", "100", "QR Code - {Machine}", "QR");
             if (string.IsNullOrEmpty(titleTemplate))
                 titleTemplate = "QR Code - {Machine}";
 

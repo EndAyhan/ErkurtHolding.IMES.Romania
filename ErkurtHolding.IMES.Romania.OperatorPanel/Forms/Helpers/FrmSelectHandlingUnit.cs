@@ -12,7 +12,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms.Helpers
         {
             InitializeComponent();
 
-            FormLocalizer.Localize(this);
+            LanguageHelper.InitializeLanguage(this);
 
             txtRessource.Text = ressource;
             txtOrder.Text = order;

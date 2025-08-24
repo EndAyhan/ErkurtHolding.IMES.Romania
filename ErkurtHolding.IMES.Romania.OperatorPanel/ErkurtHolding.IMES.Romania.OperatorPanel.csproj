@@ -65,6 +65,7 @@
     <Reference Include="DevExpress.XtraPrinting.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
     <Reference Include="DevExpress.XtraReports.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="DevExpress.XtraReports.v21.2.Extensions, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraTreeList.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="MQTTnet, Version=3.1.2.0, Culture=neutral, PublicKeyToken=b69712f52770c0a7, processorArchitecture=MSIL">
       <HintPath>..\packages\MQTTnet.3.1.2\lib\net461\MQTTnet.dll</HintPath>
     </Reference>
@@ -207,9 +208,10 @@
     <Compile Include="Helpers\ShopOrderProductionDetailHelper.cs" />
     <Compile Include="Helpers\ShopOrderStartHelper.cs" />
     <Compile Include="Helpers\UserLoginHelper.cs" />
-    <Compile Include="Localization\FormLocalizer.cs" />
-    <Compile Include="Localization\IText.cs" />
-    <Compile Include="Localization\JsonLocalizationOptions.cs" />
+    <Compile Include="Localization\GeneralControlVisitor.cs" />
+    <Compile Include="Localization\IControlVisitor.cs" />
+    <Compile Include="Localization\LanguageHelper.cs" />
+    <Compile Include="Localization\MessageTextHelper.cs" />
     <Compile Include="Models\EMailModel.cs" />
     <Compile Include="Models\InkJetModel.cs" />
     <Compile Include="Models\InterruptionCauseMessageModel.cs" />
@@ -266,8 +268,6 @@
       <DependentUpon>ucOEEPanelAdvanced.cs</DependentUpon>
     </EmbeddedResource>
     <None Include="kiosk.config" />
-    <None Include="Locales\en_EN.json" />
-    <None Include="Locales\tr_TR.json" />
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

@@ -11,25 +11,17 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
         Questionable = 3
     }
 
-    public static class ProductionStateTextKey
-    {
-        public static string Key(ProductionState s)
-        {
-            switch (s)
-            {
-                case ProductionState.Ok: return "enums.production_state.ok";
-                case ProductionState.NOk: return "enums.production_state.not_ok";
-                case ProductionState.Questionable: return "enums.production_state.questionable";
-                default: return "enums.production_state.unknown";
-            }
-        }
-    }
-
     public static class ProductionStateTextExtensions
     {
         public static string ToText(this ProductionState s)
         {
-            return StaticValues.T[ProductionStateTextKey.Key(s)];
+            switch (s)
+            {
+                case ProductionState.Ok: return MessageTextHelper.GetMessageText("ENUM", "209", "OK", "Enum");
+                case ProductionState.NOk: return MessageTextHelper.GetMessageText("ENUM", "210", "Not OK", "Enum");
+                case ProductionState.Questionable: return MessageTextHelper.GetMessageText("ENUM", "211", "Questionable", "Enum");
+                default: return MessageTextHelper.GetMessageText("ENUM", "212", "Unknown State", "Enum");
+            }
         }
     }
 }

@@ -13,27 +13,19 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
         FinishMaintenance = 4
     }
 
-    public static class PrMaintenanceButtonStatusTextKey
-    {
-        public static string Key(PrMaintenanceButtonStatus status)
-        {
-            switch (status)
-            {
-                case PrMaintenanceButtonStatus.Start: return "enums.pr_maintenance_button_status.start";
-                case PrMaintenanceButtonStatus.InterventionStart: return "enums.pr_maintenance_button_status.intervention_start";
-                case PrMaintenanceButtonStatus.InterventionStop: return "enums.pr_maintenance_button_status.intervention_stop";
-                case PrMaintenanceButtonStatus.End: return "enums.pr_maintenance_button_status.end";
-                case PrMaintenanceButtonStatus.FinishMaintenance: return "enums.pr_maintenance_button_status.finish_maintenance";
-                default: return "enums.pr_maintenance_button_status.unknown";
-            }
-        }
-    }
-
     public static class PrMaintenanceButtonStatusTextExtensions
     {
         public static string ToText(this PrMaintenanceButtonStatus status)
         {
-            return StaticValues.T[PrMaintenanceButtonStatusTextKey.Key(status)];
+            switch (status)
+            {
+                case PrMaintenanceButtonStatus.Start: return MessageTextHelper.GetMessageText("ENUM", "194", "Start PM", "Enum");
+                case PrMaintenanceButtonStatus.InterventionStart: return MessageTextHelper.GetMessageText("ENUM", "195", "Start Intervention", "Enum");
+                case PrMaintenanceButtonStatus.InterventionStop: return MessageTextHelper.GetMessageText("ENUM", "196", "Stop Intervention", "Enum");
+                case PrMaintenanceButtonStatus.End: return MessageTextHelper.GetMessageText("ENUM", "197", "End PM", "Enum");
+                case PrMaintenanceButtonStatus.FinishMaintenance: return MessageTextHelper.GetMessageText("ENUM", "198", "Finish Maintenance", "Enum");
+                default: return MessageTextHelper.GetMessageText("ENUM", "199", "Unknown Status", "Enum");
+            }
         }
     }
 }

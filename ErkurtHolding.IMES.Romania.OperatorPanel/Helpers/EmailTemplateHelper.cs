@@ -25,24 +25,22 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
         /// <returns>HTML email template as a string.</returns>
         public static string FaultCauseMail()
         {
-            var t = StaticValues.T;
-
             // Localized snippets (you can customize in your JSON)
-            string title = t["emails.fault_cause.title"];                       // e.g., "{Type} Bildirimi"
-            string greetingPrefix = t["emails.fault_cause.greeting_prefix"];    // e.g., "Merhaba"
-            string detailsHeader = t["emails.fault_cause.details_header"];      // e.g., "Detaylar:"
-            string footer = t["emails.fault_cause.footer"];                     // e.g., "Bu e‑posta otomatik olarak oluşturulmuştur, lütfen yanıt vermeyiniz."
-            string informed = t["emails.fault_cause.informed"];                 // e.g., "Bilginize sunarız."
+            string title = MessageTextHelper.GetMessageText("EMAIL", "101", "{Type} Notification", "EMail");
+            string greetingPrefix = MessageTextHelper.GetMessageText("EMAIL", "102", "Hello", "EMail");
+            string detailsHeader = MessageTextHelper.GetMessageText("EMAIL", "103", "Details:", "EMail");
+            string footer = MessageTextHelper.GetMessageText("EMAIL", "105", "This email was generated automatically; please do not reply.", "EMail");
+            string informed = MessageTextHelper.GetMessageText("EMAIL", "104", "For your information.", "EMail");
 
             // Labels (words following the dynamic {Type} placeholder)
-            string branchLbl = t["emails.fault_cause.labels.branch"];           // e.g., "Şube"
-            string mainCauseLbl = t["emails.fault_cause.labels.main_cause"];    // e.g., "Ana Sebep"
-            string causeDetailLbl = t["emails.fault_cause.labels.cause_detail"];// e.g., "Açıklaması"
-            string workCenterLbl = t["emails.fault_cause.labels.work_center"];  // e.g., "İş Merkezi"
-            string resourceLbl = t["emails.fault_cause.labels.resource"];       // e.g., "Kaynak"
-            string startDateLbl = t["emails.fault_cause.labels.start_date"];    // e.g., "Başlangıç Tarihi"
-            string elapsedLbl = t["emails.fault_cause.labels.elapsed_duration"]; // e.g., "Toplam Geçen Süresi"
-            string minutesSuffix = t["emails.fault_cause.labels.minutes_suffix"];// e.g., "DAKİKA"
+            string branchLbl = MessageTextHelper.GetMessageText("EMAIL", "106", "Branch", "EMail");
+            string mainCauseLbl = MessageTextHelper.GetMessageText("EMAIL", "107", "Main Cause", "EMail");
+            string causeDetailLbl = MessageTextHelper.GetMessageText("EMAIL", "108", "Description", "EMail");
+            string workCenterLbl = MessageTextHelper.GetMessageText("EMAIL", "109", "Work Center", "EMail");
+            string resourceLbl = MessageTextHelper.GetMessageText("EMAIL", "110", "Resource", "EMail");
+            string startDateLbl = MessageTextHelper.GetMessageText("EMAIL", "111", "Start Date", "EMail");
+            string elapsedLbl = MessageTextHelper.GetMessageText("EMAIL", "112", "Total Elapsed Time", "EMail");
+            string minutesSuffix = MessageTextHelper.GetMessageText("EMAIL", "113", "MINUTES", "EMail");
 
             // Build HTML (use StringBuilder for readability)
             var sb = new StringBuilder();

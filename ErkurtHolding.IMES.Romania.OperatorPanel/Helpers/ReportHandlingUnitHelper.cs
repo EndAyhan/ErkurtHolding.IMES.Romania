@@ -258,12 +258,8 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
                 return true;
 
             // Localized info message
-            var msg = StaticValues.T["report.file_not_found"];
-            if (string.IsNullOrEmpty(msg))
-            {
-                // Turkish fallback (legacy)
-                msg = "Etiket dosya yoluna ulaşılamıyor.\r\nLütfen sistem yöneticinize başvurunuz";
-            }
+            var msg = MessageTextHelper.GetMessageText("RPRT", "105", "The label file path cannot be accessed.\r\nPlease contact your system administrator.", "Report");
+
             ToolsMessageBox.Information(ToolsMdiManager.frmOperatorActive, msg);
             return false;
         }
@@ -278,12 +274,8 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
                 if (frm.ShowDialog() == DialogResult.OK)
                     return true;
 
-                var msg = StaticValues.T["report.admin_wrong_password"];
-                if (string.IsNullOrEmpty(msg))
-                {
-                    // Turkish fallback (legacy)
-                    msg = "Admin şifresi yanlış";
-                }
+                var msg = MessageTextHelper.GetMessageText("RPRT", "106", "Admin password is incorrect.", "Report");
+
                 ToolsMessageBox.Information(ToolsMdiManager.frmOperatorActive, msg);
                 return false;
             }

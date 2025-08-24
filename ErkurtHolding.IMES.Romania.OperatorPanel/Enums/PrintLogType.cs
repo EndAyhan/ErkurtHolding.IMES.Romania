@@ -12,26 +12,18 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
         ProsesHandlingUnit
     }
 
-    public static class PrintLogTypeTextKey
-    {
-        public static string Key(PrintLogType type)
-        {
-            switch (type)
-            {
-                case PrintLogType.HandlingUnit: return "enums.print_log_type.handling_unit";
-                case PrintLogType.ProductiongDetail: return "enums.print_log_type.production_detail";
-                case PrintLogType.Scrap: return "enums.print_log_type.scrap";
-                case PrintLogType.ProsesHandlingUnit: return "enums.print_log_type.process_handling_unit";
-                default: return "enums.print_log_type.unknown";
-            }
-        }
-    }
-
     public static class PrintLogTypeTextExtensions
     {
         public static string ToText(this PrintLogType type)
         {
-            return StaticValues.T[PrintLogTypeTextKey.Key(type)];
+            switch (type)
+            {
+                case PrintLogType.HandlingUnit: return MessageTextHelper.GetMessageText("ENUM", "187", "Handling Unit", "Enum");
+                case PrintLogType.ProductiongDetail: return MessageTextHelper.GetMessageText("ENUM", "188", "Production Detail", "Enum");
+                case PrintLogType.Scrap: return MessageTextHelper.GetMessageText("ENUM", "189", "Scrap", "Enum");
+                case PrintLogType.ProsesHandlingUnit: return MessageTextHelper.GetMessageText("ENUM", "190", "Process Handling Unit", "Enum");
+                default: return MessageTextHelper.GetMessageText("ENUM", "191", "Unknown Print Log Type", "Enum");
+            }
         }
     }
 }

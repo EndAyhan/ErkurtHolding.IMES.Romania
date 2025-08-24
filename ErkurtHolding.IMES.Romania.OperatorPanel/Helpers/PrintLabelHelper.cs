@@ -4,6 +4,7 @@ using ErkurtHolding.IMES.Business.Views;
 using ErkurtHolding.IMES.Entity;
 using ErkurtHolding.IMES.Entity.ImesDataModel;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Enums;
+using ErkurtHolding.IMES.Romania.OperatorPanel.Localization;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Models;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Tools;
 using System;
@@ -48,7 +49,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
                     prm.Add("@ResourceName", resource.resourceName);
                     prm.Add("@PrinterType", productionLabelType.ToText());
 
-                    var msg = StaticValues.T["printlabel.error.no_printer_for_order"];
+                    var msg = MessageTextHelper.GetMessageText("RPRT", "101", "The work order cannot be started because no configured printer was found.\r\n\r\nReference no: @PartNo\r\nWork center: @MachineCode\r\nResource: @ResourceName\r\nPrinter type: @PrinterType", "Report");
                     throw new Exception(ToolsMessageBox.ReplaceParameters(msg, prm));
                 }
 
@@ -108,7 +109,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
             var prm = machine.Code.CreateParameters("@MachineCode");
             prm.Add("@ResourceName", resource.resourceName);
 
-            var msg = StaticValues.T["printlabel.error.no_printer_defined"];
+            var msg = MessageTextHelper.GetMessageText("RPRT", "102", "No configured printer was found.\r\nPlease contact your system administrator.\r\n\r\nWork center: @MachineCode\r\nResource: @ResourceName", "Report");
             throw new Exception(ToolsMessageBox.ReplaceParameters(msg, prm));
         }
 
@@ -133,11 +134,11 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
             var branch = BranchManager.Current.GetBranch(StaticValues.panel.BranchId);
 
             var prm = product.PartNo.CreateParameters("@PartNo");
-            prm.Add("@BranchName", branch == null ? StaticValues.T["printlabel.value_none"] : branch.Name);
+            prm.Add("@BranchName", branch == null ? MessageTextHelper.GetMessageText("RPRT", "104", "None", "Report") : branch.Name);
             prm.Add("@CustomerShortCode", product.alan4 ?? string.Empty);
             prm.Add("@PrinterType", productionLabelType.ToText());
 
-            var msg = StaticValues.T["printlabel.error.no_label_design_for_stock"];
+            var msg = MessageTextHelper.GetMessageText("RPRT", "103", "Stock card information for the work order could not be retrieved.\r\nPlease contact your system administrator. No label design is defined for the stock card.\r\n\r\nReference no: @PartNo\r\nBranch: @BranchName\r\nCustomer Short Code: @CustomerShortCode\r\nPrinter type: @PrinterType", "Report");
             throw new Exception(ToolsMessageBox.ReplaceParameters(msg, prm));
         }
 
