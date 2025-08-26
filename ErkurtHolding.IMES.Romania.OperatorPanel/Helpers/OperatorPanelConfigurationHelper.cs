@@ -1,6 +1,6 @@
-﻿using System;
-using ErkurtHolding.IMES.Entity.ImesDataModel;
+﻿using ErkurtHolding.IMES.Entity.ImesDataModel;
 using ErkurtHolding.IMES.Entity.Views;
+using System;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
 {

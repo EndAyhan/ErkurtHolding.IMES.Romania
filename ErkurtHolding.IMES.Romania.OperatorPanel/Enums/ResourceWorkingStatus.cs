@@ -1,5 +1,4 @@
-﻿using System;
-using ErkurtHolding.IMES.Romania.OperatorPanel.Localization;
+﻿using ErkurtHolding.IMES.Romania.OperatorPanel.Localization;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.Enums
 {

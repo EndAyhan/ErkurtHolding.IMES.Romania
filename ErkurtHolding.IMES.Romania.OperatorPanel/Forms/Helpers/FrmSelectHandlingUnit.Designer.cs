@@ -79,6 +79,7 @@
             this.gridColumn1.FieldName = "BoxBarcode";
             this.gridColumn1.MinWidth = 25;
             this.gridColumn1.Name = "gridColumn1";
+            this.gridColumn1.Tag = "500";
             this.gridColumn1.Visible = true;
             this.gridColumn1.VisibleIndex = 0;
             this.gridColumn1.Width = 194;
@@ -89,6 +90,7 @@
             this.gridColumn2.FieldName = "Quantity";
             this.gridColumn2.MinWidth = 25;
             this.gridColumn2.Name = "gridColumn2";
+            this.gridColumn2.Tag = "501";
             this.gridColumn2.Visible = true;
             this.gridColumn2.VisibleIndex = 1;
             this.gridColumn2.Width = 79;
@@ -101,6 +103,7 @@
             this.gridColumn3.FieldName = "CreatedAt";
             this.gridColumn3.MinWidth = 25;
             this.gridColumn3.Name = "gridColumn3";
+            this.gridColumn3.Tag = "502";
             this.gridColumn3.Visible = true;
             this.gridColumn3.VisibleIndex = 2;
             this.gridColumn3.Width = 232;
@@ -140,6 +143,7 @@
             this.labelControl2.Name = "labelControl2";
             this.labelControl2.Size = new System.Drawing.Size(267, 21);
             this.labelControl2.TabIndex = 36;
+            this.labelControl2.Tag = "201";
             this.labelControl2.Text = "İş Emri";
             // 
             // txtRessource
@@ -165,6 +169,7 @@
             this.labelControl1.Name = "labelControl1";
             this.labelControl1.Size = new System.Drawing.Size(265, 21);
             this.labelControl1.TabIndex = 34;
+            this.labelControl1.Tag = "200";
             this.labelControl1.Text = "İş Merkezi";
             // 
             // panelControl2
@@ -186,6 +191,7 @@
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "FrmSelectHandlingUnit";
+            this.Tag = "027";
             this.Text = "Yarım Kasalar";
             this.TopMost = true;
             ((System.ComponentModel.ISupportInitialize)(this.gcHandlingUnits)).EndInit();

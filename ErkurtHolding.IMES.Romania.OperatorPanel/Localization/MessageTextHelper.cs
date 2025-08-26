@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using ErkurtHolding.IMES.Business.ImesManager;
+﻿using ErkurtHolding.IMES.Business.ImesManager;
 using ErkurtHolding.IMES.Entity.ImesDataModel;
+using System;
+using System.Collections.Generic;
+using System.Threading;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.Localization
 {

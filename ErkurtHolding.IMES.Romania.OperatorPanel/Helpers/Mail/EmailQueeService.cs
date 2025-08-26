@@ -1,13 +1,13 @@
-﻿using System;
+﻿using ErkurtHolding.IMES.Business;
+using ErkurtHolding.IMES.Business.ImesManager;
+using ErkurtHolding.IMES.Romania.OperatorPanel.Models;
+using System;
 using System.Collections.Concurrent;
 using System.Configuration;
 using System.Linq;
 using System.Net;
 using System.Net.Mail;
 using System.Threading;
-using ErkurtHolding.IMES.Business;
-using ErkurtHolding.IMES.Business.ImesManager;
-using ErkurtHolding.IMES.Romania.OperatorPanel.Models;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers.Mail
 {
@@ -43,11 +43,11 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers.Mail
         public static readonly object lockObjectQuee = new object();
 
         // Credentials (decrypted once at type init)
-        private static readonly string _email =
-            ErkurtHolding.IMES.DataAccess.ToolsAES.Decrypt(ConfigurationManager.AppSettings["senderEmail"]);
+        private static readonly Lazy<string> _senderEmail = new Lazy<string>(() =>
+            ErkurtHolding.IMES.DataAccess.ToolsAES.Decrypt(ConfigurationManager.AppSettings["senderEmail"]));
 
-        private static readonly string _password =
-            ErkurtHolding.IMES.DataAccess.ToolsAES.Decrypt(ConfigurationManager.AppSettings["senderPassword"]);
+        private static readonly Lazy<string> _senderPassword = new Lazy<string>(() =>
+            ErkurtHolding.IMES.DataAccess.ToolsAES.Decrypt(ConfigurationManager.AppSettings["senderPassword"]));
 
         // Timer and run-state
         private static Timer _timer;
@@ -74,7 +74,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers.Mail
                     EnableSsl = true,
                     DeliveryMethod = SmtpDeliveryMethod.Network,
                     UseDefaultCredentials = false,
-                    Credentials = new NetworkCredential(_email, _password),
+                    Credentials = new NetworkCredential(_senderEmail.Value, _senderPassword.Value),
                     Timeout = 10000 // 10s
                 };
 
@@ -204,7 +204,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers.Mail
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
 
-            var from = new MailAddress(_email, "IMES - INFORMATION");
+            var from = new MailAddress(_senderEmail.Value, "IMES - INFORMATION");
 
             var msg = new MailMessage
             {

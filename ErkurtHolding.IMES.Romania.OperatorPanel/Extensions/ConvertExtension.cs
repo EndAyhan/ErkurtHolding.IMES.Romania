@@ -1,6 +1,6 @@
-﻿using System;
-using Opc.Ua;
+﻿using Opc.Ua;
 using Opc.UaFx;
+using System;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.Extensions
 {

@@ -1,5 +1,5 @@
-﻿using System;
-using ErkurtHolding.IMES.Romania.OperatorPanel.Enums;
+﻿using ErkurtHolding.IMES.Romania.OperatorPanel.Enums;
+using System;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.Models
 {

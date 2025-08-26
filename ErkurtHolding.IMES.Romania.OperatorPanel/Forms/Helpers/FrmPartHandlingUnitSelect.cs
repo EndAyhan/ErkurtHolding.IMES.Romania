@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 
-namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
+namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms.Helpers
 {
     public partial class FrmPartHandlingUnitSelect : DevExpress.XtraEditors.XtraForm
     {
@@ -19,7 +19,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
             LanguageHelper.InitializeLanguage(this);
 
             var prm = _partHandlingUnits[0].PartNo.CreateParameters("@PartNo");
-            this.Text = ToolsMessageBox.ReplaceParameters("@PartNo İÇİN TAŞIMA KASASI SEÇİM EKRANI", prm);
+            this.Text = ToolsMessageBox.ReplaceParameters(MessageTextHelper.GetMessageText("000", "850", "@PartNo İÇİN TAŞIMA KASASI SEÇİM EKRANI", "Message"), prm);
             partHandlingUnits = _partHandlingUnits;
             gcMain.DataSource = partHandlingUnits;
         }
@@ -45,7 +45,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
         {
             if (partHandlingUnit == null)
             {
-                ToolsMessageBox.Warning(this, "Taşıma kasası seçmeden devam edemezsiniz");
+                ToolsMessageBox.Warning(this, MessageTextHelper.GetMessageText("000", "934", "Taşıma kasası seçmeden devam edemezsiniz", "Message"));
                 return;
             }
 

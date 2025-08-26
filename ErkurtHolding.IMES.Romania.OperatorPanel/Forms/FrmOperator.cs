@@ -1,6 +1,6 @@
-﻿using DevExpress.Utils.Frames;
-using DevExpress.XtraGauges.Win.Base;
-using DevExpress.XtraPrinting.BarCode.Native;
+﻿using DevExpress.Data;
+using DevExpress.XtraEditors;
+using DevExpress.XtraGauges.Core.Drawing;
 using ErkurtHolding.IMES.Business;
 using ErkurtHolding.IMES.Business.ImesManager;
 using ErkurtHolding.IMES.Business.KafkaManager;
@@ -8,6 +8,7 @@ using ErkurtHolding.IMES.Business.ReportManagers;
 using ErkurtHolding.IMES.Business.Views;
 using ErkurtHolding.IMES.Entity;
 using ErkurtHolding.IMES.Entity.ImesDataModel;
+using ErkurtHolding.IMES.Entity.QueryModel;
 using ErkurtHolding.IMES.Entity.Reports;
 using ErkurtHolding.IMES.Entity.Views;
 using ErkurtHolding.IMES.KafkaFlow;
@@ -19,19 +20,20 @@ using ErkurtHolding.IMES.Romania.OperatorPanel.Helpers;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Localization;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Models;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Tools;
+using ErkurtHolding.IMES.Romania.OperatorPanel.UserControls;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
 using System.Globalization;
 using System.Linq;
-using System.Net.Sockets;
-using System.Threading.Tasks;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Windows.Threading;
 using NotificationHelper = ErkurtHolding.IMES.Romania.OperatorPanel.Helpers.NotificationHelper;
-using DevExpress.XtraGauges.Core.Drawing;
-using System.Drawing;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
 {
@@ -50,6 +52,13 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
         public string _PartiNoKilogramDescription { get; set; }
         public Machine machine { get; set; }
         public ResourceStatus resourceStatus { get; set; }
+        public UserModel machineDownFinishUser { get; set; }
+        public ShopOrderProductionDetail ShopOrderProductionDetailPrescriptionControlCount { get; set; }
+        public UserModel machinePeriyodicStartUser { get; set; }
+        public MaintenanceDetail PrMaintenanceActive { get; set; }
+        public UserModel machindeDownStartUser { get; set; }
+        public OpInterruptionCause opInterruptionCause { get; set; }
+        public UserModel interrupstionCouseStartUser { get; set; }
 
 
         public ObservableCollection<OpcOtherReadModel> opcOtherReadModels { get; set; } = new ObservableCollection<OpcOtherReadModel>();
@@ -69,8 +78,8 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
         public vw_ShopOrderGridModel SubcontractorShopOrder { get; set; } = null;
         public List<ShopOrderProduction> exShopOrderProductions { get; set; } = new List<ShopOrderProduction>();
         public List<IssueMaterialAllocModel> issueMaterialAllocModels { get; set; } = new List<IssueMaterialAllocModel>();
-
-
+        public List<UserModel> faultUserModels { get; set; } = new List<UserModel>();
+        public List<MaintenanceMain> PrMaintenance { get; set; } = new List<MaintenanceMain>();
 
         private static BrushObject blueBO = new DevExpress.XtraGauges.Core.Drawing.SolidBrushObject("Color:DodgerBlue");
         private static BrushObject yellowBO = new DevExpress.XtraGauges.Core.Drawing.SolidBrushObject("Color:Goldenrod");
@@ -84,6 +93,12 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
         public bool squareMeterPlcControl = true;
         public bool kilogramPlcControl = false;
         public bool pokayokeFlag = false;
+        private BackgroundWorker BgWorker;
+        int factorCounter = 0;
+        TimeSpan ts;
+        RealTimeSource rtsInterruptionGrid;
+        public string currentOtpCode;
+        public DateTime otpExpirationTime;
 
 
         public FrmOperator()
@@ -314,7 +329,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                         {
                             var prm = p.PartNo.CreateParameters("@PartNo");
                             prm.Add("@Description", p.Description);
-                            ToolsMessageBox.Warning(this, "@PartNo - @Description için IFS üzerinde taşıma kasası tanımlı değildir", prm);
+                            ToolsMessageBox.Warning(this, MessageTextHelper.GetMessageText("000", "913", "@PartNo - @Description için IFS üzerinde taşıma kasası tanımlı değildir", "Message"), prm);
                         }
                     }
                 }
@@ -386,7 +401,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                         }
                         catch (Exception ex)
                         {
-                            ToolsMessageBox.Error(this, "IFS Soap Servisine Ulaşılamadı", ex);
+                            ToolsMessageBox.Error(this, MessageTextHelper.GetMessageText("000", "914", "IFS Soap Servisine Ulaşılamadı", "Message"), ex);
                         }
                         break;
                 }
@@ -557,6 +572,19 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                 }
                 ToolsRibbonManager.RibbonButtonStatus(value);
                 _prMaintenanceButtonStatus = value;
+            }
+        }
+        #endregion
+
+        #region FORM LOAD
+        private void FrmOperator_Load(object sender, EventArgs e)
+        {
+            if (panelDetail.DataReadParameterID == StaticValues.specialCodeCounterReadTypeBarocodePlc.Id || panelDetail.ProcessBarcodeControl || panelDetail.DataReadParameterID == StaticValues.specialCodeCounterReadTypeButtonAndReadBarcode.Id || panelDetail.DataReadParameterID == StaticValues.specialCodeCounterReadTypeSupplierPark.Id)
+            {
+                lblProcessBarcode.Visible = true;
+                txtBarcode.Visible = true;
+                lblValue9.Text = "0";
+                lblDescription9.Text = MessageTextHelper.GetMessageText("000", "893", "Okutulan Ürün Sayısı", "Message");
             }
         }
         #endregion
@@ -902,7 +930,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
             }
             catch (Exception ex)
             {
-                ToolsMessageBox.Error(this, "Beklenmedik Hata. İş Emri başlatılamadı", ex);
+                ToolsMessageBox.Error(this, MessageTextHelper.GetMessageText("000", "918", "Beklenmedik Hata. İş Emri başlatılamadı", "Message"), ex);
                 vw_ShopOrderGridModels = new System.Collections.Generic.List<Entity.Views.vw_ShopOrderGridModel>();
                 return;
             }
@@ -1009,7 +1037,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                 else
                 {
                     var prm = selectedProduct.PartNo.CreateParameters("@PartNo");
-                    throw new Exception(ToolsMessageBox.ReplaceParameters("@PartNo için Kasa bulunamadığı için Otomatik bildirim yapılamadı.", prm));
+                    throw new Exception(ToolsMessageBox.ReplaceParameters(MessageTextHelper.GetMessageText("000", "632", "@PartNo için Kasa bulunamadığı için Otomatik bildirim yapılamadı.", "Message"), prm));
                 }
                 List<ShopOrderProductionDetail> shopOrderProductionDetailList;
                 // IFS'e gönderilmeyen kasa içi miktarından fazla ürün üretildiyse bu ürünleri IFS'e gönder
@@ -1349,7 +1377,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                 if (int.TryParse(shopOrderOperations.First(x => x.PartID == item.ProductID).alan1, out count) == false)
                 {
                     var prm = selectedProduct.PartNo.CreateParameters("@PartNo");
-                    ToolsMessageBox.Error(this, "IFS Verileri üzerinde çarpan değeri bulunamadı.\r\nAdmin Info: PartNo : @PartNo", prm);
+                    ToolsMessageBox.Error(this, MessageTextHelper.GetMessageText("000", "927", "IFS Verileri üzerinde çarpan değeri bulunamadı.\r\nAdmin Info: PartNo : @PartNo", "Message"), prm);
                 }
                 for (int i = 0; i < count; i++)
                 {
@@ -1445,7 +1473,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                 if (int.TryParse(shopOrderOperations.First(x => x.PartID == item.ProductID).alan1, out count) == false)
                 {
                     var prm = selectedProduct.PartNo.CreateParameters("@PartNo");
-                    ToolsMessageBox.Error(this, "IFS Verileri üzerinde çarpan değeri bulunamadı.\r\nAdmin Info: PartNo : @PartNo", prm);
+                    ToolsMessageBox.Error(this, MessageTextHelper.GetMessageText("000", "927", "IFS Verileri üzerinde çarpan değeri bulunamadı.\r\nAdmin Info: PartNo : @PartNo", "Message"), prm);
                 }
                 for (int i = 0; i < count; i++)
                 {
@@ -1602,7 +1630,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                 int count = 1;
                 if (int.TryParse(shopOrderOperations.First(x => x.PartID == item.ProductID).alan1, out count) == false)
                 {
-                    throw new Exception(ToolsMessageBox.ReplaceParameters("IFS Verileri üzerinde çarpan değeri bulunamadı.\r\nAdmin Info: ProductID : @ProductID", prm));
+                    throw new Exception(ToolsMessageBox.ReplaceParameters(MessageTextHelper.GetMessageText("000", "601", "IFS Verileri üzerinde çarpan değeri bulunamadı.\r\nAdmin Info: ProductID : @ProductID", "Message"), prm));
                 }
 
                 var product_ = products.First(p => p.Id == item.ProductID);
@@ -1610,13 +1638,13 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                 decimal width = 1;
                 if (product_.alan6 == null)
                 {
-                    throw new Exception(ToolsMessageBox.ReplaceParameters("IFS Verileri üzerinde en bilgisi bulunamadı.\r\nAdmin Info: ProductID : @ProductID", prm));
+                    throw new Exception(ToolsMessageBox.ReplaceParameters(MessageTextHelper.GetMessageText("000", "631", "IFS Verileri üzerinde en bilgisi bulunamadı.\r\nAdmin Info: ProductID : @ProductID", "Message"), prm));
                 }
 
                 product_.alan6 = product_.alan6.Replace(',', '.');
                 if (!decimal.TryParse(product_.alan6, NumberStyles.Any, CultureInfo.InvariantCulture, out width))
                 {
-                    throw new Exception(ToolsMessageBox.ReplaceParameters("IFS Verileri üzerinde en bilgisi bulunamadı.\r\nAdmin Info: ProductID : @ProductID", prm));
+                    throw new Exception(ToolsMessageBox.ReplaceParameters(MessageTextHelper.GetMessageText("000", "631", "IFS Verileri üzerinde en bilgisi bulunamadı.\r\nAdmin Info: ProductID : @ProductID", "Message"), prm));
                 }
 
                 item.Quantity = _manualInputBySquareMeters * width;
@@ -1692,7 +1720,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                 if (decimal.TryParse(selectedProduct.alan17, out weight) == false)
                 {
                     var prm = selectedProduct.PartNo.CreateParameters("@PartNo");
-                    ToolsMessageBox.Error(this, "IFS Verileri üzerinde birim dönüşüm ağırlığı bulunamadı.\r\nAdmin Info: PartNo : @PartNo", prm);
+                    ToolsMessageBox.Error(this, MessageTextHelper.GetMessageText("000", "928", "IFS Verileri üzerinde birim dönüşüm ağırlığı bulunamadı.\r\nAdmin Info: PartNo : @PartNo", "Message"), prm);
                 }
 
                 var production = productionDetails.Where(x => x.BoxID == Guid.Empty && x.ShopOrderProductionID == shopOrderProduction.Id).ToList();
@@ -1735,7 +1763,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                 if (int.TryParse(shopOrderOperations.First(x => x.PartID == item.ProductID).alan1, out count) == false)
                 {
                     var prm = selectedProduct.PartNo.CreateParameters("@PartNo");
-                    ToolsMessageBox.Error(this, "IFS Verileri üzerinde çarpan değeri bulunamadı.\r\nAdmin Info: PartNo : @PartNo", prm);
+                    ToolsMessageBox.Error(this, MessageTextHelper.GetMessageText("000", "927", "IFS Verileri üzerinde çarpan değeri bulunamadı.\r\nAdmin Info: PartNo : @PartNo", "Message"), prm);
                 }
                 for (int i = 0; i < count; i++)
                 {
@@ -1788,7 +1816,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                         prn.Add("@Machine", machine.Code);
                         prn.Add("@Resource", resource.resourceName);
                         prn.Add("@PrinterType", (labelTypeFound ? labelType.ToText() : ""));
-                        ToolsMessageBox.Warning(this, ToolsMessageBox.ReplaceParameters("Tanımlı yazıcı bulunamadı.\n\nReferans no: @PartNo\nİş merkezi: @Machine\nKaynak: @Resource\nYazıcı tipi: @PrinterType", prn));
+                        ToolsMessageBox.Warning(this, ToolsMessageBox.ReplaceParameters(MessageTextHelper.GetMessageText("000", "636", "Tanımlı yazıcı bulunamadı.\n\nReferans no: @PartNo\nİş merkezi: @Machine\nKaynak: @Resource\nYazıcı tipi: @PrinterType", "Message"), prn));
                     }
                 }
             }
@@ -1888,7 +1916,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                     prn.Add("@Machine", machine.Code);
                     prn.Add("@Resource", resource.resourceName);
                     prn.Add("@PrinterType", ProductionLabelType.Box.ToText());
-                    ToolsMessageBox.Warning(this, ToolsMessageBox.ReplaceParameters("Tanımlı yazıcı bulunamadı.\n\nReferans no: @PartNo\nİş merkezi: @Machine\nKaynak: @Resource\nYazıcı tipi: @PrinterType", prn));
+                    ToolsMessageBox.Warning(this, ToolsMessageBox.ReplaceParameters(MessageTextHelper.GetMessageText("000", "636", "Tanımlı yazıcı bulunamadı.\n\nReferans no: @PartNo\nİş merkezi: @Machine\nKaynak: @Resource\nYazıcı tipi: @PrinterType", "Message"), prn));
                 }
 
                 if (printLabelModels.Any(x => x.ProductId == reportHandlingUnitHelper.product.Id))
@@ -1903,7 +1931,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                     prn.Add("@Machine", machine.Code);
                     prn.Add("@Resource", resource.resourceName);
                     prn.Add("@PrinterType", ProductionLabelType.Box.ToText());
-                    ToolsMessageBox.Warning(this, ToolsMessageBox.ReplaceParameters("Tanımlı etiket dizaynı bulunamadı.\n\nReferans no: @PartNo\nİş merkezi: @Machine\nKaynak: @Resource\nYazıcı tipi: @PrinterType", prn));
+                    ToolsMessageBox.Warning(this, ToolsMessageBox.ReplaceParameters(MessageTextHelper.GetMessageText("000", "637", "Tanımlı etiket dizaynı bulunamadı.\n\nReferans no: @PartNo\nİş merkezi: @Machine\nKaynak: @Resource\nYazıcı tipi: @PrinterType", "Message"), prn));
                 }
             }
             catch (Exception ex)
@@ -1986,7 +2014,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                     prn.Add("@Machine", machine.Code);
                     prn.Add("@Resource", resource.resourceName);
                     prn.Add("@PrinterType", ProductionLabelType.Box.ToText());
-                    ToolsMessageBox.Warning(this, ToolsMessageBox.ReplaceParameters("Tanımlı yazıcı bulunamadı.\n\nReferans no: @PartNo\nİş merkezi: @Machine\nKaynak: @Resource\nYazıcı tipi: @PrinterType", prn));
+                    ToolsMessageBox.Warning(this, ToolsMessageBox.ReplaceParameters(MessageTextHelper.GetMessageText("000", "636", "Tanımlı yazıcı bulunamadı.\n\nReferans no: @PartNo\nİş merkezi: @Machine\nKaynak: @Resource\nYazıcı tipi: @PrinterType", "Message"), prn));
                 }
 
                 if (printLabelModels.Any(x => x.ProductId == reportHandlingUnitHelper.product.Id))
@@ -2001,7 +2029,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                     prn.Add("@Machine", machine.Code);
                     prn.Add("@Resource", resource.resourceName);
                     prn.Add("@PrinterType", ProductionLabelType.Box.ToText());
-                    ToolsMessageBox.Warning(this, ToolsMessageBox.ReplaceParameters("Tanımlı etiket dizaynı bulunamadı.\n\nReferans no: @PartNo\nİş merkezi: @Machine\nKaynak: @Resource\nYazıcı tipi: @PrinterType", prn));
+                    ToolsMessageBox.Warning(this, ToolsMessageBox.ReplaceParameters(MessageTextHelper.GetMessageText("000", "637", "Tanımlı etiket dizaynı bulunamadı.\n\nReferans no: @PartNo\nİş merkezi: @Machine\nKaynak: @Resource\nYazıcı tipi: @PrinterType", "Message"), prn));
                 }
             }
             catch (Exception ex)
@@ -2095,7 +2123,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                             prn.Add("@Machine", machine.Code);
                             prn.Add("@Resource", resource.resourceName);
                             prn.Add("@PrinterType", ProductionLabelType.Box.ToText());
-                            ToolsMessageBox.Warning(this, ToolsMessageBox.ReplaceParameters("Tanımlı yazıcı bulunamadı.\n\nReferans no: @PartNo\nİş merkezi: @Machine\nKaynak: @Resource\nYazıcı tipi: @PrinterType", prn));
+                            ToolsMessageBox.Warning(this, ToolsMessageBox.ReplaceParameters(MessageTextHelper.GetMessageText("000", "636", "Tanımlı yazıcı bulunamadı.\n\nReferans no: @PartNo\nİş merkezi: @Machine\nKaynak: @Resource\nYazıcı tipi: @PrinterType", "Message"), prn));
                         }
                     }
                     else if (printLabelModels.Any(x => x.ProductId == reportHandlingUnitHelper.product.Id))
@@ -2394,6 +2422,106 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                 halfHandlingUnit.Remove(item.ShopOrderOperationID);
             }
         }
+
+        public void PartHandlingUnitMaxQuotaCheckButtonAndReadBarcode(Product selectedProduct, ShopOrderProductionDetail item)
+        {
+            try
+            {
+                var maxQuantityCapacity = partHandlingUnits.First(s => s.PartNo == selectedProduct.PartNo).MaxQuantityCapacity;
+                var quantityCapacity = maxQuantityCapacity;
+
+                if (halfHandlingUnit.ContainsKey(item.ShopOrderOperationID))
+                {
+                    halfHandlingUnitProcess = halfHandlingUnit[item.ShopOrderOperationID];
+                    quantityCapacity -= (double)halfHandlingUnitProcess.Quantity;
+                }
+                else
+                    halfHandlingUnitProcess = null;
+
+                if (selectedProduct.unitMeas == Units.ad.ToText() && productionDetails.Where(p => p.ProductID == selectedProduct.Id && p.BoxID == Guid.Empty && p.serial.ToString() == p.Barcode && p.ProductionStateID == StaticValues.specialCodeOk.Id).ToList().Count >= quantityCapacity)
+                {
+                    if (OperatorPanelConfigurationHelper.DoAutomaticProductionNotification(shopOrderOperations.First(x => x.Id == item.ShopOrderOperationID)) && products.First().unitMeas == Units.ad.ToText())//adet için kasa dolduğunda otomatik bildirim gönder
+                    {
+                        ReportHandlingUnitHelper reportHandlingUnitHelper = new ReportHandlingUnitHelper();
+                        reportHandlingUnitHelper.product = selectedProduct;
+                        if (panelDetail.PrintProductBarcode || panelDetail.BoxFillsUp)
+                            reportHandlingUnitHelper.printLabelModel = printLabelModels.First(p => p.ProductId == reportHandlingUnitHelper.product.Id && p.productionLabelType == ProductionLabelType.Box);
+                        reportHandlingUnitHelper.shopOrderOperation = shopOrderOperations.First(x => x.Id == item.ShopOrderOperationID);
+                        reportHandlingUnitHelper.vwShopOrderGridModel = vw_ShopOrderGridModels.First(x => x.Id == item.ShopOrderOperationID);
+                        reportHandlingUnitHelper.machine = machine;
+                        reportHandlingUnitHelper.resource = resource;
+                        reportHandlingUnitHelper.shopOrderProduction = shopOrderProduction;
+                        reportHandlingUnitHelper.user = Users.First(x => x.Role == Users.Max(y => y.Role));
+                        if (halfHandlingUnitProcess == null)
+                        {
+                            reportHandlingUnitHelper.handlingUnit = new HandlingUnit();
+                            reportHandlingUnitHelper.handlingUnit.PartHandlingUnitID = partHandlingUnits.First(x => x.PartNo == reportHandlingUnitHelper.product.PartNo).Id;//partHandlingUnitID;
+                            reportHandlingUnitHelper.handlingUnit.ShopOrderID = reportHandlingUnitHelper.shopOrderOperation.Id;
+                            reportHandlingUnitHelper.handlingUnit.ShopOrderProductionID = reportHandlingUnitHelper.shopOrderProduction.Id;
+                            reportHandlingUnitHelper.handlingUnit.Quantity = (decimal)maxQuantityCapacity;
+
+                            var myhandlingUnit = HandlingUnitManager.Current.Insert(reportHandlingUnitHelper.handlingUnit).ListData[0];
+                            myhandlingUnit.Barcode = BoxBarcodeHelper.GetCustomerBoxBarcode(myhandlingUnit.Serial, reportHandlingUnitHelper);
+                            HandlingUnitManager.Current.UpdateBoxBarcode(myhandlingUnit);
+                            reportHandlingUnitHelper.handlingUnit = myhandlingUnit;
+                        }
+                        else
+                        {
+                            reportHandlingUnitHelper.handlingUnit = HandlingUnitManager.Current.GetHandlingUnitByBarcodeOrSerial(halfHandlingUnitProcess.BoxBarcode);
+                            reportHandlingUnitHelper.handlingUnit.Quantity = (decimal)maxQuantityCapacity;
+
+                            HandlingUnitManager.Current.Update(reportHandlingUnitHelper.handlingUnit);
+                            reportHandlingUnitHelper.handlingUnit.ManuelInput = 0;
+                        }
+
+                        reportHandlingUnitHelper.shopOrderProductionDetails = productionDetails.Where(p => p.BoxID == Guid.Empty && p.ProductionStateID == StaticValues.specialCodeOk.Id).OrderBy(x => x.serial).Take((int)quantityCapacity).ToList();
+
+                        foreach (var shopOrderProductionDetail in reportHandlingUnitHelper.shopOrderProductionDetails)
+                        {
+                            shopOrderProductionDetail.BoxID = reportHandlingUnitHelper.handlingUnit.Id;
+                            productionDetails.First(x => x.Id == item.Id).BoxID = reportHandlingUnitHelper.handlingUnit.Id;
+                            ShopOrderProductionDetailManager.Current.UpdateBoxID(shopOrderProductionDetail);
+                        }
+
+                        //IfsSendReport.IFSSendApproveOp(reportHandlingUnitHelper);
+
+                        if (panelDetail.BoxFillsUp)
+                        {
+                            var selectedPrintLabelModel = PrintLabelHelper.GetLabelModel(reportHandlingUnitHelper.product, machine, resource, ProductionLabelType.Box);
+                            if (selectedPrintLabelModel != null)
+                            {
+                                reportHandlingUnitHelper.printLabelModel = selectedPrintLabelModel;
+                                reportHandlingUnitHelper.PrintLabel();
+                            }
+                            else
+                            {
+                                var prn = reportHandlingUnitHelper.product.PartNo.CreateParameters("@PartNo");
+                                prn.Add("@Machine", machine.Code);
+                                prn.Add("@Resource", resource.resourceName);
+                                prn.Add("@PrinterType", ProductionLabelType.Box.ToText());
+                                ToolsMessageBox.Warning(this, MessageTextHelper.ReplaceParameters(MessageTextHelper.GetMessageText("000", "636", "Tanımlı yazıcı bulunamadı.\n\nReferans no: @PartNo\nİş merkezi: @Machine\nKaynak: @Resource\nYazıcı tipi: @PrinterType", "Message"), prn));
+                            }
+                        }
+                        foreach (var shopOrderProductionDetail in reportHandlingUnitHelper.shopOrderProductionDetails)
+                        {
+                            ShopOrderProductionDetailManager.Current.UpdateIfsReportedAndPrinted(shopOrderProductionDetail);
+                        }
+
+                        HandlingUnitManager.Current.UpdateBoxIfsSend(reportHandlingUnitHelper.handlingUnit);
+                        if (!handlingUnits.Any(x => x.Id == reportHandlingUnitHelper.handlingUnit.Id))
+                            handlingUnits.Add(reportHandlingUnitHelper.handlingUnit);
+                        SetLabelsTextValue();
+
+                        halfHandlingUnitProcess = null;
+                        halfHandlingUnit.Remove(item.ShopOrderOperationID);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                ToolsMessageBox.Error(this, ex);
+            }
+        }
         #endregion
 
         #region OPCClient -> HandleDataChanged
@@ -2605,7 +2733,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                         halfHandlingUnitProcess = processHandlingUnitModels[0];
                         var prm = Text.CreateParameters("@Text");
                         prm.Add("@Barcode", processHandlingUnitModels[0].BoxBarcode);
-                        ToolsMessageBox.Information(this, "@Text\r\n@Barcode Barkodlu 1 adet Yarım Kasa bulundu ve otomatik kasa bildirimlerinde kullanılacak", prm);
+                        ToolsMessageBox.Information(this, MessageTextHelper.GetMessageText("000", "930", "@Text\r\n@Barcode Barkodlu 1 adet Yarım Kasa bulundu ve otomatik kasa bildirimlerinde kullanılacak", "Message"), prm);
                     }
                     else // 1'den fazla yarım kasa bulundu. Seçmek için pencere aç
                     {
@@ -2615,7 +2743,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                             halfHandlingUnitProcess = frm.selectedHandlingUnit;
                             var prm = Text.CreateParameters("@Text");
                             prm.Add("@Barcode", frm.selectedHandlingUnit.BoxBarcode);
-                            ToolsMessageBox.Information(this, "@Text\r\nOtomatik kasa bildirimlerinde kullanmak üzere @Barcode Barkodlu Yarım Kasa secildi", prm);
+                            ToolsMessageBox.Information(this, MessageTextHelper.GetMessageText("000", "931", "@Text\r\nOtomatik kasa bildirimlerinde kullanmak üzere @Barcode Barkodlu Yarım Kasa secildi", "Message"), prm);
                         }
                     }
                 }
@@ -2668,7 +2796,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                             var prm = Text.CreateParameters("@Text");
                             prm.Add("@OrderNo", shopOrderOperation.orderNo);
                             prm.Add("@Barcode", processHandlingUnitModels[0].BoxBarcode);
-                            ToolsMessageBox.Information(this, "@Text\r\nİş Emri No: @OrderNo\r\n@Barcode Barkodlu 1 adet Yarım Kasa bulundu ve otomatik kasa bildirimlerinde kullanılacak", prm);
+                            ToolsMessageBox.Information(this, MessageTextHelper.GetMessageText("000", "932", "@Text\r\nİş Emri No: @OrderNo\r\n@Barcode Barkodlu 1 adet Yarım Kasa bulundu ve otomatik kasa bildirimlerinde kullanılacak", "Message"), prm);
                         }
                         else // 1'den fazla yarım kasa bulundu. Seçmek için pencere aç
                         {
@@ -2680,7 +2808,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                                 var prm = Text.CreateParameters("@Text");
                                 prm.Add("@OrderNo", shopOrderOperation.orderNo);
                                 prm.Add("@Barcode", frm.selectedHandlingUnit.BoxBarcode);
-                                ToolsMessageBox.Information(this, "@Text\r\nİş Emri No: @OrderNo\r\nOtomatik kasa bildirimlerinde kullanmak üzere @Barcode Barkodlu Yarım Kasa secildi", prm);
+                                ToolsMessageBox.Information(this, MessageTextHelper.GetMessageText("000", "933", "@Text\r\nİş Emri No: @OrderNo\r\nOtomatik kasa bildirimlerinde kullanmak üzere @Barcode Barkodlu Yarım Kasa secildi", "Message"), prm);
                             }
                         }
                     }
@@ -2761,27 +2889,27 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
             {
                 case MachineStateColor.Run:
                     color = System.Drawing.Color.FromArgb(((int)(((byte)(117)))), ((int)(((byte)(191)))), ((int)(((byte)(85)))));
-                    machineState = "Çalışıyor";
+                    machineState = MachineStateColor.Run.ToText();
                     //caption = $"{machine.Definition}-{resource.resourceName}";
                     break;
                 case MachineStateColor.MachineDown:
                     color = System.Drawing.Color.FromArgb(((int)(((byte)(253)))), ((int)(((byte)(214)))), ((int)(((byte)(5)))));
                     //caption = $"{machine.Definition}-{resource.resourceName} / {opInterruptionCause.description}";
                     xtcDetails.SelectedTabPage = xtpInterruption;
-                    machineState = "Duruş : ";
+                    machineState = MachineStateColor.MachineDown.ToText();
                     break;
                 case MachineStateColor.Fault:
                     color = System.Drawing.Color.FromArgb(((int)(((byte)(236)))), ((int)(((byte)(82)))), ((int)(((byte)(81)))));
                     var prm = faults.Last().ErrDescription.CreateParameters("@Fault");
-                    machineState = ToolsMessageBox.ReplaceParameters("Arıza : @Fault", prm);
+                    machineState = ToolsMessageBox.ReplaceParameters(MachineStateColor.Fault.ToText() + ": @Fault", prm);
                     break;
                 case MachineStateColor.Setup:
                     color = System.Drawing.Color.FromArgb(((int)(((byte)(62)))), ((int)(((byte)(94)))), ((int)(((byte)(135)))));
-                    machineState = "Setup";
+                    machineState = MachineStateColor.Setup.ToText();
                     break;
                 case MachineStateColor.ShopOrderWaiting:
                     color = System.Drawing.SystemColors.GrayText;
-                    machineState = "İş Emri Bekliyor";
+                    machineState = MachineStateColor.ShopOrderWaiting.ToText();
                     break;
 
 
@@ -2813,7 +2941,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
             catch (Exception ex)
             {
                 var prm = orderNo.CreateParameters("@OrderNo");
-                ToolsMessageBox.Error(this, "İş Emrine bağlı bir sorun oluştu: \r\nİş Emri No: @OrderNo", ex);
+                ToolsMessageBox.Error(this, MessageTextHelper.GetMessageText("000", "926", "İş Emrine bağlı bir sorun oluştu: \r\nİş Emri No: @OrderNo", "Message"), ex);
             }
         }
 
@@ -2925,7 +3053,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
         }
         #endregion
 
-        #region LABELS TEXT CHANGE EVENT
+        #region LABELS TEXT CHANGES
         public void RefreshTargetProduction()
         {
             var value = Convert.ToDecimal(lblCurrentAmount.Text);
@@ -3067,11 +3195,650 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
                 ccProductionPerformance.Series[0].Points[0].Color = redC;
             ccProductionPerformance.RefreshData();
         }
+
+        public void Label9SetValue()
+        {
+            lblValue9.Text = (Convert.ToDecimal(lblValue9.Text) + 1).ToString();
+        }
         #endregion
 
-        private void ucOEEPanelAdvanced1_Load(object sender, EventArgs e)
+        #region SET LABEL OTHER VALUE
+        public void SetLabelOpcOtherreadValue(OpcOtherReadModel read)
+        {
+            if (read.Location == null)
+                return;
+            for (int i = 1; i < 10; i++)
+            {
+                if (read.Location.Contains(i.ToString()))
+                {
+                    foreach (var item in pnlReadValueLabels.Controls)
+                    {
+                        if (item is LabelControl)
+                        {
+
+                            LabelControl label = item as LabelControl;
+                            if (label.Name == "lblValue" + i)
+                            {
+                                if (read.SpecialCodeId == StaticValues.specialCodeMachineOPCDataTypeSquareMeters.Id)//METRE KARE SAYACINDA EN GÖSTERMEK İÇİN
+                                {
+                                    if (vw_ShopOrderGridModels.HasEntries())
+                                        label.Text = Math.Round((read.readValue * vw_ShopOrderGridModels.Sum(x => Convert.ToDecimal(x.ProductAlan6))), 2).ToString();
+                                }
+                                else if (read.SpecialCodeId == StaticValues.specialCodeCounterReadTypeButtonAndReadBarcode.Id)
+                                {
+                                    if (label.Text == "")
+                                        label.Text = read.readValue.ToString();
+                                    else
+                                    {
+                                        label.Text = (Convert.ToDecimal(label.Text) + read.readValue).ToString();
+                                    }
+                                }
+                                else
+                                    label.Text = read.readValue.ToString();
+
+                            }
+                            if (label.Name == "lblDescription" + i)
+                                label.Text = read.Description;
+                        }
+                    }
+                }
+            }
+        }
+        #endregion
+
+        #region EVENT HANDLERS
+        private void lblCurrentAmount_TextChanged(object sender, EventArgs e)
+        {
+            RefreshTargetProduction();
+        }
+
+        private void lblRealizeAmount_TextChanged(object sender, EventArgs e)
+        {
+            var qty = vw_ShopOrderGridModelActive.revisedQtyDue;
+            var value = Convert.ToDecimal(lblRealizeAmount.Text);
+
+            lscTotalProduction.MaxValue = (float)qty;
+            lscTotalProduction.Value = (float)value;
+            lsrbcTotalProduction.AppearanceRangeBar.ContentBrush = blueBO;
+
+            if (value > 0)
+            {
+                if (value >= (int)qty)
+                    lsrbcTotalProduction.AppearanceRangeBar.ContentBrush = redBO;
+                else if (value >= (int)((double)qty * 0.9))
+                    lsrbcTotalProduction.AppearanceRangeBar.ContentBrush = yellowBO;
+            }
+
+            gcTotalProductionAmount.Refresh();
+        }
+
+        private void container_VisibleChanged(object sender, EventArgs e)
+        {
+            if (!container.Visible)
+                return;
+
+            // Tag -> enum (boxed) unboxing once
+            var selected = (ContainerSelectUserControl)container.Tag;
+
+            // Common helpers
+            void AddToContainer(UserControl uc, Size size)
+            {
+                container.SuspendLayout();
+                try
+                {
+                    container.Controls.Clear();
+                    container.BringToFront();
+                    container.Left = 0;
+                    container.Top = 0;
+                    container.Size = size;
+                    uc.Dock = DockStyle.Fill;
+                    container.Controls.Add(uc);
+                }
+                finally
+                {
+                    container.ResumeLayout(performLayout: true);
+                }
+            }
+
+            // Safe "last" without LINQ allocation
+            T GetLast<T>(IList<T> list)
+            {
+                return (list != null && list.Count > 0) ? list[list.Count - 1] : default(T);
+            }
+
+            // If Users is IList<UserModel> this avoids multiple enumerations
+            bool HasPrivilegedUser()
+            {
+                if (Users == null) return false;
+                for (int i = 0; i < Users.Count; i++)
+                {
+                    if (Users[i].Role > 2) return true;
+                }
+                return false;
+            }
+
+            // First user fast-path (only used if list non-empty)
+            UserModel FirstUserOrNull()
+            {
+                return (Users != null && Users.Count > 0) ? Users[0] : null;
+            }
+
+            switch (selected)
+            {
+                case ContainerSelectUserControl.MachineDown:
+                    {
+                        var uc = new ucMachineDown();
+                        AddToContainer(uc, new Size(750, 471));
+                        break;
+                    }
+
+                case ContainerSelectUserControl.MachineDownDuration:
+                    {
+                        ToolsMdiManager.frmOperatorActive = this;
+                        var lastFault = GetLast(faults);
+                        var uc = new ucMachineDownDuration(lastFault);
+                        AddToContainer(uc, new Size(521, 369));
+                        break;
+                    }
+
+                case ContainerSelectUserControl.MachineDownMaintanenceStart:
+                    {
+                        var lastFault = GetLast(faults);
+                        var lastUser = GetLast(faultUserModels);
+                        var uc = new ucMachineDownMaintanenceStart(lastFault, lastUser);
+                        AddToContainer(uc, new Size(750, 469));
+                        break;
+                    }
+
+                case ContainerSelectUserControl.MachineDownStop:
+                    {
+                        var lastFault = GetLast(faults);
+                        var uc = new ucMachineDownMaintanenceFinish(lastFault, machineDownFinishUser, machine);
+                        AddToContainer(uc, new Size(954, 555));
+                        break;
+                    }
+
+                case ContainerSelectUserControl.PrMaintenance:
+                    {
+                        AddToContainer(new ucPrMaintenance(), new Size(954, 555));
+                        break;
+                    }
+
+                case ContainerSelectUserControl.PrMaintenanceStart:
+                    {
+                        AddToContainer(new ucPrMaintenanceStart(), new Size(750, 469));
+                        break;
+                    }
+
+                case ContainerSelectUserControl.PrMaintenanceFinish:
+                    {
+                        AddToContainer(new ucPrMaintenanceFinish(), new Size(954, 555));
+                        break;
+                    }
+
+                case ContainerSelectUserControl.InterruptionCause:
+                    {
+                        AddToContainer(new ucInterruptionCause(), new Size(750, 471));
+                        break;
+                    }
+
+                case ContainerSelectUserControl.InterruptionCauseDuration:
+                    {
+                        var uc = new ucInterruptionDuration(interruptionCause);
+                        AddToContainer(uc, new Size(521, 369));
+                        break;
+                    }
+
+                case ContainerSelectUserControl.SetupCheckList:
+                    {
+                        var lastOrder = vw_ShopOrderGridModels?.OrderByDescending(x => x.opStartDate).Take(1).ToList();
+                        var uc = new ucSetupCheckList(lastOrder);
+                        AddToContainer(uc, new Size(800, 555));
+                        break;
+                    }
+
+                case ContainerSelectUserControl.MachineAutoMaintanenceCheckList:
+                    {
+                        var uc = new ucMachineAutoMaintanenceList(this);
+                        AddToContainer(uc, new Size(800, 555));
+                        break;
+                    }
+
+                case ContainerSelectUserControl.UserLogin:
+                    {
+                        var ucUserLogin = new ucUserLogin(PersonLoginType.ShopOrderPersonelLogin);
+                        AddToContainer(ucUserLogin, new Size(410, 501));
+                        break;
+                    }
+
+                case ContainerSelectUserControl.UserLogOut:
+                    {
+                        var ucUserLogin = new ucUserLogin(PersonLoginType.ShopOrderPersonelLogout);
+                        AddToContainer(ucUserLogin, new Size(410, 501));
+                        break;
+                    }
+
+                case ContainerSelectUserControl.BoxBarcode:
+                    {
+                        if (HasPrivilegedUser())
+                        {
+                            var user = FirstUserOrNull();
+                            var uc = new ucChooseWorkOrder(user);
+                            AddToContainer(uc, new Size(810, 555));
+                        }
+                        else
+                        {
+                            ToolsMessageBox.Error(this,
+                                MessageTextHelper.GetMessageText("000", "929",
+                                    "Etiket almak için yeterli yetkiye sahip değilsiniz", "Message"));
+                        }
+                        break;
+                    }
+
+                case ContainerSelectUserControl.ProcessBoxBarcode:
+                    {
+                        if (HasPrivilegedUser())
+                        {
+                            var user = FirstUserOrNull();
+                            var uc = new ucBoxLabelProcess(user);
+                            AddToContainer(uc, new Size(810, 555));
+                        }
+                        else
+                        {
+                            ToolsMessageBox.Error(this,
+                                MessageTextHelper.GetMessageText("000", "929",
+                                    "Etiket almak için yeterli yetkiye sahip değilsiniz", "Message"));
+                        }
+                        break;
+                    }
+
+                case ContainerSelectUserControl.QuestionableProduct:
+                    {
+                        using (var frm = new FrmUserLogin(true))
+                        {
+                            if (frm.ShowDialog() == DialogResult.OK)
+                            {
+                                var uc = new ucQuestionableProduct(frm.userModel);
+                                AddToContainer(uc, new Size(750, 471));
+                            }
+                            else
+                            {
+                                ToolsMdiManager.frmOperatorActive.container.Visible = false;
+                            }
+                        }
+                        break;
+                    }
+
+                case ContainerSelectUserControl.GeneralReadResult:
+                    {
+                        var uc = new ucGeneralBarcodeReadResult(this.Text, lblCurrentAmount.Text, string.IsNullOrWhiteSpace(lblStatus.Text));
+                        AddToContainer(uc, new Size(700, 300));
+
+                        BgWorker = new BackgroundWorker();
+                        BgWorker.DoWork += BgWorker_DoWork;
+                        BgWorker.RunWorkerCompleted += BgWorker_RunWorkerCompleted;
+                        if (!BgWorker.IsBusy)
+                            BgWorker.RunWorkerAsync();
+
+                        break;
+                    }
+
+                case ContainerSelectUserControl.ShiftBook:
+                    {
+                        using (var frm = new FrmUserLogin(false))
+                        {
+                            if (frm.ShowDialog() == DialogResult.OK)
+                            {
+                                var uc = new ucShiftBook(frm.userModel);
+                                AddToContainer(uc, new Size(702, 401));
+                            }
+                            else
+                            {
+                                ToolsMdiManager.frmOperatorActive.container.Visible = false;
+                            }
+                        }
+                        break;
+                    }
+
+                //case ContainerSelectUserControl.YellowCard:
+                //    {
+                //        using (var frm = new FrmUserLogin(false))
+                //        {
+                //            if (frm.ShowDialog() == DialogResult.OK)
+                //            {
+                //                var uc = new ucYellowCard(frm.userModel);
+                //                AddToContainer(uc, new Size(702, 401));
+                //            }
+                //            else
+                //            {
+                //                ToolsMdiManager.frmOperatorActive.container.Visible = false;
+                //            }
+                //        }
+                //        break;
+                //    }
+
+                default:
+                    container.Controls.Clear();
+                    container.Visible = false;
+                    break;
+            }
+        }
+
+        private void txtBarcode_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
         {
 
+            if (/*container.Visible || */txtBarcode.Text == string.Empty)
+                return;
+            if (Keys.Enter == e.KeyCode)
+            {
+                lblStatus.Text = "";
+
+                try
+                {
+                    if (txtBarcode.Text.Length < 7) //WorCenter Kodu tab Page geçiişi
+                    {
+                        foreach (var frm in ToolsMdiManager.frmOperators)
+                        {
+                            if (frm.resource.resourceId == txtBarcode.Text)
+                            {
+                                ToolsMdiManager.ActivatedForm(frm);
+                                txtBarcode.SelectAll();
+                                break;
+                            }
+                        }
+                        return;
+                    }
+
+                    if (panelDetail.DataReadParameterID == StaticValues.specialCodeCounterReadTypeButtonAndReadBarcode.Id)
+                    {
+                        ButtonAndReadBarcodeControl(txtBarcode.Text);
+                    }
+                    //else if (panelDetail.DataReadParameterID == StaticValues.specialCodeCounterReadTypeSupplierPark.Id)
+                    //{
+                    //    SupplierParkExtension(txtBarcode.Text);
+                    //}
+                    else
+                    {
+                        ProcessReadBarcodeHelper.ReadProcessBarcodeNew(txtBarcode.Text);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    lblStatus.Text = ex.Message;
+                }
+
+                txtBarcode.Text = "";
+            }
         }
+
+        private void txtBarcode_Leave(object sender, EventArgs e)
+        {
+
+            var text = sender as TextEdit;
+
+            if (text.Parent.Parent.Tag.ToString() != resource.resourceId)
+            {
+                txtBarcode.Focus();
+
+                txtBarcode.Text = String.Empty;
+            }
+            txtBarcode.SelectAll();
+        }
+
+        private void xtcDetails_SelectedPageChanged(object sender, DevExpress.XtraTab.TabPageChangedEventArgs e)
+        {
+            if (xtcDetails.TabPages.IndexOf(e.Page) == 0)//iş emirleri listesi
+            {
+
+            }
+            else if (xtcDetails.TabPages.IndexOf(e.Page) == 1)//Duruş Listesi
+            {
+                RefreshInterruptionCauseGrid();
+            }
+            else if (xtcDetails.TabPages.IndexOf(e.Page) == 2)//Arıza Listesi
+            {
+
+            }
+            else//SÜRELER
+            {
+
+            }
+        }
+
+        private void gwWorkShopOrder_RowClick(object sender, DevExpress.XtraGrid.Views.Grid.RowClickEventArgs e)
+        {
+            if (e.RowHandle < 0)
+                return;
+            vw_ShopOrderGridModelActive = (vw_ShopOrderGridModel)gwWorkShopOrder.GetRow(e.RowHandle);
+            SetLabelsTextValue();
+        }
+
+        private void gwWorkShopOrder_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if (e.ControllerRow < 0)
+                return;
+            vw_ShopOrderGridModelActive = (vw_ShopOrderGridModel)gwWorkShopOrder.GetRow(e.ControllerRow);
+            SetLabelsTextValue();
+        }
+
+        private void gwWorkShopOrder_FocusedRowChanged(object sender, DevExpress.XtraGrid.Views.Base.FocusedRowChangedEventArgs e)
+        {
+            if (e.FocusedRowHandle < 0)
+                return;
+            vw_ShopOrderGridModelActive = (vw_ShopOrderGridModel)gwWorkShopOrder.GetRow(e.FocusedRowHandle);
+
+            SetLabelsTextValue();
+        }
+
+        private void gwWorkShopOrder_CustomUnboundColumnData(object sender, DevExpress.XtraGrid.Views.Base.CustomColumnDataEventArgs e)
+        {
+            if (e.Column.FieldName == "gcUnboundColumn" && e.IsGetData)
+            {
+                DateTime date = (DateTime)gwWorkShopOrder.GetListSourceRowCellValue(e.ListSourceRowIndex, "opStartDate");
+                e.Value = Math.Round((DateTime.Now - date).TotalMinutes, 1);
+            }
+            else if (e.Column.FieldName == "qtyComplate" && e.IsGetData)
+            {
+                Guid id = (Guid)gwWorkShopOrder.GetListSourceRowCellValue(e.ListSourceRowIndex, "Id");
+                e.Value = productionDetails.Where(x => x.ShopOrderOperationID == id).Sum(x => x.Quantity);
+            }
+        }
+
+        private void gvInterruption_CustomUnboundColumnData(object sender, DevExpress.XtraGrid.Views.Base.CustomColumnDataEventArgs e)
+        {
+            if (e.Column.FieldName == "gcUnboundColumn" && e.IsGetData)
+            {
+                var finishDate = gvInterruption.GetListSourceRowCellValue(e.ListSourceRowIndex, "InterruptionFinishDate");
+                DateTime startDate = (DateTime)gvInterruption.GetListSourceRowCellValue(e.ListSourceRowIndex, "InterruptionStartDate");
+
+                if (finishDate == null)
+                {
+                    DateTime date = (DateTime)gvInterruption.GetListSourceRowCellValue(e.ListSourceRowIndex, "InterruptionStartDate");
+                    e.Value = Math.Round((DateTime.Now - date).TotalMinutes, 1);
+                }
+                else
+                {
+                    e.Value = Math.Round(((DateTime)finishDate - startDate).TotalMinutes, 1);
+                }
+            }
+        }
+
+        private void gvPerson_CustomUnboundColumnData(object sender, DevExpress.XtraGrid.Views.Base.CustomColumnDataEventArgs e)
+        {
+            try
+            {
+                if (e.Column.FieldName == "gcUnboundPersonPassingTime" && e.IsGetData)
+                {
+
+                    Object date = gvPerson.GetListSourceRowCellValue(e.ListSourceRowIndex, "StartDate");
+                    if (date != null)
+                    {
+
+                        e.Value = Convert.ToInt32(Math.Round((DateTime.Now - Convert.ToDateTime(date)).TotalMinutes, 0));
+                    }
+                }
+            }
+            catch { }
+        }
+
+        private void tmrWorkShopOrder_Tick(object sender, EventArgs e)
+        {
+            gwWorkShopOrder.RefreshData();
+
+            //Shift
+            Shift shift = StaticValues.shift;
+
+            if (interruptionCause != null)
+            {
+                ts = DateTime.Now - interruptionCause.InterruptionStartDate;
+                lblWorkCenterStartTime.Text = ts.ToString(@"dd\.hh\:mm\:ss");
+                gvInterruption.RefreshData();
+            }
+            else
+            {
+                if (shopOrderProduction != null && shopOrderStatus != ShopOrderStatus.Start)
+                {
+                    ts = DateTime.Now - shopOrderProduction.OrderStartDate;
+                    lblWorkCenterStartTime.Text = ts.ToString(@"dd\.hh\:mm\:ss");
+                }
+                else
+                    lblWorkCenterStartTime.Text = "";
+            }
+
+            if (Users != null && Users.Count() > 0)
+            {
+                gvPerson.RefreshData();
+            }
+            SetLabelsTextValue();
+        }
+
+        /// <summary>
+        /// Sleep for 2 seconds
+        /// </summary>
+        private void BgWorker_DoWork(object sender, DoWorkEventArgs e)
+        {
+            Thread.Sleep(2 * 1000);
+        }
+
+        /// <summary>
+        /// After the background worker is done hide container
+        /// </summary>
+        private void BgWorker_RunWorkerCompleted(object sender, RunWorkerCompletedEventArgs e)
+        {
+            container.Visible = false;
+        }
+        #endregion
+
+        #region HELPER METHOTS
+        private void ButtonAndReadBarcodeControl(string Serial)
+        {
+            factorCounter++;
+            var shopOrderOperationFactor = vw_ShopOrderGridModels.Sum(x => Convert.ToInt16(x.alan1));
+
+            try
+            {
+                ButtonAndReadBarcodeHelper.ButtonAndReadBarcodeControl(Serial, factorCounter, shopOrderOperationFactor);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+            finally
+            {
+                if (shopOrderOperationFactor == factorCounter)
+                    factorCounter = 0;
+            }
+        }
+
+        //private void SupplierParkExtension(string barcode)
+        //{
+        //    try
+        //    {
+        //        if (shopOrderProduction == null)
+        //            return;
+        //        if (supplierPartProductionDetailSelected == null)
+        //            supplierPartProductionDetailSelected = new ShopOrderProductionDetail();
+
+        //        DataRow dataRow;
+        //        var pd = ShopOrderProductionDetailManager.Current.GetShopOrderProductionDetailByBarcodeOrSerial(barcode);
+        //        if (pd == null)
+        //        {
+        //            dataRow = ExMasHelper.GetProductDetails(barcode);
+        //            if (dataRow == null)
+        //                throw new Exception(MessageTextHelper.Message610);
+        //            shopOrderProductionDetails.First().Barcode = barcode;
+        //            supplierPartProductionDetailSelected = shopOrderProductionDetails.First();
+        //        }
+        //        else
+        //        {
+        //            var product = ProductManager.Current.GetProductById(pd.ProductID);
+        //            var resultDataMatterialAlloc = ShopMaterialAllocManager.Current.GetlistByOrderID(vw_ShopOrderGridModels.First().OrderID);
+        //            if (resultDataMatterialAlloc.NullAndCountControl())
+        //            {
+
+        //                if (resultDataMatterialAlloc.Any(x => x.description == product.Description))
+        //                {
+
+        //                    supplierPartProductionDetailSelected.Barcode = barcode;
+        //                    supplierPartProductionDetailSelected = shopOrderProductionDetails.First();
+        //                }
+        //            }
+        //            else
+        //                throw new Exception(MessageTextHelper.Message611);
+        //        }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        lblStatus.Text = ex.Message;
+        //    }
+        //}
+
+        public void RefreshInterruptionCauseGrid()
+        {
+            RemoveOldInterruptions();
+            try
+            {
+                rtsInterruptionGrid = new RealTimeSource()
+                {
+                    DataSource = interruptionGridModel.interruptionCauseGridModels.Where(x => x.ResourceID == resource.Id).ToList()
+                };
+                gcInterruption.DataSource = rtsInterruptionGrid;
+            }
+            catch { }
+        }
+
+        public void RemoveOldInterruptions()
+        {
+            try
+            {
+                var toRemove = new ObservableCollection<vw_InterruptionCauseGridModel>();
+                foreach (var interruption in interruptionGridModel.interruptionCauseGridModels)
+                {
+                    if (interruption.ShiftID != StaticValues.shift.Id && interruption.ShopOrderProductionID != shopOrderProduction.Id)
+                        toRemove.Add(interruption);
+                }
+                foreach (var interruption in toRemove)
+                    interruptionGridModel.interruptionCauseGridModels.Remove(interruption);
+            }
+            catch { }
+        }
+
+        public void UpdateQuantities(Guid ShopOrderId)
+        {
+            var selectedShopOrder = vw_ShopOrderGridModels.First(x => x.Id == ShopOrderId);
+            gwWorkShopOrder.SelectRow(gwWorkShopOrder.LocateByValue("Id", selectedShopOrder.Id));
+        }
+
+        public void RefreshFaultGridModel()
+        {
+            gcFaults.RefreshDataSource();
+        }
+
+        public void FocusAndSelectTxtBarcode()
+        {
+            txtBarcode.Focus();
+            txtBarcode.SelectAll();
+        }
+        #endregion
     }
 }

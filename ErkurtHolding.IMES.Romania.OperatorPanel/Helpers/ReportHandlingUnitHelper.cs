@@ -1,19 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.IO;
-using System.Linq;
-using System.Windows.Forms;
-using DevExpress.XtraReports.UI;
+﻿using DevExpress.XtraReports.UI;
 using ErkurtHolding.IMES.Business.ImesManager;
 using ErkurtHolding.IMES.Entity;
 using ErkurtHolding.IMES.Entity.ImesDataModel;
 using ErkurtHolding.IMES.Entity.Views;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Extensions;
-using ErkurtHolding.IMES.Romania.OperatorPanel.Forms;
+using ErkurtHolding.IMES.Romania.OperatorPanel.Forms.Helpers;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Localization;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Models;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Tools;
+using System;
+using System.Collections.Generic;
+using System.Data;
+using System.IO;
+using System.Windows.Forms;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
 {

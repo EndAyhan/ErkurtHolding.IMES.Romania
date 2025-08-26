@@ -1,4 +1,4 @@
-﻿namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
+﻿namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms.Helpers
 {
     partial class FrmPrinting
     {
@@ -28,23 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.lblPrintingText = new DevExpress.XtraEditors.LabelControl();
             this.gcBox = new DevExpress.XtraEditors.GroupControl();
+            this.lblPrintingText = new DevExpress.XtraEditors.LabelControl();
             ((System.ComponentModel.ISupportInitialize)(this.gcBox)).BeginInit();
             this.gcBox.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // lblPrintingText
-            // 
-            this.lblPrintingText.Appearance.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.25F);
-            this.lblPrintingText.Appearance.Options.UseFont = true;
-            this.lblPrintingText.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
-            this.lblPrintingText.Location = new System.Drawing.Point(18, 74);
-            this.lblPrintingText.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.lblPrintingText.Name = "lblPrintingText";
-            this.lblPrintingText.Size = new System.Drawing.Size(380, 25);
-            this.lblPrintingText.TabIndex = 0;
-            this.lblPrintingText.Text = "Etiket Yazdırılıyor...";
             // 
             // gcBox
             // 
@@ -57,23 +45,39 @@
             this.gcBox.Controls.Add(this.lblPrintingText);
             this.gcBox.Dock = System.Windows.Forms.DockStyle.Fill;
             this.gcBox.Location = new System.Drawing.Point(0, 0);
-            this.gcBox.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
+            this.gcBox.Margin = new System.Windows.Forms.Padding(4);
             this.gcBox.Name = "gcBox";
-            this.gcBox.Size = new System.Drawing.Size(413, 162);
-            this.gcBox.TabIndex = 1;
+            this.gcBox.Size = new System.Drawing.Size(367, 130);
+            this.gcBox.TabIndex = 0;
             this.gcBox.Tag = "100";
             this.gcBox.Text = "Etiket Yazdırılıyor..";
             // 
+            // lblPrintingText
+            // 
+            this.lblPrintingText.Appearance.Font = new System.Drawing.Font("Microsoft Sans Serif", 10.25F);
+            this.lblPrintingText.Appearance.Options.UseFont = true;
+            this.lblPrintingText.AutoSizeMode = DevExpress.XtraEditors.LabelAutoSizeMode.None;
+            this.lblPrintingText.Location = new System.Drawing.Point(16, 59);
+            this.lblPrintingText.Margin = new System.Windows.Forms.Padding(4);
+            this.lblPrintingText.Name = "lblPrintingText";
+            this.lblPrintingText.Size = new System.Drawing.Size(338, 20);
+            this.lblPrintingText.TabIndex = 0;
+            this.lblPrintingText.Tag = "200";
+            this.lblPrintingText.Text = "Etiket Yazdırılıyor...";
+            // 
             // FrmPrinting
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 19F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(413, 162);
+            this.ClientSize = new System.Drawing.Size(367, 130);
             this.Controls.Add(this.gcBox);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.Name = "FrmPrinting";
+            this.Tag = "023";
             this.Text = "FrmPrinting";
             this.TopMost = true;
+            this.Shown += new System.EventHandler(this.FrmPrinting_Shown);
             ((System.ComponentModel.ISupportInitialize)(this.gcBox)).EndInit();
             this.gcBox.ResumeLayout(false);
             this.ResumeLayout(false);

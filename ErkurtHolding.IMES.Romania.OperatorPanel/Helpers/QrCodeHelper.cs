@@ -1,12 +1,11 @@
-﻿using System;
-using System.Drawing;
-using System.Windows.Forms;
-using DevExpress.Utils;
+﻿using DevExpress.Utils;
 using DevExpress.XtraEditors;
 using DevExpress.XtraEditors.Controls;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Localization;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Tools;
 using QRCoder;
+using System.Drawing;
+using System.Windows.Forms;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
 {

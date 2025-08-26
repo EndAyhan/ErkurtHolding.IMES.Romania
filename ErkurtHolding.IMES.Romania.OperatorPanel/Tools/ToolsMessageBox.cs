@@ -1,9 +1,9 @@
-﻿using System;
+﻿using DevExpress.XtraEditors;
+using ErkurtHolding.IMES.Romania.OperatorPanel.Localization;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
-using DevExpress.XtraEditors;
-using ErkurtHolding.IMES.Romania.OperatorPanel.Localization;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
 {
@@ -17,17 +17,17 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
         // -------- Localization helpers --------
 
         // Common titles (keys grouped under "ui.message.*")
-        private static string TitleInfo => MessageTextHelper.GetMessageText("TOOL", "100", "Information..!", "ToolsMessageBox");
-        private static string TitleWarn => MessageTextHelper.GetMessageText("TOOL", "101", "Warning..!", "ToolsMessageBox");
-        private static string TitleError => MessageTextHelper.GetMessageText("TOOL", "103", "Error..!", "ToolsMessageBox");
-        private static string TitleQuestion => MessageTextHelper.GetMessageText("TOOL", "102", "Question..!", "ToolsMessageBox");
+        private static string TitleInfo => MessageTextHelper.GetMessageText("000", "003", "Information..!", "ToolsMessageBox");
+        private static string TitleWarn => MessageTextHelper.GetMessageText("000", "002", "Warning..!", "ToolsMessageBox");
+        private static string TitleError => MessageTextHelper.GetMessageText("000", "001", "Error..!", "ToolsMessageBox");
+        private static string TitleQuestion => MessageTextHelper.GetMessageText("000", "004", "Question..!", "ToolsMessageBox");
 
         // Common bodies
-        private static string BodyUnexpectedError => MessageTextHelper.GetMessageText("TOOL", "104", "An unexpected error occurred", "ToolsMessageBox");
-        private static string BodySuccess => MessageTextHelper.GetMessageText("TOOL", "106", "Operation successful", "ToolsMessageBox");
-        private static string BodyInsertSuccess => MessageTextHelper.GetMessageText("TOOL", "107", "Record saved successfully", "ToolsMessageBox");
-        private static string BodyDeleteConfirm => MessageTextHelper.GetMessageText("TOOL", "108", "Are you sure you want to delete this record?", "ToolsMessageBox");
-        private static string BodyCancelConfirm => MessageTextHelper.GetMessageText("TOOL", "109", "Are you sure you do not want to continue?", "ToolsMessageBox");
+        private static string BodyUnexpectedError => MessageTextHelper.GetMessageText("000", "010", "An unexpected error occurred", "ToolsMessageBox");
+        private static string BodySuccess => MessageTextHelper.GetMessageText("000", "011", "Operation successful", "ToolsMessageBox");
+        private static string BodyInsertSuccess => MessageTextHelper.GetMessageText("000", "012", "Record saved successfully", "ToolsMessageBox");
+        private static string BodyDeleteConfirm => MessageTextHelper.GetMessageText("000", "013", "Are you sure you want to delete this record?", "ToolsMessageBox");
+        private static string BodyCancelConfirm => MessageTextHelper.GetMessageText("000", "014", "Are you sure you do not want to continue?", "ToolsMessageBox");
 
         // -------- Information --------
 
@@ -80,7 +80,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
         /// </summary>
         public static void Error(IWin32Window owner, Exception ex)
         {
-            var adminInfo = MessageTextHelper.GetMessageText("TOOL", "105", "Admin Info", "ToolsMessageBox");
+            var adminInfo = MessageTextHelper.GetMessageText("000", "015", "Admin Info", "ToolsMessageBox");
             XtraMessageBox.Show(owner, $"{BodyUnexpectedError}\r\n{adminInfo} : {ex.Message}", TitleError, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 
@@ -89,7 +89,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
         /// </summary>
         public static void Error(IWin32Window owner, string message, Exception ex)
         {
-            var adminInfo = MessageTextHelper.GetMessageText("TOOL", "105", "Admin Info", "ToolsMessageBox");
+            var adminInfo = MessageTextHelper.GetMessageText("000", "015", "Admin Info", "ToolsMessageBox");
             XtraMessageBox.Show(owner, $"{message}\r\n{adminInfo} : {ex.Message}", TitleError, MessageBoxButtons.OK, MessageBoxIcon.Error);
         }
 

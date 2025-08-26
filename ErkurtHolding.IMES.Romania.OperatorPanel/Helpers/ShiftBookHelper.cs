@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using ErkurtHolding.IMES.Business;
+﻿using ErkurtHolding.IMES.Business;
 using ErkurtHolding.IMES.Business.ImesManager;
 using ErkurtHolding.IMES.Business.QueryManagers;
 using ErkurtHolding.IMES.Entity;
 using ErkurtHolding.IMES.Entity.ImesDataModel;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Models;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
 {

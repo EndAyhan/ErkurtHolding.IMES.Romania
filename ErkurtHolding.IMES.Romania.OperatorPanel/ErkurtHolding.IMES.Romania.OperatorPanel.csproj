@@ -38,17 +38,31 @@
     </Reference>
     <Reference Include="DevExpress.BonusSkins.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
     <Reference Include="DevExpress.Charts.v21.2.Core, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
+    <Reference Include="DevExpress.Dashboard.v21.2.Core, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.Dashboard.v21.2.Win, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="DevExpress.Data.Desktop.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
       <Private>False</Private>
     </Reference>
     <Reference Include="DevExpress.Data.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
       <Private>False</Private>
     </Reference>
+    <Reference Include="DevExpress.DataAccess.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.DataAccess.v21.2.UI, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.Images.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.Map.v21.2.Core, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.Office.v21.2.Core, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.Pdf.v21.2.Core, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.Pdf.v21.2.Drawing, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.PivotGrid.v21.2.Core, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="DevExpress.Printing.v21.2.Core, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.RichEdit.v21.2.Core, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.Sparkline.v21.2.Core, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.TreeMap.v21.2.Core, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="DevExpress.Utils.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
       <Private>False</Private>
     </Reference>
     <Reference Include="DevExpress.Utils.v21.2.UI, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
+    <Reference Include="DevExpress.Xpo.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="DevExpress.XtraBars.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
       <Private>False</Private>
     </Reference>
@@ -58,14 +72,27 @@
     <Reference Include="DevExpress.XtraEditors.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL">
       <Private>False</Private>
     </Reference>
+    <Reference Include="DevExpress.XtraGantt.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="DevExpress.XtraGauges.v21.2.Core, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
+    <Reference Include="DevExpress.XtraGauges.v21.2.Presets, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="DevExpress.XtraGauges.v21.2.Win, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="DevExpress.XtraGrid.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="DevExpress.XtraLayout.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
+    <Reference Include="DevExpress.XtraMap.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraPdfViewer.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraPivotGrid.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="DevExpress.XtraPrinting.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a" />
     <Reference Include="DevExpress.XtraReports.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="DevExpress.XtraReports.v21.2.Extensions, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraRichEdit.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraScheduler.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraScheduler.v21.2.Core, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraScheduler.v21.2.Core.Desktop, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="DevExpress.XtraTreeList.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraTreeMap.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraTreeMap.v21.2.UI, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraVerticalGrid.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
+    <Reference Include="DevExpress.XtraWizard.v21.2, Version=21.2.4.0, Culture=neutral, PublicKeyToken=b88d1754d700e49a, processorArchitecture=MSIL" />
     <Reference Include="MQTTnet, Version=3.1.2.0, Culture=neutral, PublicKeyToken=b69712f52770c0a7, processorArchitecture=MSIL">
       <HintPath>..\packages\MQTTnet.3.1.2\lib\net461\MQTTnet.dll</HintPath>
     </Reference>
@@ -74,6 +101,9 @@
     </Reference>
     <Reference Include="Opc.UaFx.Client, Version=2.0.0.0, Culture=neutral, PublicKeyToken=0220af0d33d50236, processorArchitecture=MSIL">
       <HintPath>..\packages\Opc.UaFx.Client.2.28.1\lib\net471\Opc.UaFx.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Otp.NET, Version=1.4.0.0, Culture=neutral, PublicKeyToken=38a48df817e173a6, processorArchitecture=MSIL">
+      <HintPath>..\packages\Otp.NET.1.4.0\lib\net461\Otp.NET.dll</HintPath>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -123,6 +153,12 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Components\ucMachineAutoMaintanenceCheckListComponent.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Components\ucMachineAutoMaintanenceCheckListComponent.Designer.cs">
+      <DependentUpon>ucMachineAutoMaintanenceCheckListComponent.cs</DependentUpon>
+    </Compile>
     <Compile Include="Enums\CallStateType.cs" />
     <Compile Include="Enums\CallStatusType.cs" />
     <Compile Include="Enums\ContainerSelectUserControl.cs" />
@@ -148,10 +184,28 @@
     <Compile Include="Extensions\ConvertExtension.cs" />
     <Compile Include="Extensions\DataControlExtension.cs" />
     <Compile Include="Extensions\DataTableExtension.cs" />
-    <Compile Include="Forms\FrmAdminLogin.cs">
+    <Compile Include="Forms\Helpers\FrmNumericKeyboard.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\FrmAdminLogin.Designer.cs">
+    <Compile Include="Forms\Helpers\FrmNumericKeyboard.Designer.cs">
+      <DependentUpon>FrmNumericKeyboard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FrmPdfViewer.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmPdfViewer.Designer.cs">
+      <DependentUpon>FrmPdfViewer.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\FrmUserLogin.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\FrmUserLogin.Designer.cs">
+      <DependentUpon>FrmUserLogin.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Helpers\FrmAdminLogin.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Helpers\FrmAdminLogin.Designer.cs">
       <DependentUpon>FrmAdminLogin.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\FrmOperator.cs">
@@ -160,16 +214,34 @@
     <Compile Include="Forms\FrmOperator.Designer.cs">
       <DependentUpon>FrmOperator.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\FrmPartHandlingUnitSelect.cs">
+    <Compile Include="Forms\FrmInventoryStock.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\FrmPartHandlingUnitSelect.Designer.cs">
+    <Compile Include="Forms\FrmInventoryStock.Designer.cs">
+      <DependentUpon>FrmInventoryStock.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Helpers\FrmLoading.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Helpers\FrmLoading.Designer.cs">
+      <DependentUpon>FrmLoading.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Helpers\FrmNote.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Helpers\FrmNote.Designer.cs">
+      <DependentUpon>FrmNote.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Helpers\FrmPartHandlingUnitSelect.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Helpers\FrmPartHandlingUnitSelect.Designer.cs">
       <DependentUpon>FrmPartHandlingUnitSelect.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\FrmPrinting.cs">
+    <Compile Include="Forms\Helpers\FrmPrinting.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\FrmPrinting.Designer.cs">
+    <Compile Include="Forms\Helpers\FrmPrinting.Designer.cs">
       <DependentUpon>FrmPrinting.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\Helpers\FrmSelectHandlingUnit.cs">
@@ -177,6 +249,18 @@
     </Compile>
     <Compile Include="Forms\Helpers\FrmSelectHandlingUnit.Designer.cs">
       <DependentUpon>FrmSelectHandlingUnit.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Helpers\FrmSplitProductDetail.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Helpers\FrmSplitProductDetail.Designer.cs">
+      <DependentUpon>FrmSplitProductDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Forms\Helpers\FrmVirtualKeyboard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\Helpers\FrmVirtualKeyboard.Designer.cs">
+      <DependentUpon>FrmVirtualKeyboard.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\Main\FrmFillHandlingUnit.cs">
       <SubType>Form</SubType>
@@ -190,17 +274,29 @@
     <Compile Include="Forms\Main\FrmOperatorPanel.Designer.cs">
       <DependentUpon>FrmOperatorPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="GridModels\HandlingProductionDetailGridModel.cs" />
+    <Compile Include="GridModels\HandlingUnitGridModel.cs" />
     <Compile Include="GridModels\InterruptionGridModel.cs" />
+    <Compile Include="GridModels\ProductionDetailGridModel.cs" />
+    <Compile Include="GridModels\QuestionableProductGridModel.cs" />
+    <Compile Include="Helpers\AuthorizeHelper.cs" />
     <Compile Include="Helpers\BoxBarcodeHelper.cs" />
+    <Compile Include="Helpers\ButtonAndReadBarcodeHelper.cs" />
     <Compile Include="Helpers\EmailTemplateHelper.cs" />
+    <Compile Include="Helpers\GridLookUpEditBestPopupFormSizeHelper.cs" />
+    <Compile Include="Helpers\InterruptionCauseHelper.cs" />
     <Compile Include="Helpers\Mail\EmailQueeService.cs" />
+    <Compile Include="Helpers\Mail\OTPMailHelper.cs" />
     <Compile Include="Helpers\MqttHelper.cs" />
     <Compile Include="Helpers\NotificationHelper.cs" />
     <Compile Include="Helpers\OPCClientHelper.cs" />
     <Compile Include="Helpers\OperatorPanelConfigurationHelper.cs" />
     <Compile Include="Helpers\PrintLabelHelper.cs" />
+    <Compile Include="Helpers\ProcessReadBarcodeHelper.cs" />
     <Compile Include="Helpers\QrCodeHelper.cs" />
+    <Compile Include="Helpers\ReportHandlingUnitAdetHelper.cs" />
     <Compile Include="Helpers\ReportHandlingUnitHelper.cs" />
+    <Compile Include="Helpers\ReportHelper.cs" />
     <Compile Include="Helpers\ReportProcessHandlingUnitHelper.cs" />
     <Compile Include="Helpers\ReportProductHelper.cs" />
     <Compile Include="Helpers\ShiftBookHelper.cs" />
@@ -211,13 +307,17 @@
     <Compile Include="Localization\GeneralControlVisitor.cs" />
     <Compile Include="Localization\IControlVisitor.cs" />
     <Compile Include="Localization\LanguageHelper.cs" />
+    <Compile Include="Localization\LocalizedDisplayNameAttribute.cs" />
     <Compile Include="Localization\MessageTextHelper.cs" />
+    <Compile Include="Models\AutoMaintanenceCheckModel.cs" />
     <Compile Include="Models\EMailModel.cs" />
     <Compile Include="Models\InkJetModel.cs" />
     <Compile Include="Models\InterruptionCauseMessageModel.cs" />
     <Compile Include="Models\IssueMaterialAllocModel.cs" />
+    <Compile Include="Models\MachineDownProductModel.cs" />
     <Compile Include="Models\OpcOtherReadModel.cs" />
     <Compile Include="Models\PrintLabelModel.cs" />
+    <Compile Include="Models\PrMaintenanceProductModel.cs" />
     <Compile Include="Models\ProcessHandlingUnitModel.cs" />
     <Compile Include="Models\UserModel.cs" />
     <Compile Include="Program.cs" />
@@ -231,22 +331,133 @@
     <Compile Include="Tools\ToolsMdiManager.cs" />
     <Compile Include="Tools\ToolsMessageBox.cs" />
     <Compile Include="Tools\ToolsRibbonManager.cs" />
+    <Compile Include="UserControls\ucBoxLabel.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucBoxLabel.Designer.cs">
+      <DependentUpon>ucBoxLabel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ucBoxLabelProcess.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucBoxLabelProcess.Designer.cs">
+      <DependentUpon>ucBoxLabelProcess.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ucChooseWorkOrder.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucChooseWorkOrder.Designer.cs">
+      <DependentUpon>ucChooseWorkOrder.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ucGeneralBarcodeReadResult.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucGeneralBarcodeReadResult.Designer.cs">
+      <DependentUpon>ucGeneralBarcodeReadResult.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ucInterruptionCause.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucInterruptionCause.Designer.cs">
+      <DependentUpon>ucInterruptionCause.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ucInterruptionDuration.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucInterruptionDuration.Designer.cs">
+      <DependentUpon>ucInterruptionDuration.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ucMachineAutoMaintanenceList.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucMachineAutoMaintanenceList.Designer.cs">
+      <DependentUpon>ucMachineAutoMaintanenceList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ucMachineDown.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucMachineDown.Designer.cs">
+      <DependentUpon>ucMachineDown.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ucMachineDownDuration.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucMachineDownDuration.Designer.cs">
+      <DependentUpon>ucMachineDownDuration.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ucMachineDownMaintanenceFinish.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucMachineDownMaintanenceFinish.Designer.cs">
+      <DependentUpon>ucMachineDownMaintanenceFinish.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ucMachineDownMaintanenceStart.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucMachineDownMaintanenceStart.Designer.cs">
+      <DependentUpon>ucMachineDownMaintanenceStart.cs</DependentUpon>
+    </Compile>
     <Compile Include="UserControls\ucOEEPanelAdvanced.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="UserControls\ucOEEPanelAdvanced.Designer.cs">
       <DependentUpon>ucOEEPanelAdvanced.cs</DependentUpon>
     </Compile>
-    <EmbeddedResource Include="Forms\FrmAdminLogin.resx">
+    <Compile Include="UserControls\ucPrMaintenance.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucPrMaintenance.Designer.cs">
+      <DependentUpon>ucPrMaintenance.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ucPrMaintenanceFinish.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucPrMaintenanceFinish.Designer.cs">
+      <DependentUpon>ucPrMaintenanceFinish.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ucPrMaintenanceStart.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucPrMaintenanceStart.Designer.cs">
+      <DependentUpon>ucPrMaintenanceStart.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ucQuestionableProduct.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucQuestionableProduct.Designer.cs">
+      <DependentUpon>ucQuestionableProduct.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ucSetupCheckList.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucSetupCheckList.Designer.cs">
+      <DependentUpon>ucSetupCheckList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ucShiftBook.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucShiftBook.Designer.cs">
+      <DependentUpon>ucShiftBook.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UserControls\ucUserLogin.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UserControls\ucUserLogin.Designer.cs">
+      <DependentUpon>ucUserLogin.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Forms\Helpers\FrmAdminLogin.resx">
       <DependentUpon>FrmAdminLogin.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\FrmOperator.resx">
       <DependentUpon>FrmOperator.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\FrmPartHandlingUnitSelect.resx">
+    <EmbeddedResource Include="Forms\Helpers\FrmLoading.resx">
+      <DependentUpon>FrmLoading.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Forms\Helpers\FrmPartHandlingUnitSelect.resx">
       <DependentUpon>FrmPartHandlingUnitSelect.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\FrmPrinting.resx">
+    <EmbeddedResource Include="Forms\Helpers\FrmPrinting.resx">
       <DependentUpon>FrmPrinting.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Helpers\FrmSelectHandlingUnit.resx">

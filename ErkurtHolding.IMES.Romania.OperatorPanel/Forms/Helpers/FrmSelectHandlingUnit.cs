@@ -2,6 +2,7 @@
 using ErkurtHolding.IMES.Romania.OperatorPanel.Models;
 using System;
 using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms.Helpers
 {
@@ -22,7 +23,9 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms.Helpers
 
         private void gcHandlinbgUnits_DoubleClick(object sender, EventArgs e)
         {
+            selectedHandlingUnit = (ProcessHandlingUnitModel)gvHandlingUnits.GetRow(gvHandlingUnits.FocusedRowHandle);
 
+            this.DialogResult = DialogResult.OK;
         }
     }
 }

@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
-using DevExpress.XtraBars.Ribbon;
+﻿using DevExpress.XtraBars.Ribbon;
 using DevExpress.XtraTabbedMdi;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Enums;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Forms;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Forms.Main;
+using System;
+using System.Collections.Generic;
+using System.Windows.Forms;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
 {

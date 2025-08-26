@@ -27,6 +27,13 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
         public static string ScrapProductDesignPath { get => (ConfigurationManager.AppSettings["ScrapProductDesignPath"]); }
         public static string SubcontractorWorkcenterId { get => ConfigurationManager.AppSettings["subcontractor_workcenter_id"]; }
         public static string SubcontractorResourceId { get => ConfigurationManager.AppSettings["subcontractor_resource_id"]; }
+        public static string OperatorRfIdLogin { get => (ConfigurationManager.AppSettings["OperatorRfIdLogin"]) ?? "FALSE"; }
+
+        /// <summary>
+        /// Günlük otonom temizlik ve bakım duruşunun kodu. Genel bir değişiklik yapıldığında App.config üzerinden değiştirilebilir..
+        /// </summary>
+        public static string autoMaintenanceInterruptionCauseId { get => !(string.IsNullOrEmpty(ConfigurationManager.AppSettings["AutoMaintenanceInterruptionCauseId"])) ? (ConfigurationManager.AppSettings["AutoMaintenanceInterruptionCauseId"]) : "DGNL022"; }
+
 
         public static SpecialCode LanguageCode { get; } = SpecialCodeManager.Current.GetSpecialCodeByCode(Language, (int)SpecialCodeType.Language);
 
@@ -285,6 +292,19 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
                     _specialCodeMachineOPCDataTypeProgramNodeId = SpecialCodeManager.Current.GetSpecialCodeByName(MachineOPCDataType.MachineProgramNodeId.ToText(), (byte)SpecialCodeType.MachineOPCDataType);
                 }
                 return _specialCodeMachineOPCDataTypeProgramNodeId;
+            }
+        }
+
+        private static SpecialCode _specialCodeMachineOPCDataTypeSquareMeters;
+        public static SpecialCode specialCodeMachineOPCDataTypeSquareMeters
+        {
+            get
+            {
+                if (_specialCodeMachineOPCDataTypeSquareMeters == null)
+                {
+                    _specialCodeMachineOPCDataTypeSquareMeters = SpecialCodeManager.Current.GetSpecialCodeByName(MachineOPCDataType.SquareMetersCounter.ToText(), (byte)SpecialCodeType.MachineOPCDataType);
+                }
+                return _specialCodeMachineOPCDataTypeSquareMeters;
             }
         }
         #endregion

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using ErkurtHolding.IMES.Business;
+﻿using ErkurtHolding.IMES.Business;
 using ErkurtHolding.IMES.Entity;
 using ErkurtHolding.IMES.Entity.ImesDataModel;
 using ErkurtHolding.IMES.Entity.Views;
@@ -8,6 +6,8 @@ using ErkurtHolding.IMES.Romania.OperatorPanel.Enums;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Forms;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Models;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Tools;
+using System;
+using System.Linq;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
 {

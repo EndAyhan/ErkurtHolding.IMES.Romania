@@ -1,8 +1,8 @@
-﻿using System;
-using System.Linq;
-using DevExpress.XtraBars;
+﻿using DevExpress.XtraBars;
 using DevExpress.XtraBars.Ribbon;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Enums;
+using System;
+using System.Linq;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.Tools
 {

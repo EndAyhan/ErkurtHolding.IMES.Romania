@@ -1,17 +1,9 @@
-﻿using DevExpress.XtraEditors;
-using ErkurtHolding.IMES.Romania.OperatorPanel.Localization;
+﻿using ErkurtHolding.IMES.Romania.OperatorPanel.Localization;
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
-namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms
+namespace ErkurtHolding.IMES.Romania.OperatorPanel.Forms.Helpers
 {
     public partial class FrmPrinting : DevExpress.XtraEditors.XtraForm
     {
