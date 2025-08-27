@@ -213,7 +213,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Helpers
         /// Keeps existing behavior: when RFID mode is active, <see cref="UserModel.IfsEmplooyeId"/>
         /// is overwritten by <see cref="CompanyPerson.employeeId"/>.
         /// </summary>
-        private static UserModel BuildUserModel(CompanyPerson person, string inputEmployeeId, dynamic laborClass)
+        private static UserModel BuildUserModel(CompanyPerson person, string inputEmployeeId, LaborClass laborClass)
         {
             var model = new UserModel
             {

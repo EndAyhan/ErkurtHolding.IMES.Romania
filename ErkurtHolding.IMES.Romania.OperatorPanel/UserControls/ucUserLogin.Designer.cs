@@ -295,7 +295,7 @@
             this.btnback.Size = new System.Drawing.Size(40, 38);
             this.btnback.StyleController = this.layoutControl1;
             this.btnback.TabIndex = 5;
-            this.btnback.Click += new System.EventHandler(this.btnback_Click);
+            this.btnback.Click += new System.EventHandler(this.btnBack_Click);
             // 
             // Root
             // 

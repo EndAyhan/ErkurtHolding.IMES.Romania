@@ -2,6 +2,7 @@
 using ErkurtHolding.IMES.Business;
 using ErkurtHolding.IMES.Business.ImesManager;
 using ErkurtHolding.IMES.Entity;
+using ErkurtHolding.IMES.Entity.Views;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Enums;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Extensions;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Forms;
@@ -20,61 +21,111 @@ using System.Windows.Forms;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
 {
+    /// <summary>
+    /// Process labeling UI:
+    /// - Lists handling units (grouped by barcode for process flow)
+    /// - Lists production details and scrap details for the active orders
+    /// - Allows printing labels (designer/preview/print)
+    ///
+    /// Perf notes:
+    /// - Prebuild dictionaries/lists to avoid repeated LINQ scans in hot paths
+    /// - Guard against null/empty collections
+    /// - Keep LINQ allocations out of loops where possible
+    /// </summary>
     public partial class ucBoxLabelProcess : DevExpress.XtraEditors.XtraUserControl
     {
+        // --- selection state ---
         private List<int> handlingUnitSelectedRows = new List<int>();
         private List<int> productionDetailSelectedRows = new List<int>();
         private List<int> scrapProductionDetailSelectedRows = new List<int>();
+
+        // --- data caches (populated once and reused) ---
         private List<HandlingUnit> handlingUnits = null;
+        private Dictionary<Guid, HandlingUnit> _handlingById = new Dictionary<Guid, HandlingUnit>();
+        private Dictionary<Guid, vw_ShopOrderGridModel> _ordersById = new Dictionary<Guid, vw_ShopOrderGridModel>();
+
         private List<ProcessHandlingUnitModel> processHandlingUnitModels = new List<ProcessHandlingUnitModel>();
         private BindingList<ProductionDetailGridModel> productionGridModels;
+
         private UserModel userModel { get; set; }
         private GridLookUpEditBestPopupFormSizeHelper _gluePopupSizer;
 
-        string ucLabelselectedPage = "Box";
+        private string ucLabelselectedPage = "Box";
+
         public ucBoxLabelProcess(UserModel model)
         {
             InitializeComponent();
 
+            // Localize UI
             LanguageHelper.InitializeLanguage(this);
 
-            handlingUnits = HandlingUnitManager.Current.GetHandlingUnitByShopOrderOperationId(ToolsMdiManager.frmOperatorActive.vw_ShopOrderGridModels.Select(x => x.Id).ToList());
-            if (handlingUnits == null)
-                handlingUnits = new List<HandlingUnit>();
+            // Load previously created HUs for all active WorkOrders
+            var orderIds = ToolsMdiManager.frmOperatorActive.vw_ShopOrderGridModels.Select(x => x.Id).ToList();
+            handlingUnits = HandlingUnitManager.Current.GetHandlingUnitByShopOrderOperationId(orderIds);
+            if (handlingUnits == null) handlingUnits = new List<HandlingUnit>();
+
+            // Build a fast lookup by Id once
+            _handlingById = handlingUnits.GroupBy(h => h.Id).ToDictionary(g => g.Key, g => g.First());
+
+            // Cache orders by Id for quick access
+            _ordersById = ToolsMdiManager.frmOperatorActive.vw_ShopOrderGridModels
+                .GroupBy(x => x.Id).ToDictionary(g => g.Key, g => g.First());
 
             userModel = model;
 
-            _gluePopupSizer = new GridLookUpEditBestPopupFormSizeHelper(glueShopOrderOperation, initialHeight: 200, width: 450);
+            // Improve popup size UX for the order selector
+            _gluePopupSizer = new GridLookUpEditBestPopupFormSizeHelper(glueShopOrderOperation, 200, 450);
 
+            // Initial loads
             InitData();
             InitDataBox();
             InitDataProductionDetails();
             InitDataScrapProductionDetails();
+
+            // Show "Open Designer" only for role 4 users
             chkReportDesignerOpen.Visible = ToolsMdiManager.frmOperatorActive.Users.Any(u => u.Role == 4);
         }
 
         #region INIT DATA
+
+        /// <summary>Bind the order selector; default to most recently started.</summary>
         private void InitData()
         {
-            glueShopOrderOperation.Properties.DataSource = ToolsMdiManager.frmOperatorActive.vw_ShopOrderGridModels;
-            glueShopOrderOperation.EditValue = ToolsMdiManager.frmOperatorActive.vw_ShopOrderGridModels.OrderByDescending(x => x.opStartDate).First().Id;
+            var orders = ToolsMdiManager.frmOperatorActive.vw_ShopOrderGridModels;
+            glueShopOrderOperation.Properties.DataSource = orders;
+
+            var last = orders.OrderByDescending(x => x.opStartDate).FirstOrDefault();
+            if (last != null)
+                glueShopOrderOperation.EditValue = last.Id;
         }
 
+        /// <summary>
+        /// Build the grouped HandlingUnit view for process mode:
+        /// - Group by barcode
+        /// - Sum quantities, count lots, pick earliest CreatedAt
+        /// </summary>
         private void InitDataBox()
         {
-
-            //handlingUnits.Clear();
             handlingUnitSelectedRows.Clear();
             processHandlingUnitModels = new List<ProcessHandlingUnitModel>();
 
             List<HandlingUnit> filteredHandlingUnits;
+
             if (chkHideOtherShifts.Checked)
             {
-                filteredHandlingUnits = handlingUnits.Where(x => x.ShopOrderProductionID == ToolsMdiManager.frmOperatorActive.shopOrderProduction.Id).ToList();
-                filteredHandlingUnits = handlingUnits.Where(x => filteredHandlingUnits.Select(y => y.Barcode).Contains(x.Barcode)).ToList();
+                // Limit to the active production id, then re-include by common barcode
+                var currentProdId = ToolsMdiManager.frmOperatorActive.shopOrderProduction != null
+                    ? ToolsMdiManager.frmOperatorActive.shopOrderProduction.Id
+                    : Guid.Empty;
+
+                var sameProductionHUs = handlingUnits.Where(x => x.ShopOrderProductionID == currentProdId).ToList();
+                var sharedBarcodes = new HashSet<string>(sameProductionHUs.Select(y => y.Barcode));
+                filteredHandlingUnits = handlingUnits.Where(x => sharedBarcodes.Contains(x.Barcode)).ToList();
             }
             else
+            {
                 filteredHandlingUnits = handlingUnits;
+            }
 
             if (!filteredHandlingUnits.HasEntries())
             {
@@ -82,106 +133,148 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
                 return;
             }
 
-            var queryResult = from h in filteredHandlingUnits
-                              group h by new { h.Barcode/*, h.ShopOrderProductionID*/ } into grp
-                              select new
-                              {
-                                  barcode = grp.Key.Barcode,
-                                  //productionId = grp.Key.ShopOrderProductionID,
-                                  quantity = grp.Sum(q => q.Quantity),
-                                  lotCount = grp.Count()
-                              };
+            // group by Barcode and aggregate
+            var grouped = filteredHandlingUnits
+                .GroupBy(h => h.Barcode)
+                .Select(grp =>
+                {
+                    var first = grp.OrderBy(o => o.CreatedAt).First();
+                    var model = new ProcessHandlingUnitModel
+                    {
+                        BoxBarcode = grp.Key,
+                        Quantity = grp.Sum(q => q.Quantity),
+                        LotCount = grp.Count(),
+                        CreatedAt = first.CreatedAt
+                    };
+                    return model;
+                })
+                .OrderByDescending(m => m.CreatedAt)
+                .ToList();
 
-            foreach (var query in queryResult)
-            {
-                ProcessHandlingUnitModel handlingUnitModel = new ProcessHandlingUnitModel();
-                handlingUnitModel.BoxBarcode = query.barcode;
-                //handlingUnitModel.shopOrderProductionId = query.productionId;
-                handlingUnitModel.Quantity = query.quantity;
-                handlingUnitModel.LotCount = query.lotCount;
-                handlingUnitModel.CreatedAt = filteredHandlingUnits.Where(x => x.Barcode == query.barcode).OrderBy(o => o.CreatedAt).First().CreatedAt;
-                processHandlingUnitModels.Add(handlingUnitModel);
-            }
-
+            processHandlingUnitModels.AddRange(grouped);
             gcHandlingUnitMain.DataSource = processHandlingUnitModels;
         }
 
+        /// <summary>
+        /// Build the "good" production list. We avoid repeated First()/Where() scans by:
+        /// - caching orders in _ordersById
+        /// - using _handlingById to map BoxID→Barcode quickly
+        /// </summary>
         private void InitDataProductionDetails()
         {
             productionGridModels = new BindingList<ProductionDetailGridModel>();
 
-            var shopOrderProductionDetails = ToolsMdiManager.frmOperatorActive.productionDetails.Where(p => p.ByProduct == false && p.ProductionStateID == StaticValues.specialCodeOk.Id).ToList();
-            if (chkHideOtherShifts.Checked)
-                shopOrderProductionDetails = shopOrderProductionDetails.Where(x => x.ShiftId == StaticValues.shift.Id).ToList();
+            var all = ToolsMdiManager.frmOperatorActive.productionDetails;
+            if (all == null || all.Count == 0)
+            {
+                gridControlProductionDetail.DataSource = productionGridModels;
+                return;
+            }
 
-            foreach (var item in shopOrderProductionDetails)
+            var list = all.Where(p => !p.ByProduct && p.ProductionStateID == StaticValues.specialCodeOk.Id).ToList();
+            if (chkHideOtherShifts.Checked && StaticValues.shift != null)
+                list = list.Where(x => x.ShiftId == StaticValues.shift.Id).ToList();
+
+            foreach (var item in list)
             {
                 try
                 {
-                    var order = ToolsMdiManager.frmOperatorActive.vw_ShopOrderGridModels.First(o => o.Id == item.ShopOrderOperationID);
+                    vw_ShopOrderGridModel order;
+                    if (!_ordersById.TryGetValue(item.ShopOrderOperationID, out order))
+                        continue;
 
-                    ProductionDetailGridModel productionDetail = new ProductionDetailGridModel();
-                    productionDetail.Id = item.Id;
-                    productionDetail.ShopOrderOperationID = item.ShopOrderOperationID;
-                    productionDetail.ShopOrderProductionID = item.ShopOrderProductionID;
-                    productionDetail.ProductID = item.ProductID;
-                    productionDetail.OrderNo = order.orderNo;
-                    productionDetail.OperationNo = order.operationNo.ToString();
-                    productionDetail.Barcode = item.Barcode;
-                    productionDetail.Serial = item.serial.ToString();
-                    productionDetail.CreateAt = item.CreatedAt;
-                    productionDetail.ResourceName = ToolsMdiManager.frmOperatorActive.resource.resourceName;
-                    productionDetail.Quantity = item.Quantity;
-                    productionDetail.ManualInput = item.ManualInput;
-                    productionDetail.PartHandlingBoxBarcode = item.BoxID == Guid.Empty ? "" : handlingUnits.First(p => p.Id == item.BoxID).Barcode;
+                    var grid = new ProductionDetailGridModel
+                    {
+                        Id = item.Id,
+                        ShopOrderOperationID = item.ShopOrderOperationID,
+                        ShopOrderProductionID = item.ShopOrderProductionID,
+                        ProductID = item.ProductID,
+                        OrderNo = order.orderNo,
+                        OperationNo = order.operationNo.ToString(),
+                        Barcode = item.Barcode,
+                        Serial = item.serial.ToString(),
+                        CreateAt = item.CreatedAt,
+                        ResourceName = ToolsMdiManager.frmOperatorActive.resource.resourceName,
+                        Quantity = item.Quantity,
+                        ManualInput = item.ManualInput,
+                        PartHandlingBoxBarcode = GetBoxBarcodeOrEmpty(item.BoxID)
+                    };
 
-                    productionGridModels.Add(productionDetail);
+                    productionGridModels.Add(grid);
                 }
-                catch (Exception)
+                catch
                 {
+                    // Non-fatal row error; skip
                 }
             }
+
             gridControlProductionDetail.DataSource = productionGridModels;
         }
 
+        /// <summary>Build the "scrap" production list (same approach as good list).</summary>
         private void InitDataScrapProductionDetails()
         {
             productionGridModels = new BindingList<ProductionDetailGridModel>();
 
-            var shopOrderProductionDetails = ToolsMdiManager.frmOperatorActive.productionDetails.Where(p => p.ByProduct == false && p.ProductionStateID == StaticValues.specialCodeScrap.Id).ToList();
+            var all = ToolsMdiManager.frmOperatorActive.productionDetails;
+            if (all == null || all.Count == 0)
+            {
+                gcScrapProducts.DataSource = productionGridModels;
+                return;
+            }
 
-            foreach (var item in shopOrderProductionDetails)
+            var list = all.Where(p => !p.ByProduct && p.ProductionStateID == StaticValues.specialCodeScrap.Id).ToList();
+
+            foreach (var item in list)
             {
                 try
                 {
-                    var order = ToolsMdiManager.frmOperatorActive.vw_ShopOrderGridModels.First(o => o.Id == item.ShopOrderOperationID);
+                    vw_ShopOrderGridModel order;
+                    if (!_ordersById.TryGetValue(item.ShopOrderOperationID, out order))
+                        continue;
 
-                    ProductionDetailGridModel productionDetail = new ProductionDetailGridModel();
-                    productionDetail.Id = item.Id;
-                    productionDetail.ShopOrderOperationID = item.ShopOrderOperationID;
-                    productionDetail.ShopOrderProductionID = item.ShopOrderProductionID;
-                    productionDetail.ProductID = item.ProductID;
-                    productionDetail.OrderNo = order.orderNo;
-                    productionDetail.OperationNo = order.operationNo.ToString();
-                    productionDetail.Barcode = item.Barcode;
-                    productionDetail.Serial = item.serial.ToString();
-                    productionDetail.CreateAt = item.CreatedAt;
-                    productionDetail.ResourceName = ToolsMdiManager.frmOperatorActive.resource.resourceName;
-                    productionDetail.Quantity = item.Quantity;
-                    productionDetail.ManualInput = item.ManualInput;
-                    productionDetail.PartHandlingBoxBarcode = item.BoxID == Guid.Empty ? "" : handlingUnits.First(p => p.Id == item.BoxID).Barcode;
+                    var grid = new ProductionDetailGridModel
+                    {
+                        Id = item.Id,
+                        ShopOrderOperationID = item.ShopOrderOperationID,
+                        ShopOrderProductionID = item.ShopOrderProductionID,
+                        ProductID = item.ProductID,
+                        OrderNo = order.orderNo,
+                        OperationNo = order.operationNo.ToString(),
+                        Barcode = item.Barcode,
+                        Serial = item.serial.ToString(),
+                        CreateAt = item.CreatedAt,
+                        ResourceName = ToolsMdiManager.frmOperatorActive.resource.resourceName,
+                        Quantity = item.Quantity,
+                        ManualInput = item.ManualInput,
+                        PartHandlingBoxBarcode = GetBoxBarcodeOrEmpty(item.BoxID)
+                    };
 
-                    productionGridModels.Add(productionDetail);
+                    productionGridModels.Add(grid);
                 }
-                catch (Exception)
+                catch
                 {
+                    // Non-fatal row error; skip
                 }
             }
+
             gcScrapProducts.DataSource = productionGridModels;
         }
+
+        /// <summary>Get HU barcode fast, or empty string if BoxID = Guid.Empty or not found.</summary>
+        private string GetBoxBarcodeOrEmpty(Guid boxId)
+        {
+            if (boxId == Guid.Empty) return string.Empty;
+            HandlingUnit hu;
+            if (_handlingById.TryGetValue(boxId, out hu) && hu != null)
+                return hu.Barcode ?? string.Empty;
+            return string.Empty;
+        }
+
         #endregion
 
         #region BOX GRID VIEW SELECTION CHANGED
+
         private void gvHandlingUnitMain_SelectionChanged(object sender, DevExpress.Data.SelectionChangedEventArgs e)
         {
             handlingUnitSelectedRows = gvHandlingUnitMain.GetSelectedRows().ToList();
@@ -190,32 +283,20 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
         #endregion
 
         #region XTRA TAB CONTROL SELECTED CHANGED
+
         private void xtcLabelBox_SelectedPageChanged(object sender, DevExpress.XtraTab.TabPageChangedEventArgs e)
         {
-            if (xtcLabelBox.TabPages.IndexOf(e.Page) == 0)//Kasa listesi
-            {
-                ucLabelselectedPage = "Box";
-            }
-            else if (xtcLabelBox.TabPages.IndexOf(e.Page) == 1)//Ürün Listesi Listesi
-            {
-                ucLabelselectedPage = "ProductionDetails";
-            }
-            else if (xtcLabelBox.TabPages.IndexOf(e.Page) == 2)//Kasa Ürün Detay Listesi
-            {
-                ucLabelselectedPage = "BoxProductDetails";
-            }
-            else if (xtcLabelBox.TabPages.IndexOf(e.Page) == 3)//Şüpheli Ürün Detay Listesi
-            {
-                ucLabelselectedPage = "ScrapProductionDetails";
-            }
-            else//SÜRELER
-            {
-
-            }
+            int idx = xtcLabelBox.TabPages.IndexOf(e.Page);
+            if (idx == 0) ucLabelselectedPage = "Box";
+            else if (idx == 1) ucLabelselectedPage = "ProductionDetails";
+            else if (idx == 2) ucLabelselectedPage = "BoxProductDetails";
+            else if (idx == 3) ucLabelselectedPage = "ScrapProductionDetails";
         }
+
         #endregion
 
         #region CHKHIDE OTHER SHIFTS CHECKED CHANGED
+
         private void chkHideOtherShifts_CheckedChanged(object sender, EventArgs e)
         {
             InitDataBox();
@@ -225,97 +306,140 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
         #endregion
 
         #region MENU BUTTON CLICK EVENT
+
+        /// <summary>Close the container.</summary>
         private void barBtnCancel_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             ToolsMdiManager.frmOperatorActive.container.Visible = false;
         }
 
+        /// <summary>
+        /// Print handler for all tabs.
+        /// Honors:
+        /// - chkPrintView (preview)
+        /// - chkReportDesignerOpen (open designer)
+        /// - chkDesignCheck (select external .repx)
+        /// </summary>
         private void barBtnPrint_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             try
             {
                 if (userModel == null)
                     GetUserModel();
+
                 if (ucLabelselectedPage == "Box")
                 {
                     if (handlingUnitSelectedRows.Count > 0)
                     {
-                        foreach (var selectedRow in handlingUnitSelectedRows)
+                        // Print each selected HU group
+                        for (int i = 0; i < handlingUnitSelectedRows.Count; i++)
                         {
-                            var handling = (ProcessHandlingUnitModel)gvHandlingUnitMain.GetRow(selectedRow);
-
-                            ReportProcessHandlingUnitHelper report = new ReportProcessHandlingUnitHelper();
+                            var handling = (ProcessHandlingUnitModel)gvHandlingUnitMain.GetRow(handlingUnitSelectedRows[i]);
+                            if (handling == null) continue;
 
                             var handlings = handlingUnits.Where(x => x.Barcode == handling.BoxBarcode).ToList();
+                            if (handlings.Count == 0) continue;
 
+                            // Build the report helper with all pieces for this barcode group
+                            var report = new ReportProcessHandlingUnitHelper
+                            {
+                                product = ToolsMdiManager.frmOperatorActive.products.Count > 0
+                                    ? ToolsMdiManager.frmOperatorActive.products[0]
+                                    : null,
+                                machine = ToolsMdiManager.frmOperatorActive.machine,
+                                resource = ToolsMdiManager.frmOperatorActive.resource,
+                                shopOrderProduction = ToolsMdiManager.frmOperatorActive.shopOrderProduction,
+                                user = userModel
+                            };
+
+                            // Fill collections (avoid duplicate scans)
                             foreach (var item in handlings)
                             {
-                                report.shopOrderOperations.Add(ShopOrderOperationManager.Current.GetShopOrderOperationById(item.ShopOrderID));
-                                report.vwShopOrderGridModels.Add(ToolsMdiManager.frmOperatorActive.vw_ShopOrderGridModels.First(x => x.Id == item.ShopOrderID));
+                                var so = ShopOrderOperationManager.Current.GetShopOrderOperationById(item.ShopOrderID);
+                                if (so != null) report.shopOrderOperations.Add(so);
+
+                                vw_ShopOrderGridModel view;
+                                if (_ordersById.TryGetValue(item.ShopOrderID, out view) && view != null)
+                                    report.vwShopOrderGridModels.Add(view);
+
                                 report.handlingUnits.Add(item);
 
-                                report.shopOrderProductionDetails.AddRange(ToolsMdiManager.frmOperatorActive.productionDetails.Where(x => x.BoxID == item.Id).ToList());
+                                // All production details linked to this HU
+                                var details = ToolsMdiManager.frmOperatorActive.productionDetails
+                                    .Where(x => x.BoxID == item.Id).ToList();
+                                if (details.Count > 0) report.shopOrderProductionDetails.AddRange(details);
                             }
-                            report.product = ToolsMdiManager.frmOperatorActive.products[0];
-                            report.machine = ToolsMdiManager.frmOperatorActive.machine;
-                            report.resource = ToolsMdiManager.frmOperatorActive.resource;
-                            report.shopOrderProduction = ToolsMdiManager.frmOperatorActive.shopOrderProduction;
-                            report.user = userModel;
-                            report.printLabelModel = ToolsMdiManager.frmOperatorActive.printLabelModels.First(p => p.ProductId == report.product.Id && p.productionLabelType == ProductionLabelType.Box);
 
+                            // Choose label model for ProductId
+                            if (report.product == null)
+                                throw new Exception(MessageTextHelper.GetMessageText("UCBL", "107", "Ürün Bulunamadı", "Message")); // fallback; no product configured
+
+                            report.printLabelModel = ToolsMdiManager.frmOperatorActive.printLabelModels
+                                .First(p => p.ProductId == report.product.Id && p.productionLabelType == ProductionLabelType.Box);
+
+                            // Execute chosen action
                             if (chkPrintView.Checked)
                                 report.PrintBarcodeView();
                             else if (chkReportDesignerOpen.Checked)
                                 report.PrintBarcodeDesigner();
-                            else if (chkDesignCheck.Checked)//Yeni bir dizayn yapılmak isteniyor ise
+                            else if (chkDesignCheck.Checked)
                             {
-                                OpenFileDialog openFileDialog = new OpenFileDialog();
-                                openFileDialog.Filter = "Etiket Dizayn Dosyası |*.repx";
-                                openFileDialog.RestoreDirectory = true;
-                                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                                using (var openFileDialog = new OpenFileDialog())
                                 {
-                                    string DosyaYolu = openFileDialog.FileName;
-
-                                    report.PrintBarcodeSelectFileDesigner(DosyaYolu);
-
+                                    openFileDialog.Filter = MessageTextHelper.GetMessageText("000", "101", "Label Design File |*.repx", "Message");
+                                    openFileDialog.RestoreDirectory = true;
+                                    if (openFileDialog.ShowDialog() == DialogResult.OK)
+                                    {
+                                        report.PrintBarcodeSelectFileDesigner(openFileDialog.FileName);
+                                    }
                                 }
                             }
                             else
+                            {
                                 report.PrintLabel();
+                            }
                         }
                     }
                     else
+                    {
+                        // "No selection" info
                         ToolsMessageBox.Warning(this, MessageTextHelper.GetMessageText("000", "957", "Yazdırmak istediğiniz etiket secili değil", "Message"));
+                    }
                 }
                 else if (ucLabelselectedPage == "ProductionDetails")
                 {
                     if (productionDetailSelectedRows.Count > 0)
                     {
-                        foreach (var selectedRow in productionDetailSelectedRows)
+                        for (int i = 0; i < productionDetailSelectedRows.Count; i++)
                         {
-                            var product = (ProductionDetailGridModel)gridViewProductionDetail.GetRow(selectedRow);
-                            var pd = ToolsMdiManager.frmOperatorActive.productionDetails.First(x => x.Id == product.Id);
-                            var order = ToolsMdiManager.frmOperatorActive.vw_ShopOrderGridModels.First(o => o.Id == pd.ShopOrderOperationID);
+                            var productRow = (ProductionDetailGridModel)gridViewProductionDetail.GetRow(productionDetailSelectedRows[i]);
+                            if (productRow == null) continue;
+
+                            var pd = ToolsMdiManager.frmOperatorActive.productionDetails.FirstOrDefault(x => x.Id == productRow.Id);
+                            if (pd == null) continue;
+
+                            vw_ShopOrderGridModel order;
+                            if (!_ordersById.TryGetValue(pd.ShopOrderOperationID, out order) || order == null)
+                                continue;
 
                             if (order.alan5 == "TRUE")
                             {
-                                if (chkDesignCheck.Checked)//Yeni bir dizayn yapılmak isteniyor ise
+                                if (chkDesignCheck.Checked)
                                 {
-                                    OpenFileDialog openFileDialog = new OpenFileDialog();
-                                    openFileDialog.Filter = "Etiket Dizayn Dosyası |*.repx";
-                                    openFileDialog.RestoreDirectory = true;
-                                    if (openFileDialog.ShowDialog() == DialogResult.OK)
+                                    using (var openFileDialog = new OpenFileDialog())
                                     {
-                                        string DosyaYolu = openFileDialog.FileName;
-                                        var myReport = ReportHelper.CreateProductionDetail(userModel, order, ToolsMdiManager.frmOperatorActive.shopOrderProduction, pd, false);
-                                        myReport.PrintBarcodeDesigner(DosyaYolu);
-
+                                        openFileDialog.Filter = MessageTextHelper.GetMessageText("000", "101", "Label Design File |*.repx", "Message");
+                                        openFileDialog.RestoreDirectory = true;
+                                        if (openFileDialog.ShowDialog() == DialogResult.OK)
+                                        {
+                                            var myReport = ReportHelper.CreateProductionDetail(userModel, order, ToolsMdiManager.frmOperatorActive.shopOrderProduction, pd, false);
+                                            myReport.PrintBarcodeDesigner(openFileDialog.FileName);
+                                        }
                                     }
                                 }
                                 else
                                 {
                                     var report = ReportHelper.CreateProductionDetail(userModel, order, ToolsMdiManager.frmOperatorActive.shopOrderProduction, pd);
-
                                     if (chkPrintView.Checked)
                                         report.PrintBarcodeView();
                                     if (chkReportDesignerOpen.Checked)
@@ -326,7 +450,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
                             }
                             else
                             {
-                                var prm = product.Serial.CreateParameters("@Serial");
+                                var prm = productRow.Serial.CreateParameters("@Serial");
                                 ToolsMessageBox.Information(this, MessageTextHelper.GetMessageText("000", "967", "Yazdırmak istediğiniz etiketin (@Serial) iş emri, ürün etiketi vermiyor", "Message"), prm);
                             }
                         }
@@ -344,39 +468,47 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
                 {
                     if (scrapProductionDetailSelectedRows.Count > 0)
                     {
-                        foreach (var selectedRow in scrapProductionDetailSelectedRows)
+                        for (int i = 0; i < scrapProductionDetailSelectedRows.Count; i++)
                         {
-                            var productGM = (ProductionDetailGridModel)gvScrapProducts.GetRow(selectedRow);
-                            var pd = ToolsMdiManager.frmOperatorActive.productionDetails.First(x => x.Id == productGM.Id);
-                            var product = ToolsMdiManager.frmOperatorActive.products.Single(x => x.Id == pd.ProductID);
-                            var order = ToolsMdiManager.frmOperatorActive.vw_ShopOrderGridModels.First(o => o.Id == pd.ShopOrderOperationID);
+                            var gm = (ProductionDetailGridModel)gvScrapProducts.GetRow(scrapProductionDetailSelectedRows[i]);
+                            if (gm == null) continue;
 
-                            ReportProductHelper report = new ReportProductHelper();
-                            report.product = product;
-                            report.shopOrderProduction = ToolsMdiManager.frmOperatorActive.shopOrderProduction;
-                            report.shopOrderProductionDetail = pd;
-                            report.machine = ToolsMdiManager.frmOperatorActive.machine;
-                            report.resource = ToolsMdiManager.frmOperatorActive.resource;
-                            report.userModel = userModel;
-                            report.shopOrderOperation = order;
-                            report.printLabelModel = new PrintLabelModel()
+                            var pd = ToolsMdiManager.frmOperatorActive.productionDetails.FirstOrDefault(x => x.Id == gm.Id);
+                            if (pd == null) continue;
+
+                            var product = ToolsMdiManager.frmOperatorActive.products.SingleOrDefault(x => x.Id == pd.ProductID);
+                            vw_ShopOrderGridModel order;
+                            if (product == null || !_ordersById.TryGetValue(pd.ShopOrderOperationID, out order) || order == null)
+                                continue;
+
+                            var report = new ReportProductHelper
                             {
-                                LabelDesingFilePath = StaticValues.ScrapProductDesignPath,
-                                PrintCopyCount = 1,
-                                printerName = StaticValues.ScrapPrinterName,
-                                productionLabelType = ProductionLabelType.Product
-
+                                product = product,
+                                shopOrderProduction = ToolsMdiManager.frmOperatorActive.shopOrderProduction,
+                                shopOrderProductionDetail = pd,
+                                machine = ToolsMdiManager.frmOperatorActive.machine,
+                                resource = ToolsMdiManager.frmOperatorActive.resource,
+                                userModel = userModel,
+                                shopOrderOperation = order,
+                                printLabelModel = new PrintLabelModel
+                                {
+                                    LabelDesingFilePath = StaticValues.ScrapProductDesignPath,
+                                    PrintCopyCount = 1,
+                                    printerName = StaticValues.ScrapPrinterName,
+                                    productionLabelType = ProductionLabelType.Product
+                                }
                             };
 
-                            if (chkDesignCheck.Checked)//Yeni bir dizayn yapılmak isteniyor ise
+                            if (chkDesignCheck.Checked)
                             {
-                                OpenFileDialog openFileDialog = new OpenFileDialog();
-                                openFileDialog.Filter = "Etiket Dizayn Dosyası |*.repx";
-                                openFileDialog.RestoreDirectory = true;
-                                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                                using (var openFileDialog = new OpenFileDialog())
                                 {
-                                    string DosyaYolu = openFileDialog.FileName;
-                                    report.PrintBarcodeDesigner(DosyaYolu);
+                                    openFileDialog.Filter = MessageTextHelper.GetMessageText("000", "101", "Label Design File |*.repx", "Message");
+                                    openFileDialog.RestoreDirectory = true;
+                                    if (openFileDialog.ShowDialog() == DialogResult.OK)
+                                    {
+                                        report.PrintBarcodeDesigner(openFileDialog.FileName);
+                                    }
                                 }
                             }
                             else
@@ -398,23 +530,27 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
             }
             catch (Exception ex)
             {
-                if (ex.Message.Contains("File not found"))
+                if (ex.Message != null && ex.Message.IndexOf("File not found", StringComparison.OrdinalIgnoreCase) >= 0)
                     ToolsMessageBox.Error(this, MessageTextHelper.GetMessageText("000", "959", "Etiket Dosya yolu bulunamadı", "Message"));
                 else
                     ToolsMessageBox.Error(this, ex);
             }
         }
+
         #endregion
 
         #region GET USER MODEL
+
+        /// <summary>Ensures a privileged user is logged in before printing.</summary>
         private void GetUserModel()
         {
-            FrmUserLogin frm = new FrmUserLogin(false);
+            var frm = new FrmUserLogin(false);
             if (frm.ShowDialog() == DialogResult.OK)
                 userModel = frm.userModel;
             else
                 throw new Exception(MessageTextHelper.GetMessageText("000", "629", "Yetkili kullanıcı girişi yapmadan etiket alamazsınız", "Message"));
         }
+
         #endregion
 
         private void gridViewProductionDetail_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -427,13 +563,18 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
             scrapProductionDetailSelectedRows = gvScrapProducts.GetSelectedRows().ToList();
         }
 
+        /// <summary>Row highlighting for half-filled cases.</summary>
         private void gvHandlingUnitMain_RowStyle(object sender, DevExpress.XtraGrid.Views.Grid.RowStyleEventArgs e)
         {
             if (e.RowHandle >= 0)
             {
                 var handling = (ProcessHandlingUnitModel)gvHandlingUnitMain.GetRow(e.RowHandle);
-                if (handling.Quantity < (decimal)ToolsMdiManager.frmOperatorActive.vw_ShopOrderGridModelActive.MaxQuantityCapacity)
-                    e.Appearance.BackColor = Color.LightBlue;
+                if (handling != null)
+                {
+                    var active = ToolsMdiManager.frmOperatorActive.vw_ShopOrderGridModelActive;
+                    if (active != null && handling.Quantity < (decimal)active.MaxQuantityCapacity)
+                        e.Appearance.BackColor = Color.LightBlue;
+                }
             }
         }
     }

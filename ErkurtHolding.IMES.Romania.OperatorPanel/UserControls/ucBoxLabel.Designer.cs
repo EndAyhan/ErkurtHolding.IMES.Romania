@@ -494,7 +494,6 @@
             this.barBtnBoxComplete.ItemAppearance.Normal.Options.UseFont = true;
             this.barBtnBoxComplete.ItemAppearance.Normal.Options.UseForeColor = true;
             this.barBtnBoxComplete.Name = "barBtnBoxComplete";
-            this.barBtnBoxComplete.ItemClick += new DevExpress.XtraBars.ItemClickEventHandler(this.barBtnBoxComplete_ItemClick);
             // 
             // panelControl1
             // 
@@ -563,7 +562,6 @@
             this.chkPrintView.Size = new System.Drawing.Size(162, 24);
             this.chkPrintView.TabIndex = 5;
             this.chkPrintView.Tag = "203";
-            this.chkPrintView.CheckedChanged += new System.EventHandler(this.chkPrintView_CheckedChanged);
             // 
             // labelControl3
             // 
@@ -668,7 +666,6 @@
             this.chkReportDesignerOpen.Size = new System.Drawing.Size(163, 24);
             this.chkReportDesignerOpen.TabIndex = 2;
             this.chkReportDesignerOpen.Tag = "204";
-            this.chkReportDesignerOpen.CheckedChanged += new System.EventHandler(this.chkReportDesignerOpen_CheckedChanged);
             // 
             // lblTitle
             // 

@@ -11,122 +11,174 @@ using ErkurtHolding.IMES.Romania.OperatorPanel.Models;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Tools;
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Windows.Forms;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
 {
+    /// <summary>
+    /// Shift book user control for tracking production amounts per shift and resource.
+    /// Provides a grid with editable amounts, date and shift selection.
+    /// </summary>
     public partial class ucShiftBook : DevExpress.XtraEditors.XtraUserControl
     {
-        private UserModel userModel;
-        private Shift selectedShift = null;
-        private DateTime selectedDate = DateTime.MinValue;
+        private readonly UserModel _userModel;
+        private Shift _selectedShift;
+        private DateTime _selectedDate;
+
+        /// <summary>
+        /// Initializes a new instance of <see cref="ucShiftBook"/>.
+        /// </summary>
+        /// <param name="userModel">The current logged-in user.</param>
         public ucShiftBook(UserModel userModel)
         {
             InitializeComponent();
-
             LanguageHelper.InitializeLanguage(this);
 
-            this.userModel = userModel;
+            _userModel = userModel;
+            _selectedDate = DateTime.Today;
 
+            InitializeDateControl();
+            InitializeShifts();
+
+            repositoryItemButtonEdit1.ButtonClick += ButtonClick;
+        }
+
+        #region Initialization
+        /// <summary>
+        /// Sets default working date to today.
+        /// </summary>
+        private void InitializeDateControl()
+        {
             deWorkingDate.DateTime = DateTime.Now;
-            selectedDate = new DateTime(deWorkingDate.DateTime.Year, deWorkingDate.DateTime.Month, deWorkingDate.DateTime.Day, 0, 0, 0);
+        }
 
-            var shifts = ShiftManager.Current.GetShifts(StaticValues.branch.Id).OrderBy(x => x.Description).ToList();
+        /// <summary>
+        /// Loads shifts for the branch and pre-selects the current shift based on system time.
+        /// </summary>
+        private void InitializeShifts()
+        {
+            var shifts = ShiftManager.Current
+                .GetShifts(StaticValues.branch.Id)
+                .OrderBy(x => x.Description)
+                .ToList();
+
             glueShift.Properties.DataSource = shifts;
             glueShift.Properties.ValueMember = "Id";
             glueShift.Properties.DisplayMember = "Description";
 
-            DateTime dt = DateTime.Now;
-            TimeSpan tsNow = new TimeSpan(dt.Hour, dt.Minute, dt.Second);
-            for (int i = 0; i < shifts.Count; i++)
+            TimeSpan now = DateTime.Now.TimeOfDay;
+            foreach (var shift in shifts)
             {
-                TimeSpan tsStart = new TimeSpan(shifts[i].StartDate.Hour, shifts[i].StartDate.Minute, shifts[i].StartDate.Second);
-                TimeSpan tsEnd = new TimeSpan(shifts[i].EndDate.Hour, shifts[i].EndDate.Minute, shifts[i].EndDate.Second);
-
-                if (tsStart <= tsNow && tsNow <= tsEnd)
+                if (shift.StartDate.TimeOfDay <= now && now <= shift.EndDate.TimeOfDay)
                 {
-                    glueShift.EditValue = shifts[i].Id;
-                    selectedShift = shifts[i];
+                    glueShift.EditValue = shift.Id;
+                    _selectedShift = shift;
                     break;
                 }
             }
-
-            this.repositoryItemButtonEdit1.ButtonClick += new DevExpress.XtraEditors.Controls.ButtonPressedEventHandler(ButtonClick);
         }
+        #endregion
 
+        #region Button Clicks
+        /// <summary>
+        /// Opens numeric keyboard dialog for entering production amount.
+        /// </summary>
         private void ButtonClick(object sender, ButtonPressedEventArgs e)
         {
-            var title = MessageTextHelper.GetMessageText("000", "871", "Üretim Miktarı", "Message");
+            string title = MessageTextHelper.GetMessageText("000", "871", "Üretim Miktarı", "Message");
             FrmNumericKeyboard frm = new FrmNumericKeyboard(title);
 
             if (frm.ShowDialog() == DialogResult.OK)
             {
                 var row = (ShiftBook)gvShiftBook.GetRow(gvShiftBook.FocusedRowHandle);
                 row.OvermanAmount = (double)frm.value;
+
                 var view = (ColumnView)gcShiftBook.FocusedView;
                 view.CloseEditor();
                 view.UpdateCurrentRow();
             }
         }
 
-        #region BUTTON CLICK
+        /// <summary>
+        /// Closes the shift book panel.
+        /// </summary>
         private void barBtnClose_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             ToolsMdiManager.frmOperatorActive.container.Visible = false;
         }
 
+        /// <summary>
+        /// Saves current shift book entries.
+        /// </summary>
         private void barBtnSave_ItemClick(object sender, DevExpress.XtraBars.ItemClickEventArgs e)
         {
             var view = (ColumnView)gcShiftBook.FocusedView;
             view.CloseEditor();
             view.UpdateCurrentRow();
+
             for (int i = 0; i < gvShiftBook.RowCount; i++)
             {
                 var row = (ShiftBook)gvShiftBook.GetRow(i);
                 row.UpdatedAt = DateTime.Now;
-                row.OvermanPersonID = userModel.CompanyPersonId;
+                row.OvermanPersonID = _userModel.CompanyPersonId;
                 ShiftBookManager.Current.Update(row);
             }
+
             ToolsMdiManager.frmOperatorActive.container.Visible = false;
         }
         #endregion
 
-        #region EVENTS
+        #region Events
+        /// <summary>
+        /// Triggered when working date is changed.
+        /// </summary>
         private void deWorkingDate_SelectionChanged(object sender, EventArgs e)
         {
-            DateTime dt = new DateTime(deWorkingDate.DateTime.Year, deWorkingDate.DateTime.Month, deWorkingDate.DateTime.Day, 0, 0, 0);
-            if (dt.ToString() != selectedDate.ToString())
+            DateTime dt = deWorkingDate.DateTime.Date;
+            if (dt != _selectedDate)
             {
-                selectedDate = dt;
-                refreshDataGrid();
+                _selectedDate = dt;
+                RefreshDataGrid();
             }
         }
 
+        /// <summary>
+        /// Triggered when shift selection changes.
+        /// </summary>
         private void glueShift_EditValueChanged(object sender, EventArgs e)
         {
-            if (selectedShift == null || selectedShift.Id != ((Shift)glueShift.GetSelectedDataRow()).Id)
+            Shift newShift = glueShift.GetSelectedDataRow() as Shift;
+            if (newShift != null && (_selectedShift == null || _selectedShift.Id != newShift.Id))
             {
-                selectedShift = (Shift)glueShift.GetSelectedDataRow();
-                refreshDataGrid();
+                _selectedShift = newShift;
+                RefreshDataGrid();
             }
         }
         #endregion
 
-        private void refreshDataGrid()
+        #region Data Grid
+        /// <summary>
+        /// Refreshes the data grid with shift book entries and production details.
+        /// </summary>
+        private void RefreshDataGrid()
         {
-            if (selectedDate == DateTime.MinValue || selectedShift == null)
+            if (_selectedDate == DateTime.MinValue || _selectedShift == null)
                 return;
-            Guid[] guid = { ToolsMdiManager.frmOperatorActive.resource.Id };
-            DateTime start = new DateTime(selectedDate.Year, selectedDate.Month, selectedDate.Day, selectedShift.StartDate.Hour, selectedShift.StartDate.Minute, selectedShift.StartDate.Second);
-            DateTime end = new DateTime(selectedDate.Year, selectedDate.Month, selectedDate.Day, selectedShift.EndDate.Hour, selectedShift.EndDate.Minute, selectedShift.EndDate.Second);
-            var productionDetails = ProductionReportQueryManager.Current.GetProductions(true, false, false, start, end, guid);
-            var entries = ShiftBookManager.Current.GetShiftBooks(ToolsMdiManager.frmOperatorActive.resource.Id, start, end);
-            if (productionDetails == null)
-                productionDetails = new List<Entity.QueryModel.ProductionReport>();
-            if (entries == null)
-                entries = new List<ShiftBook>();
+
+            Guid resourceId = ToolsMdiManager.frmOperatorActive.resource.Id;
+            DateTime start = _selectedDate.Date + _selectedShift.StartDate.TimeOfDay;
+            DateTime end = _selectedDate.Date + _selectedShift.EndDate.TimeOfDay;
+
+            var productionDetails = ProductionReportQueryManager.Current
+                .GetProductions(true, false, false, start, end, new[] { resourceId })
+                ?? new List<Entity.QueryModel.ProductionReport>();
+
+            var entries = ShiftBookManager.Current
+                .GetShiftBooks(resourceId, start, end)
+                ?? new List<ShiftBook>();
+
+            // Reset amounts in existing entries
             foreach (var entry in entries)
             {
                 entry.TotalAmount = 0;
@@ -134,11 +186,13 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
                 ShiftBookManager.Current.Update(entry);
             }
 
+            // Merge production details
             foreach (var details in productionDetails)
             {
-                if (entries.Any(x => x.PartID == details.ProductID))
+                var matching = entries.Where(x => x.PartID == details.ProductID).ToList();
+                if (matching.Any())
                 {
-                    foreach (var entry in entries.Where(x => x.PartID == details.ProductID))
+                    foreach (var entry in matching)
                     {
                         entry.TotalAmount = details.total_quantity;
                         entry.PLCCounter = details.plc_counter;
@@ -148,25 +202,28 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
                 }
                 else
                 {
-                    var entry = new ShiftBook();
-                    entry.ResourceID = details.ResourceID;
-                    entry.StartDate = start;
-                    entry.EndDate = end;
-                    entry.ShiftID = selectedShift.Id;
-                    entry.PartID = details.ProductID;
-                    entry.PartNo = details.part_no;
-                    entry.PartDescription = details.part_description;
-                    entry.TotalAmount = details.total_quantity;
-                    entry.PLCCounter = details.plc_counter;
-                    entry.OvermanPersonID = userModel.CompanyPersonId;
-                    var r = ShiftBookManager.Current.Insert(entry).ListData[0];
-                    entries.Add(r);
+                    var newEntry = new ShiftBook
+                    {
+                        ResourceID = details.ResourceID,
+                        StartDate = start,
+                        EndDate = end,
+                        ShiftID = _selectedShift.Id,
+                        PartID = details.ProductID,
+                        PartNo = details.part_no,
+                        PartDescription = details.part_description,
+                        TotalAmount = details.total_quantity,
+                        PLCCounter = details.plc_counter,
+                        OvermanPersonID = _userModel.CompanyPersonId
+                    };
+
+                    var inserted = ShiftBookManager.Current.Insert(newEntry).ListData[0];
+                    entries.Add(inserted);
                 }
             }
 
             gcShiftBook.DataSource = entries;
             gvShiftBook.BestFitColumns();
         }
+        #endregion
     }
-
 }

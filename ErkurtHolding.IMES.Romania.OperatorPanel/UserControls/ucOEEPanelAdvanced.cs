@@ -6,6 +6,7 @@ using ErkurtHolding.IMES.Romania.OperatorPanel.Forms;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Localization;
 using ErkurtHolding.IMES.Romania.OperatorPanel.Tools;
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Linq;
@@ -36,6 +37,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
             ccAvailability.Series[0].Points[1].Tag = "105";
             ccAvailability.Series[0].Points[2].Tag = "106";
 
+            // existing static localization
             LanguageHelper.InitializeLanguage(this);
 
             if (StaticValues.HideOEEPanel == "TRUE")
@@ -52,6 +54,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
 
             Clear();
         }
+
         private void tmrOEE_Tick(object sender, EventArgs e)
         {
             RefreshOEEValues();
@@ -71,38 +74,44 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
                     StaticValues.opcClient.clientConnect = true;
                 double sure = 0;
                 double totalMinutes = (DateTime.Now - frmOperator.shopOrderProduction.OrderStartDate).TotalMinutes;
-                if (frmOperator.panelDetail.OPCNodeIdSure != null && frmOperator.panelDetail.OPCNodeIdSure != "")
+                if (!string.IsNullOrEmpty(frmOperator.panelDetail.OPCNodeIdSure))
                 {
                     if (double.TryParse(StaticValues.opcClient.ReadNode(frmOperator.panelDetail.OPCNodeIdSure), out sure))
                         sure /= 60;
                 }
                 else
                     sure = totalMinutes;
+
                 double totalPlannedInterruptions = 0;
                 double totalUnplannedInterruptions = 0;
                 double totalFaults = 0;
 
-                var interruptions = frmOperator.interruptionGridModel.interruptionCauseGridModels.Where(x => x.ShopOrderProductionID == frmOperator.shopOrderProduction.Id && x.InterruptionStartDate > frmOperator.shopOrderProduction.OrderStartDate);
+                var interruptions = frmOperator.interruptionGridModel.interruptionCauseGridModels
+                    .Where(x => x.ShopOrderProductionID == frmOperator.shopOrderProduction.Id && x.InterruptionStartDate > frmOperator.shopOrderProduction.OrderStartDate);
+
                 if (interruptions != null)
                 {
-                    totalPlannedInterruptions = interruptions.Where(x => x.operation_cause_alan5 == "TRUE").Sum(x => ((x.InterruptionFinishDate.HasValue ? x.InterruptionFinishDate : DateTime.Now) - x.InterruptionStartDate).GetValueOrDefault().TotalMinutes);
-                    totalUnplannedInterruptions = interruptions.Where(x => x.operation_cause_alan5 == "FALSE").Sum(x => ((x.InterruptionFinishDate.HasValue ? x.InterruptionFinishDate : DateTime.Now) - x.InterruptionStartDate).GetValueOrDefault().TotalMinutes);
+                    totalPlannedInterruptions = interruptions.Where(x => x.operation_cause_alan5 == "TRUE")
+                        .Sum(x => ((x.InterruptionFinishDate.HasValue ? x.InterruptionFinishDate : DateTime.Now) - x.InterruptionStartDate).GetValueOrDefault().TotalMinutes);
+                    totalUnplannedInterruptions = interruptions.Where(x => x.operation_cause_alan5 == "FALSE")
+                        .Sum(x => ((x.InterruptionFinishDate.HasValue ? x.InterruptionFinishDate : DateTime.Now) - x.InterruptionStartDate).GetValueOrDefault().TotalMinutes);
                 }
-                //18.07.2024 tarihinde yorum alınan satır değiştirilmiş olup aşağıdaki gibi listelenmiştir
-                //totalFaults = frmOperator.faults.Where(x => x.RegisterDate > frmOperator.shopOrderProduction.OrderStartDate).Sum(x => ((x.ActualFinishDate > x.RegisterDate ? x.ActualFinishDate : DateTime.Now) - x.RegisterDate).TotalMinutes) * frmOperator.shopOrderOperations.Count;
-                totalFaults = frmOperator.faults.Where(x => x.RegisterDate > frmOperator.shopOrderProduction.OrderStartDate).Sum(x => ((x.ActualFinishDate > x.RegisterDate ? x.ActualFinishDate : DateTime.Now) - x.RegisterDate).TotalMinutes);
+
+                totalFaults = frmOperator.faults.Where(x => x.RegisterDate > frmOperator.shopOrderProduction.OrderStartDate)
+                    .Sum(x => ((x.ActualFinishDate > x.RegisterDate ? x.ActualFinishDate : DateTime.Now) - x.RegisterDate).TotalMinutes);
+
+                // scale by actual duration
                 totalPlannedInterruptions *= (sure / totalMinutes);
                 totalUnplannedInterruptions *= (sure / totalMinutes);
                 totalFaults *= (sure / totalMinutes);
+
                 var netPlannedTime = sure - totalPlannedInterruptions;
                 var netTime = netPlannedTime - totalUnplannedInterruptions - totalFaults;
 
-                // If not proses then netTime needs to be multiplied with how many workorders are running atm
                 if (!frmOperator.shopOrderProduction.Process)
                 {
                     netTime *= frmOperator.shopOrderOperations.Count;
                     netPlannedTime *= frmOperator.shopOrderOperations.Count;
-                    //totalFaults *= frmOperator.shopOrderOperations.Count;// bunu daha sonra değerlendircez
                 }
 
                 double targetTime = 0;
@@ -111,26 +120,32 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
                 double totalQuantity = 0;
                 double totalScrapQuantity = 0;
                 double stdTime = 0;
+
                 foreach (var shopOrderOperation in frmOperator.shopOrderOperations)
                 {
                     stdTime = shopOrderOperation.machRunFactor * 60;
-                    var shopOrderQuantity = (double)frmOperator.productionDetails.Where(x => x.ShopOrderOperationID == shopOrderOperation.Id && x.Active == true && x.ShopOrderProductionID == frmOperator.shopOrderProduction.Id).Sum(y => y.Quantity);
-                    targetTime += stdTime * shopOrderQuantity; //bu parçayı üretmen gereken gerçek süre dk
+                    var shopOrderQuantity = (double)frmOperator.productionDetails
+                        .Where(x => x.ShopOrderOperationID == shopOrderOperation.Id && x.Active == true && x.ShopOrderProductionID == frmOperator.shopOrderProduction.Id)
+                        .Sum(y => y.Quantity);
+
+                    targetTime += stdTime * shopOrderQuantity;
                     totalQuantity += shopOrderQuantity;
-                    targetQuantity += (netTime / frmOperator.shopOrderOperations.Count) / stdTime; // bu zamanda üretmen gereken gerçek miktar
+                    targetQuantity += (netTime / frmOperator.shopOrderOperations.Count) / stdTime;
                 }
-                totalScrapQuantity = (double)frmOperator.productionDetails.Where(x => x.ShopOrderProductionID == frmOperator.shopOrderProduction.Id && x.Active == true && x.ProductionStateID != StaticValues.specialCodeOk.Id).Sum(y => y.Quantity);
+
+                totalScrapQuantity = (double)frmOperator.productionDetails
+                    .Where(x => x.ShopOrderProductionID == frmOperator.shopOrderProduction.Id && x.Active == true && x.ProductionStateID != StaticValues.specialCodeOk.Id)
+                    .Sum(y => y.Quantity);
 
                 double carpan = 1;
                 double.TryParse(frmOperator.shopOrderOperations[0].alan1, out carpan);
+
                 if (frmOperator.processNewActive)
-                {
-                    plcQuantity = (double)frmOperator.productionDetails.Where(x => x.ShopOrderProductionID == frmOperator.shopOrderProduction.Id && x.Active == true).Sum(y => y.Quantity - y.ManualInput) / carpan;
-                }
+                    plcQuantity = (double)frmOperator.productionDetails.Where(x => x.ShopOrderProductionID == frmOperator.shopOrderProduction.Id && x.Active == true)
+                        .Sum(y => y.Quantity - y.ManualInput) / carpan;
                 else
-                {
-                    plcQuantity = (double)frmOperator.productionDetails.Where(x => x.ShopOrderOperationID == frmOperator.shopOrderOperations[0].Id && x.ShopOrderProductionID == frmOperator.shopOrderProduction.Id && x.Active == true).Sum(y => y.Quantity - y.ManualInput) / carpan;
-                }
+                    plcQuantity = (double)frmOperator.productionDetails.Where(x => x.ShopOrderOperationID == frmOperator.shopOrderOperations[0].Id && x.ShopOrderProductionID == frmOperator.shopOrderProduction.Id && x.Active == true)
+                        .Sum(y => y.Quantity - y.ManualInput) / carpan;
 
                 var performance = netTime == 0 ? 0 : targetTime / netTime * 100;
                 var realPerformance = performance;
@@ -139,8 +154,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
                 ascPerformance.Value = (float)performance;
                 lblPerformance.Text = $"{performance:n0} %";
                 siPerformance.StateIndex = getSi(performance);
-                //ccPerformance.Series[0].Points[0].Values[0] = Math.Round(targetTime, 0);
-                //ccPerformance.Series[0].Points[1].Values[0] = Math.Round(netTime, 0);
+
                 ccPerformance.Series[0].Points[0].Values[0] = Math.Round(targetQuantity, 0);
                 ccPerformance.Series[0].Points[1].Values[0] = Math.Round(totalQuantity, 0);
                 ccPerformance.RefreshData();
@@ -151,6 +165,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
                 ascAvailability.Value = (float)availability;
                 lblAvailability.Text = $"{availability:n0} %";
                 siAvailability.StateIndex = getSi(availability);
+
                 ccAvailability.Series[0].Points[0].Values[0] = Math.Round(sure, 0);
                 ccAvailability.Series[0].Points[1].Values[0] = Math.Round(netTime, 0);
                 ccAvailability.Series[0].Points[2].Values[0] = Math.Round(totalPlannedInterruptions, 0);
@@ -163,14 +178,14 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
                 ascQuality.Value = (float)quality;
                 lblQuality.Text = $"{quality:n0} %";
                 siQuality.StateIndex = getSi(quality);
+
                 ccQuality.Series[0].Points[0].Values[0] = Math.Round(totalQuantity, 0);
                 ccQuality.Series[0].Points[1].Values[0] = Math.Round(totalScrapQuantity, 0);
                 ccQuality.RefreshData();
 
                 float oee = 0;
                 float realOee = (float)(realPerformance * availability * quality / 10000);
-                if (realOee > 100)
-                    oee = 100;
+                if (realOee > 100) oee = 100;
                 else oee = realOee;
                 pOEE.BackColor = getColor(oee);
                 ascOEE.Value = oee;
@@ -195,7 +210,13 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
                     ResourceOEEValuesManager.Current.Insert(resourceOEEValues);
                 }
                 else
-                    frmOperator.resourceStatus = ResourceStatusManager.Current.GetActiveResourceStatusByMachineIdAndShopOrderProductionId(frmOperator.resource.Id, frmOperator.shopOrderProduction.Id, (int)ResourceWorkingStatus.Working);
+                {
+                    frmOperator.resourceStatus = ResourceStatusManager.Current
+                        .GetActiveResourceStatusByMachineIdAndShopOrderProductionId(
+                            frmOperator.resource.Id,
+                            frmOperator.shopOrderProduction.Id,
+                            (int)ResourceWorkingStatus.Working);
+                }
             }
             catch (Exception ex)
             {
@@ -243,19 +264,15 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
 
         private Color getColor(double value)
         {
-            if (value <= 70)
-                return red;
-            else if (value > 70 && value < 85)
-                return yellow;
+            if (value <= 70) return red;
+            else if (value < 85) return yellow;
             return green;
         }
 
         private int getSi(double value)
         {
-            if (value <= 70)
-                return 1;
-            else if (value > 70 && value < 85)
-                return 2;
+            if (value <= 70) return 1;
+            else if (value < 85) return 2;
             return 3;
         }
     }

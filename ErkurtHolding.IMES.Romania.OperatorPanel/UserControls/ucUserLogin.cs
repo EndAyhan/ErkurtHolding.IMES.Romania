@@ -12,22 +12,44 @@ using System.Windows.Forms;
 
 namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
 {
-    public partial class ucUserLogin : DevExpress.XtraEditors.XtraUserControl
+    /// <summary>
+    /// User login control that supports login, logout and supervisor login flows.
+    /// Handles validation, user rights, and localized error messages.
+    /// </summary>
+    public partial class ucUserLogin : XtraUserControl
     {
-        public CompanyPerson companyPerson { get; set; }
-        public UserModel userModel { get; set; }
-        PersonLoginType personLoginType;
+        /// <summary>
+        /// The company person entity of the currently processed user.
+        /// </summary>
+        public CompanyPerson CompanyPerson { get; set; }
 
+        /// <summary>
+        /// The logged-in user model.
+        /// </summary>
+        public UserModel UserModel { get; set; }
 
-        public ucUserLogin(PersonLoginType _personLoginType)
+        private readonly PersonLoginType _personLoginType;
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ucUserLogin"/> class.
+        /// </summary>
+        /// <param name="personLoginType">Defines which login type (login, logout, supervisor login) this control will perform.</param>
+        public ucUserLogin(PersonLoginType personLoginType)
         {
             InitializeComponent();
-
             LanguageHelper.InitializeLanguage(this);
 
-            personLoginType = _personLoginType;
+            _personLoginType = personLoginType;
+            InitializeLoginHeaderText();
+            ApplyButtonStyles();
+        }
 
-            switch (personLoginType)
+        /// <summary>
+        /// Initializes the header text of the login group based on login type.
+        /// </summary>
+        private void InitializeLoginHeaderText()
+        {
+            switch (_personLoginType)
             {
                 case PersonLoginType.ShopOrderPersonelLogin:
                     groupControl1.Text = MessageTextHelper.GetMessageText("000", "872", "Giriş yapmak için personel kodunuzu girin", "Message");
@@ -39,35 +61,39 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
                     groupControl1.Text = MessageTextHelper.GetMessageText("000", "874", "Personel kodunuzu girin", "Message");
                     break;
             }
+        }
 
-
-
+        /// <summary>
+        /// Applies consistent style to all buttons in layout control.
+        /// </summary>
+        private void ApplyButtonStyles()
+        {
             foreach (var ctrl in layoutControl1.Controls)
             {
-                if (ctrl is SimpleButton)
+                var btn = ctrl as SimpleButton;
+                if (btn != null)
                 {
-
-                    (ctrl as SimpleButton).LookAndFeel.SkinName = "The Asphalt World";
-                    (ctrl as SimpleButton).LookAndFeel.UseDefaultLookAndFeel = false;
+                    btn.LookAndFeel.SkinName = "The Asphalt World";
+                    btn.LookAndFeel.UseDefaultLookAndFeel = false;
                 }
             }
-
         }
 
         private void btnNumber_Click(object sender, EventArgs e)
         {
-            txtCode.Text += (sender as SimpleButton).Text;
+            txtCode.Text += (sender as SimpleButton)?.Text;
         }
 
-        private void btnback_Click(object sender, EventArgs e)
+        private void btnBack_Click(object sender, EventArgs e)
         {
-            if (txtCode.Text.Length > 0)
+            if (!string.IsNullOrEmpty(txtCode.Text))
                 txtCode.Text = txtCode.Text.Remove(txtCode.Text.Length - 1, 1);
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            if (ToolsMdiManager.frmOperatorActive.shopOrderProduction != null && ToolsMdiManager.frmOperatorActive.Users.Count > 0)
+            if (ToolsMdiManager.frmOperatorActive.shopOrderProduction != null &&
+                ToolsMdiManager.frmOperatorActive.Users.Count > 0)
             {
                 ToolsMdiManager.frmOperatorActive.container.Visible = false;
             }
@@ -75,140 +101,163 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
             {
                 ToolsMessageBox.Information(this, MessageTextHelper.GetMessageText("000", "996", "Mutlaka bir kullanıcının giriş yapması gerekmektedir", "Message"));
             }
-
         }
 
         private void btnOk_Click(object sender, EventArgs e)
         {
-            if ((ContainerSelectUserControl)ToolsMdiManager.frmOperatorActive.container.Tag == ContainerSelectUserControl.UserLogin || (ContainerSelectUserControl)ToolsMdiManager.frmOperatorActive.container.Tag == ContainerSelectUserControl.UserLogOut)
+            if (!IsUserLoginContainer()) return;
+
+            try
             {
-                try
+                string personId = PreparePersonId(txtCode.Text);
+                var companyPerson = LoadCompanyPerson(personId);
+                if (companyPerson == null)
                 {
-                    var personID = txtCode.Text;
-                    if (StaticValues.branch.ERPConnectionCode.StartsWith("R"))
-                        personID = "R" + personID;
-                    CompanyPerson companyPerson;
-                    UserModel userModel = null;
-                    if (StaticValues.OperatorRfIdLogin == "TRUE")
+                    HandleError(MessageTextHelper.GetMessageText("000", "997", "Kullanıcı Id Hatalı", "Message"));
+                    return;
+                }
+
+                var laborClasses = LaborClassManager.Current.GetLaborClasses(StaticValues.branch.Id, companyPerson.Id);
+                if (laborClasses == null || laborClasses.Count == 0)
+                {
+                    HandleError(MessageTextHelper.GetMessageText("000", "998", "Personele ait herhangi bir yetki bulunamadı.\r\nLütfen sistem yöneticinize başvurun", "Message"));
+                    return;
+                }
+
+                var userModel = CreateUserModel(companyPerson, laborClasses);
+                bool hasPermission = CheckUserPermission(laborClasses);
+
+                if (!hasPermission)
+                {
+                    HandleError(MessageTextHelper.GetMessageText("000", "803", "İş Emri başlatabilmek için gerekli olan yetkiye sahip değilsiniz", "Message"));
+                    return;
+                }
+
+                ProcessLoginFlow(companyPerson, userModel);
+            }
+            catch (Exception ex)
+            {
+                txtCode.Text = string.Empty;
+                ToolsMessageBox.Error(this, ex);
+            }
+        }
+
+        /// <summary>
+        /// Returns true if container is user login/logout type.
+        /// </summary>
+        private bool IsUserLoginContainer()
+        {
+            var tag = ToolsMdiManager.frmOperatorActive.container.Tag;
+            return (ContainerSelectUserControl)tag == ContainerSelectUserControl.UserLogin ||
+                   (ContainerSelectUserControl)tag == ContainerSelectUserControl.UserLogOut;
+        }
+
+        private string PreparePersonId(string rawId)
+        {
+            if (StaticValues.branch.ERPConnectionCode.StartsWith("R"))
+                return "R" + rawId;
+            return rawId;
+        }
+
+        private CompanyPerson LoadCompanyPerson(string personId)
+        {
+            if (StaticValues.OperatorRfIdLogin == "TRUE")
+                return CompanyPersonManager.Current.GetCompanyPersonRfIdNo(StaticValues.company.Id, personId);
+
+            return CompanyPersonManager.Current.GetCompanyPerson(StaticValues.company.Id, personId);
+        }
+
+        private UserModel CreateUserModel(CompanyPerson companyPerson, System.Collections.Generic.List<LaborClass> laborClasses)
+        {
+            return new UserModel
+            {
+                CompanyPersonId = companyPerson.Id,
+                IfsEmplooyeId = companyPerson.employeeId,
+                rfIdNo = companyPerson.rfIdNo,
+                Name = companyPerson.name,
+                TwoFactorActive = companyPerson.TwoFactorActive,
+                Email = companyPerson.Email,
+                LaborClass = laborClasses.Max(x => x.laborClassNo),
+                Role = laborClasses.Max(x => x.laborClassPersonelLevel),
+                StartDate = DateTime.Now,
+                FinishDate = DateTime.MinValue
+            };
+        }
+
+        private bool CheckUserPermission(System.Collections.Generic.List<LaborClass> laborClasses)
+        {
+            if (ToolsMdiManager.frmOperatorActive.Users.Count > 0 &&
+                ToolsMdiManager.frmOperatorActive.Users.Max(u => u.Role) > 2)
+            {
+                return true;
+            }
+
+            foreach (var labor in laborClasses)
+            {
+                if (labor.laborClassPersonelLevel > 2)
+                    return true;
+            }
+            return false;
+        }
+
+        private void ProcessLoginFlow(CompanyPerson companyPerson, UserModel userModel)
+        {
+            bool personAlreadyLogged = ToolsMdiManager.frmOperatorActive.Users
+                .Any(x => x.IfsEmplooyeId == companyPerson.employeeId);
+
+            switch (_personLoginType)
+            {
+                case PersonLoginType.ShopOrderPersonelLogin:
+                    if (personAlreadyLogged)
                     {
-                        companyPerson = CompanyPersonManager.Current.GetCompanyPersonRfIdNo(StaticValues.company.Id, personID);
-                    }
-                    else
-                        companyPerson = CompanyPersonManager.Current.GetCompanyPerson(StaticValues.company.Id, personID);
-                    if (companyPerson == null)
-                    {
-                        HandleError(MessageTextHelper.GetMessageText("000", "997", "Kullanıcı Id Hatalı", "Message"));
+                        HandleError(MessageTextHelper.GetMessageText("000", "999", "Kullanıcı zaten giriş yapmış durumda", "Message"));
                         return;
                     }
-                    else
-                    {
-                        bool personLogin = ToolsMdiManager.frmOperatorActive.Users.Any(x => x.IfsEmplooyeId == companyPerson.employeeId);
-                        bool flag = false;
-                        var laborClases = LaborClassManager.Current.GetLaborClasses(StaticValues.branch.Id, companyPerson.Id);
+                    UserLoginHelper.StartShopOrderOperationUserLogin(ToolsMdiManager.frmOperatorActive.machine, userModel);
+                    ResourceLoginPanelVisibleControl();
+                    break;
 
-                        if (laborClases == null || laborClases.Count == 0)
-                        {
-                            HandleError(MessageTextHelper.GetMessageText("000", "998", "Personele ait herhangi bir yetki bulunamadı.\r\nLütfen sistem yöneticinize başvurun", "Message"));
-                            return;
-                        }
-                        else if (ToolsMdiManager.frmOperatorActive.Users.Count > 0 && ToolsMdiManager.frmOperatorActive.Users.Max(u => u.Role) > 2)
-                        {
-                            flag = true;
-                        }
-                        else
-                        {
-                            foreach (var labor in laborClases)
-                            {
-                                if (labor.laborClassPersonelLevel > 2)
-                                {
-                                    flag = true;
-                                    break;
-                                }
-                            }
-                        }
+                case PersonLoginType.ShopOrderPersonelLogout:
+                    HandleLogout(companyPerson);
+                    break;
 
-                        userModel = new UserModel();
-                        userModel.CompanyPersonId = companyPerson.Id;
-                        userModel.IfsEmplooyeId = companyPerson.employeeId;
-                        userModel.rfIdNo = companyPerson.rfIdNo;
-                        userModel.Name = companyPerson.name;
-                        userModel.TwoFactorActive = companyPerson.TwoFactorActive;
-                        userModel.Email = companyPerson.Email;
-                        userModel.LaborClass = laborClases.Max(x => x.laborClassNo);
-                        userModel.Role = laborClases.Max(x => x.laborClassPersonelLevel);
-                        userModel.StartDate = DateTime.Now;
-                        userModel.FinishDate = DateTime.MinValue;
+                case PersonLoginType.ShopOrderSuperVisorLogin:
+                    UserLoginHelper.StartShopOrderOperationUserLogin(ToolsMdiManager.frmOperatorActive.machine, userModel);
+                    ResourceLoginPanelVisibleControl();
+                    break;
+            }
+        }
 
-                        if (flag)
-                        {
-                            switch (personLoginType)
-                            {
-                                case PersonLoginType.ShopOrderPersonelLogin:
-                                    if (personLogin)
-                                    {
-                                        HandleError(MessageTextHelper.GetMessageText("000", "999", "Kullanıcı zaten giriş yapmış durumda", "Message"));
-                                        return;
-                                    }
+        private void HandleLogout(CompanyPerson companyPerson)
+        {
+            bool personLogged = ToolsMdiManager.frmOperatorActive.Users
+                .Any(x => x.IfsEmplooyeId == companyPerson.employeeId);
 
-                                    UserLoginHelper.StartShopOrderOperationUserLogin(ToolsMdiManager.frmOperatorActive.machine, userModel);
-                                    ResourceLoginPanelVisibleControl();
+            if (!personLogged)
+            {
+                HandleError(MessageTextHelper.GetMessageText("000", "800", "Personel giriş yapmadığı için çıkartılamaz", "Message"));
+                return;
+            }
+            if (ToolsMdiManager.frmOperatorActive.Users.Count == 0)
+            {
+                HandleError(MessageTextHelper.GetMessageText("000", "801", "Personel listesi boş", "Message"));
+                return;
+            }
+            if (ToolsMdiManager.frmOperatorActive.Users.Count == 1)
+            {
+                HandleError(MessageTextHelper.GetMessageText("000", "802", "Son Personelin çıkışı yapılamaz", "Message"));
+                return;
+            }
 
-                                    break;
-                                case PersonLoginType.ShopOrderPersonelLogout:
-
-                                    if (!personLogin)
-                                    {
-                                        HandleError(MessageTextHelper.GetMessageText("000", "800", "Personel giriş yapmadığı için çıkartılamaz", "Message"));
-                                        return;
-                                    }
-                                    if (ToolsMdiManager.frmOperatorActive.shopOrderProduction != null && ToolsMdiManager.frmOperatorActive.Users.Count == 0)
-                                    {
-                                        HandleError(MessageTextHelper.GetMessageText("000", "801", "Personel listesi boş", "Message"));
-                                        return;
-                                    }
-                                    if (ToolsMdiManager.frmOperatorActive.shopOrderProduction != null && ToolsMdiManager.frmOperatorActive.Users.Count == 1)
-                                    {
-                                        HandleError(MessageTextHelper.GetMessageText("000", "802", "Son Personelin cıkışı yapılamaz", "Message"));
-                                        return;
-                                    }
-
-                                    foreach (var item in ToolsMdiManager.frmOperatorActive.Users)
-                                    {
-                                        if (item.IfsEmplooyeId == companyPerson.employeeId)
-                                        {
-                                            UserLoginHelper.StartShopOrderOperationFinishLogin(ToolsMdiManager.frmOperatorActive.machine, item);
-                                            break;
-                                        }
-                                    }
-                                    if (ToolsMdiManager.frmOperatorActive.shopOrderProduction != null && ToolsMdiManager.frmOperatorActive.Users.Count > 0)
-                                    {
-                                        ToolsMdiManager.frmOperatorActive.container.Visible = false;
-                                    }
-                                    break;
-                                case PersonLoginType.ShopOrderSuperVisorLogin:
-
-                                    UserLoginHelper.StartShopOrderOperationUserLogin(ToolsMdiManager.frmOperatorActive.machine, userModel);
-                                    ResourceLoginPanelVisibleControl();
-
-                                    break;
-                            }
-
-
-
-                        }
-                        else
-                        {
-                            HandleError(MessageTextHelper.GetMessageText("000", "803", "İş Emri başlatabilmek için gerekli olan yetkiye sahip değilsiniz", "Message"));
-                            return;
-                        }
-                    }
-                }
-                catch (Exception ex)
+            foreach (var item in ToolsMdiManager.frmOperatorActive.Users)
+            {
+                if (item.IfsEmplooyeId == companyPerson.employeeId)
                 {
-                    txtCode.Text = string.Empty;
-                    ToolsMessageBox.Error(this, ex);
+                    UserLoginHelper.StartShopOrderOperationFinishLogin(ToolsMdiManager.frmOperatorActive.machine, item);
+                    break;
                 }
             }
+            ToolsMdiManager.frmOperatorActive.container.Visible = false;
         }
 
         private void ResourceLoginPanelVisibleControl()
@@ -216,10 +265,11 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
             var machine = ToolsMdiManager.frmOperatorActive.machine;
             foreach (var item in ToolsMdiManager.frmOperators)
             {
-                if (machine.Id == item.machine.Id)
+                if (machine.Id == item.machine.Id &&
+                    (item.container.Tag == null ||
+                     (ContainerSelectUserControl)item.container.Tag == (ContainerSelectUserControl)ToolsMdiManager.frmOperatorActive.container.Tag))
                 {
-                    if (item.container.Tag == null || (ContainerSelectUserControl)item.container.Tag == (ContainerSelectUserControl)ToolsMdiManager.frmOperatorActive.container.Tag)
-                        item.container.Visible = false;
+                    item.container.Visible = false;
                 }
             }
         }
@@ -229,13 +279,15 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
             txtCode.Focus();
         }
 
-        private void txtCode_KeyDown(object sender, System.Windows.Forms.KeyEventArgs e)
+        private void txtCode_KeyDown(object sender, KeyEventArgs e)
         {
-            if (e.KeyCode == Keys.Enter)  // Eğer Enter tuşuna basıldıysa
-            {
-                btnOk_Click(sender, e);  // Butonun tıklanma metodunu çağır
-            }
+            if (e.KeyCode == Keys.Enter)
+                btnOk_Click(sender, e);
         }
+
+        /// <summary>
+        /// Clears input and shows a localized error message.
+        /// </summary>
         private void HandleError(string message)
         {
             txtCode.Text = string.Empty;
@@ -243,5 +295,4 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
             txtCode.Focus();
         }
     }
-
 }

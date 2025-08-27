@@ -24,15 +24,16 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
         {
             InitializeComponent();
 
+            // Designer/localization for static labels & captions
             LanguageHelper.InitializeLanguage(this);
 
+            // Data-prep
             var matchingItems = maintenanceMains.Where(m => m.alan3 == maintenanceDetail.alan3).ToList();
             var startMaintanance = maintenanceMains.FirstOrDefault(m => m.alan3 == maintenanceDetail.alan3)?.StartMaintanance;
             grpMain.Text = $"{maintenanceDetail.alan4} : {startMaintanance}";
             userModelList.Add(userModels);
             gridControl1.DataSource = userModelList;
             timer1.Start();
-
         }
 
         private void btnLogin_Click(object sender, EventArgs e)
@@ -129,13 +130,11 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
             {
                 if (e.Column.FieldName == "gcUnboundColumn" && e.IsGetData)
                 {
-
-                    Object date = gridView1.GetListSourceRowCellValue(e.ListSourceRowIndex, "StartDate");
+                    object date = gridView1.GetListSourceRowCellValue(e.ListSourceRowIndex, "StartDate");
                     if (date != null)
                     {
                         e.Value = Convert.ToDouble(Math.Round((DateTime.Now - Convert.ToDateTime(date)).TotalMinutes, 0));
                     }
-
                 }
             }
             catch { }
@@ -147,8 +146,5 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
             lblDuration.Text = (startMaintanance - DateTime.Now)?.ToString(@"dd\.hh\:mm\:ss");
             gridView1.RefreshData();
         }
-
-
     }
-
 }
