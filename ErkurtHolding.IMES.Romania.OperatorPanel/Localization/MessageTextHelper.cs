@@ -126,7 +126,7 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.Localization
             if (string.IsNullOrWhiteSpace(textId))
                 return ReplaceParameters(defaultValue, prm);
 
-            var langId = StaticValues.LanguageCode.Id;
+            var langId = StaticValues.languageCode.Id;
             var key = new CacheKey(langId, formId, textId);
 
             // Fast path: lock-free dictionary read

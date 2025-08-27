@@ -34,9 +34,6 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
         /// </summary>
         public static string autoMaintenanceInterruptionCauseId { get => !(string.IsNullOrEmpty(ConfigurationManager.AppSettings["AutoMaintenanceInterruptionCauseId"])) ? (ConfigurationManager.AppSettings["AutoMaintenanceInterruptionCauseId"]) : "DGNL022"; }
 
-
-        public static SpecialCode LanguageCode { get; } = SpecialCodeManager.Current.GetSpecialCodeByCode(Language, (int)SpecialCodeType.Language);
-
         public static bool Restart { get; set; } = true;
 
         private static List<PrinterMachine> _printerMachines;
@@ -83,6 +80,19 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel
 
 
         #region SpecialCodes
+        private static SpecialCode _languageCode;
+        public static SpecialCode languageCode
+        {
+            get
+            {
+                if (_languageCode == null)
+                {
+                    _languageCode = SpecialCodeManager.Current.GetSpecialCodeByCode(Language, (int)SpecialCodeType.Language);
+                }
+                return _languageCode;
+            }
+        }
+
         private static SpecialCode _specialCodePrintLogTypeScrap;
         public static SpecialCode specialCodePrintLogTypeScrap
         {

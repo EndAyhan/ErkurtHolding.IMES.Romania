@@ -38,7 +38,11 @@ namespace ErkurtHolding.IMES.Romania.OperatorPanel.UserControls
             ccAvailability.Series[0].Points[2].Tag = "106";
 
             // existing static localization
-            LanguageHelper.InitializeLanguage(this);
+            try
+            {
+                LanguageHelper.InitializeLanguage(this);
+            }
+            catch { }
 
             if (StaticValues.HideOEEPanel == "TRUE")
             {
